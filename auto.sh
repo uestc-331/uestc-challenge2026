@@ -15,8 +15,10 @@ GUI="${GUI:-true}"
 PAUSED="${PAUSED:-true}"
 START_CONTROLLER="${START_CONTROLLER:-1}"
 START_VIRTUAL_JOY="${START_VIRTUAL_JOY:-0}"
+START_JOY_NODE="${START_JOY_NODE:-0}"
 CONTROLLER_FOREGROUND="${CONTROLLER_FOREGROUND:-1}"
 START_BUILDING_CONTROL="${START_BUILDING_CONTROL:-1}"
+RESET_ROS_MASTER="${RESET_ROS_MASTER:-1}"
 UNITREE_CTRL_DT="${UNITREE_CTRL_DT:-0.004}"
 ROBOT_X="${ROBOT_X:-0.0}"
 ROBOT_Y="${ROBOT_Y:--2.2}"
@@ -24,11 +26,21 @@ ROBOT_Z="${ROBOT_Z:-0.6}"
 ROBOT_YAW="${ROBOT_YAW:-1.5708}"
 
 echo "Terminating previous Gazebo, launch, controller, and optional joystick processes..."
-pkill -f "roslaunch unitree_guide multi_floor_gazeboSim.launch" 2>/dev/null || true
+pkill -f "[r]oslaunch unitree_guide multi_floor_gazeboSim.launch" 2>/dev/null || true
 pkill -f "building_generator_classic_control" 2>/dev/null || true
-pkill -f "gzserver|gzclient|gazebo" 2>/dev/null || true
-pkill -f "junior_ctrl" 2>/dev/null || true
-pkill -f "virtual_joy.py" 2>/dev/null || true
+pkill -x "gzserver" 2>/dev/null || true
+pkill -x "gzclient" 2>/dev/null || true
+pkill -x "gazebo" 2>/dev/null || true
+pkill -f "[j]unior_ctrl" 2>/dev/null || true
+pkill -f "[v]irtual_joy.py" 2>/dev/null || true
+pkill -f "[s]tate_from_gazebo" 2>/dev/null || true
+pkill -f "[p]ointcloud2livox.py" 2>/dev/null || true
+pkill -f "[r]obot_state_publisher" 2>/dev/null || true
+pkill -f "[s]pawner joint_state_controller" 2>/dev/null || true
+if [ "$RESET_ROS_MASTER" = "1" ]; then
+  pkill -f "[r]osmaster --core -p 11311" 2>/dev/null || true
+fi
+sleep 1
 
 echo "Sourcing ROS environment..."
 source /opt/ros/noetic/setup.bash
@@ -67,6 +79,7 @@ export COMPETITION_ROBOT_Y="$ROBOT_Y"
 export COMPETITION_ROBOT_Z="$ROBOT_Z"
 export COMPETITION_ROBOT_YAW="$ROBOT_YAW"
 export UNITREE_CTRL_DT
+export GAZEBO_PLUGIN_PATH="$WORKSPACE_DIR/devel/lib:${GAZEBO_PLUGIN_PATH:-}"
 export GAZEBO_MODEL_PATH="${GAZEBO_MODEL_PATH:-}:$SCENE_OUTPUT_DIR:$UNITREE_GAZEBO_MODELS"
 
 echo "=========================================="
@@ -84,15 +97,17 @@ if [ "$START_VIRTUAL_JOY" = "1" ]; then
 fi
 
 echo "Launching Gazebo, Unitree A1 model, sensors, and ROS interfaces..."
-roslaunch unitree_guide multi_floor_gazeboSim.launch \
+setsid nohup roslaunch unitree_guide multi_floor_gazeboSim.launch \
   gui:="$GUI" \
   paused:="$PAUSED" \
+  start_joy:="$START_JOY_NODE" \
   user_debug:=False \
   rname:=a1 \
   robot_x:="$ROBOT_X" \
   robot_y:="$ROBOT_Y" \
   robot_z:="$ROBOT_Z" \
   robot_yaw:="$ROBOT_YAW" \
+  </dev/null \
   > "$WORKSPACE_DIR/logs/competition_gazebo.log" 2>&1 &
 LAUNCH_PID=$!
 echo "$LAUNCH_PID" > "$WORKSPACE_DIR/logs/competition_gazebo.pid"

@@ -1,10 +1,29 @@
 cmake_minimum_required(VERSION 3.14)
 project(unitree_guide)
-# 添加 torch 依赖，默认使用 /home/ros/Guoyulun/Download/libtorch（如不同，请提供正确路径）
-# 确保 CMake 可以加载 libtorch 附带的 cmake 模块（例如 CheckLinkerFlag）
-list(APPEND CMAKE_MODULE_PATH "/home/ros/Guoyulun/Download/libtorch/share/cmake/Caffe2/public")
-list(APPEND CMAKE_MODULE_PATH "/home/ros/Guoyulun/Download/libtorch/share/cmake")
-find_package(Torch REQUIRED PATHS "/home/ros/Guoyulun/Download/libtorch")
+
+set(SIMENV_THIRD_PARTY_DIR "${CMAKE_SOURCE_DIR}/third_party")
+set(LIBTORCH_ROOT "${SIMENV_THIRD_PARTY_DIR}/libtorch-cu128-sm120/libtorch" CACHE PATH "Local libtorch root" FORCE)
+set(LCM_ROOT "${SIMENV_THIRD_PARTY_DIR}/lcm/install" CACHE PATH "Local LCM install root")
+set(CUDA_COMPAT_ROOT "${SIMENV_THIRD_PARTY_DIR}/cuda_compat" CACHE PATH "Local CUDA compatibility libraries")
+
+list(APPEND CMAKE_PREFIX_PATH "${LIBTORCH_ROOT}" "${LCM_ROOT}")
+list(APPEND CMAKE_MODULE_PATH
+    "${LIBTORCH_ROOT}/share/cmake/Caffe2/public"
+    "${LIBTORCH_ROOT}/share/cmake"
+)
+list(APPEND CMAKE_LIBRARY_PATH "${CUDA_COMPAT_ROOT}/lib")
+set(TORCH_CUDA_ARCH_LIST "12.0" CACHE STRING "CUDA arch list used while configuring libtorch" FORCE)
+
+find_library(SIMENV_NVTOOLSEXT_LIBRARY nvToolsExt PATHS "${CUDA_COMPAT_ROOT}/lib" NO_DEFAULT_PATH)
+if(SIMENV_NVTOOLSEXT_LIBRARY AND NOT TARGET CUDA::nvToolsExt)
+    add_library(CUDA::nvToolsExt UNKNOWN IMPORTED)
+    set_target_properties(CUDA::nvToolsExt PROPERTIES
+        IMPORTED_LOCATION "${SIMENV_NVTOOLSEXT_LIBRARY}"
+    )
+endif()
+
+find_package(Torch REQUIRED PATHS "${LIBTORCH_ROOT}" NO_DEFAULT_PATH)
+find_package(lcm REQUIRED PATHS "${LCM_ROOT}" NO_DEFAULT_PATH)
 
 set(ROBOT_TYPE A1)         # The type of robot, support Go1 and A1 currently
 set(PLATFORM amd64)         # The platform to compile, support amd64 and arm64
@@ -103,11 +122,13 @@ include_directories(
     ${Boost_INCLUDE_DIRS}
     ${catkin_INCLUDE_DIRS}
     ${GAZEBO_INCLUDE_DIRS}
+    ${LCM_ROOT}/include
 )
 
 
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS} -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
 if(REAL_ROBOT)
     add_definitions(-DCOMPILE_WITH_REAL_ROBOT)
@@ -136,6 +157,7 @@ endif()
 
 link_directories(
     ${GAZEBO_LIBRARY_DIRS}
+    ${LCM_ROOT}/lib
 )
 
 # aux_source_directory(src SRC_LIST)
@@ -144,7 +166,9 @@ file(GLOB_RECURSE SRC_LIST
     "src/*/*.cc"
 )
 
-set(CMAKE_CUDA_COMPILER /usr/local/cuda/bin/nvcc)  # torch 编译加速
+if(EXISTS "/usr/local/cuda/bin/nvcc")
+    set(CMAKE_CUDA_COMPILER /usr/local/cuda/bin/nvcc)  # torch 编译加速
+endif()
 set(CMAKE_CXX_STANDARD 17) #torch编译加速
 
 
@@ -153,7 +177,7 @@ target_link_libraries(state_from_gazebo ${catkin_LIBRARIES})
 
 
 add_executable(junior_ctrl src/main.cpp ${SRC_LIST})
-target_link_libraries(junior_ctrl ${TORCH_LIBRARIES})
+target_link_libraries(junior_ctrl ${TORCH_LIBRARIES} lcm)
 if(CATKIN_MAKE)
     target_link_libraries(junior_ctrl ${catkin_LIBRARIES})
     add_dependencies(junior_ctrl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -173,7 +197,15 @@ if(REAL_ROBOT)
             target_link_libraries(junior_ctrl libunitree_legged_sdk.a)
     endif()
 endif()
-target_link_libraries(junior_ctrl -pthread lcm)
+target_link_libraries(junior_ctrl -pthread)
+set_target_properties(junior_ctrl PROPERTIES
+    BUILD_RPATH "${LIBTORCH_ROOT}/lib;${LCM_ROOT}/lib;${CUDA_COMPAT_ROOT}/lib"
+    INSTALL_RPATH "${LIBTORCH_ROOT}/lib;${LCM_ROOT}/lib;${CUDA_COMPAT_ROOT}/lib"
+)
+set_target_properties(state_from_gazebo PROPERTIES
+    BUILD_RPATH "${LIBTORCH_ROOT}/lib;${LCM_ROOT}/lib;${CUDA_COMPAT_ROOT}/lib"
+    INSTALL_RPATH "${LIBTORCH_ROOT}/lib;${LCM_ROOT}/lib;${CUDA_COMPAT_ROOT}/lib"
+)
 if(NOT CATKIN_MAKE)
     set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 endif()

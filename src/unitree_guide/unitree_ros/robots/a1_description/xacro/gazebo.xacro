@@ -377,7 +377,7 @@
             <visualize>true</visualize>
                     <samples>24000</samples>
                     <downsample>1</downsample>
-                    <csv_file_name>package://a1_description/scan_mode/mid360.csv</csv_file_name>
+                    <csv_file_name>$(find a1_description)/scan_mode/mid360.csv</csv_file_name>
                     <ros_topic>/scan</ros_topic>
                     <frameName>laser_livox</frameName>
             </plugin>

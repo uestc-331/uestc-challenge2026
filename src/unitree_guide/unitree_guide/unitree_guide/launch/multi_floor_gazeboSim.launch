@@ -10,6 +10,7 @@
     <arg name="headless" default="false"/>
     <arg name="debug" default="false"/>
     <arg name="user_debug" default="false"/>
+    <arg name="start_joy" default="false"/>
 
     <arg name="world_file" default="$(optenv BUILDING_WORLD_FILE)"/>
     <arg name="robot_x" default="$(optenv COMPETITION_ROBOT_X 0.0)"/>
@@ -52,7 +53,7 @@
         <remap from="/joint_states" to="/$(arg rname)_gazebo/joint_states"/>
     </node>
 
-    <node name="joy_node" pkg="joy" type="joy_node" output="screen">
+    <node if="$(arg start_joy)" name="joy_node" pkg="joy" type="joy_node" output="screen">
         <param name="dev" value="/dev/input/js0" />
         <param name="deadzone" value="0.05" />
         <param name="autorepeat_rate" value="20" />

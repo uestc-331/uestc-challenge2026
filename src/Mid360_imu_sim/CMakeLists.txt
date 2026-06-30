@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(gazebo REQUIRED)
+find_package(Protobuf REQUIRED)
 include_directories(${GAZEBO_INCLUDE_DIRS})
 
 #To solve the error which gazebo does not handle the include file well, we must add this line.
@@ -24,6 +25,7 @@ link_directories(${GAZEBO_LIBRARY_DIRS})
 include_directories(
          include
         ${catkin_INCLUDE_DIRS}
+        ${Protobuf_INCLUDE_DIRS}
 )
 
 catkin_package(
@@ -34,5 +36,4 @@ catkin_package(
 
 add_library(livox_laser_simulation SHARED src/livox_points_plugin.cpp src/livox_ode_multiray_shape.cpp)
 target_link_libraries(livox_laser_simulation ${catkin_LIBRARIES} RayPlugin)
-
-target_link_libraries(livox_laser_simulation libprotobuf.so.9)
+target_link_libraries(livox_laser_simulation ${Protobuf_LIBRARIES})
