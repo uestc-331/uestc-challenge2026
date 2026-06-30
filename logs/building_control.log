@@ -1,1 +1,7 @@
-[INFO] [1782792458.112092, 0.000000]: building_generator_classic_control ready
+[ERROR] [1782810470.237831, 73.960000]: Error processing request: ROS shutdown request
+['Traceback (most recent call last):\n', '  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/impl/tcpros_service.py", line 633, in _handle_request\n    response = convert_return_to_response(self.handler(request), self.response_class)\n', '  File "/home/uestc/SimEnv/src/building_generator_classic/./building_generator_classic/control_server.py", line 40, in <lambda>\n    lambda request: _handle_set_door_state(runtime, request, SetDoorStateResponse, set_model_state, set_link_state),\n', '  File "/home/uestc/SimEnv/src/building_generator_classic/./building_generator_classic/control_server.py", line 85, in _handle_set_door_state\n    _animate_panel_poses(\n', '  File "/home/uestc/SimEnv/src/building_generator_classic/./building_generator_classic/control_server.py", line 162, in _animate_panel_poses\n    rospy.sleep(sleep_time)\n', '  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 165, in sleep\n    raise rospy.exceptions.ROSInterruptException("ROS shutdown request")\n', 'rospy.exceptions.ROSInterruptException: ROS shutdown request\n']
+[INFO] [1782809965.628329, 0.000000]: building_generator_classic_control ready
+[INFO] [1782810159.769721, 31.490000]: Animating dynamic_elevator_floor_0 door panels over 60.0 seconds
+[INFO] [1782810264.926004, 45.111000]: Animating dynamic_elevator_floor_0 door panels over 60.0 seconds
+[INFO] [1782810341.347882, 54.609000]: Animating dynamic_elevator_floor_1 door panels over 60.0 seconds
+[INFO] [1782810419.250325, 66.602000]: Animating dynamic_elevator_floor_1 door panels over 60.0 seconds
