@@ -1,3 +1,5 @@
+# uestc-challenge2026
+
 # 比赛仿真环境
 
 本目录为比赛仿真环境，面向 `ROS1 Noetic + Gazebo Classic + Unitree A1`。环境启动时会随机生成多楼层室内楼栋，并同步生成危险源、干扰源、门、电梯、传感器链路和机器人控制接口。
