@@ -114,6 +114,12 @@ def export_sdf(layout: BuildingLayout, target: str, output_dir: str | Path) -> A
 def _render_world_sdf(layout: BuildingLayout) -> str:
     sdf = ET.Element("sdf", {"version": SDF_VERSION})
     world = ET.SubElement(sdf, "world", {"name": "generated_world"})
+    ###自己添加的，改real_time_update_rate  1000->500
+    physics = ET.SubElement(world, "physics", {"type": "ode"})
+    ET.SubElement(physics, "max_step_size").text = "0.002"
+    ET.SubElement(physics, "real_time_factor").text = "1"
+    ET.SubElement(physics, "real_time_update_rate").text = "500"
+    ###
     include_sun = ET.SubElement(world, "include")
     ET.SubElement(include_sun, "uri").text = "model://sun"
     include_ground = ET.SubElement(world, "include")
@@ -164,7 +170,8 @@ def _build_static_shell_model(layout: BuildingLayout) -> ET.Element:
         name="roof",
         size=(layout.footprint["width"], layout.footprint["length"], SLAB_THICKNESS),
         pose=(0.0, layout.footprint["length"] / 2.0, roof_z, 0.0, 0.0, 0.0),
-        color="0.72 0.74 0.76 1",
+        ## 改了透明度
+        color="0.72 0.74 0.76 0.35",
     )
     return model
 
@@ -245,7 +252,7 @@ def _append_floor_plate(model: ET.Element, *, layout: BuildingLayout, floor: Flo
             name=f"slab_floor_{floor.floor_index}_{section_index}",
             size=(rect.width, rect.length, SLAB_THICKNESS),
             pose=(rect.center[0], rect.center[1], z_floor, 0.0, 0.0, 0.0),
-            color="0.76 0.76 0.77 1",
+            color="0.76 0.76 0.77 0.35",
         )
 
     _append_box(
@@ -253,7 +260,8 @@ def _append_floor_plate(model: ET.Element, *, layout: BuildingLayout, floor: Flo
         name=f"stair_edge_infill_floor_{floor.floor_index}",
         size=(WALL_THICKNESS, floor.stair_bounds.length, SLAB_THICKNESS),
         pose=(floor.stair_bounds.x_max, floor.stair_bounds.center[1], z_floor, 0.0, 0.0, 0.0),
-        color="0.76 0.76 0.77 1",
+        ## 改了透明度
+        color="0.76 0.76 0.77 0.35",
     )
 
 
@@ -1580,7 +1588,8 @@ def _append_wall(
         name=name,
         size=size,
         pose=(center[0], center[1], center[2], 0.0, 0.0, 0.0),
-        color="0.86 0.86 0.88 1",
+        ## color="0.86 0.86 0.88 1"（RGBA）最后一个参数是透明度，取值范围0-1，1表示不透明
+        color="0.86 0.86 0.88 0.35",
     )
 
 

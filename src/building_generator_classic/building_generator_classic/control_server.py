@@ -13,7 +13,7 @@ DEFAULT_DOOR_ANIMATION_RATE_HZ = 10.0
 
 def main(argv: list[str] | None = None) -> int:
     import rospy
-    from gazebo_msgs.srv import SetLinkState, SetModelState
+    from gazebo_msgs.srv import GetModelState, SetLinkState, SetModelState
     from building_generator_interfaces.srv import (
         CallElevator,
         CallElevatorResponse,
@@ -25,14 +25,24 @@ def main(argv: list[str] | None = None) -> int:
     runtime = _load_runtime(args.door_config, args.elevator_config)
 
     rospy.init_node("building_generator_classic_control")
+    robot_model_name = rospy.get_param("~robot_model_name", args.robot_model_name)
     rospy.wait_for_service("/gazebo/set_model_state")
     rospy.wait_for_service("/gazebo/set_link_state")
+    rospy.wait_for_service("/gazebo/get_model_state")
     set_model_state = rospy.ServiceProxy("/gazebo/set_model_state", SetModelState)
     set_link_state = rospy.ServiceProxy("/gazebo/set_link_state", SetLinkState)
+    get_model_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
     rospy.Service(
         "call_elevator",
         CallElevator,
-        lambda request: _handle_call_elevator(runtime, request, CallElevatorResponse, set_model_state),
+        lambda request: _handle_call_elevator(
+            runtime,
+            request,
+            CallElevatorResponse,
+            set_model_state,
+            get_model_state,
+            robot_model_name,
+        ),
     )
     rospy.Service(
         "set_door_state",
@@ -48,6 +58,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Building generator Gazebo Classic control server")
     parser.add_argument("--door-config", required=True)
     parser.add_argument("--elevator-config", required=True)
+    parser.add_argument("--robot-model-name", default="a1_gazebo")
     return parser
 
 
@@ -60,7 +71,14 @@ def _load_runtime(door_config_path: str, elevator_config_path: str) -> BuildingC
     )
 
 
-def _handle_call_elevator(runtime: BuildingControlRuntime, request, response_type, set_model_state):
+def _handle_call_elevator(
+    runtime: BuildingControlRuntime,
+    request,
+    response_type,
+    set_model_state,
+    get_model_state,
+    robot_model_name: str,
+):
     result = runtime.call_elevator(
         request.elevator_id,
         request.target_floor,
@@ -68,6 +86,14 @@ def _handle_call_elevator(runtime: BuildingControlRuntime, request, response_typ
     )
     if result.get("accepted") and result.get("target_pose"):
         _apply_model_pose(set_model_state, result["model_name"], result["target_pose"])
+        _carry_robot_with_elevator(
+            get_model_state,
+            set_model_state,
+            robot_model_name,
+            result.get("previous_pose"),
+            result["target_pose"],
+            result.get("car_size"),
+        )
     return response_type(
         accepted=bool(result["accepted"]),
         current_floor=int(result["current_floor"]),
@@ -192,6 +218,80 @@ def _apply_model_pose(set_model_state, model_name: str, pose_values: list[float]
     model_state.pose.orientation.z = qz
     model_state.pose.orientation.w = qw
     set_model_state(model_state)
+
+
+def _carry_robot_with_elevator(
+    get_model_state,
+    set_model_state,
+    robot_model_name: str,
+    previous_elevator_pose: list[float] | None,
+    target_elevator_pose: list[float] | None,
+    car_size: list[float] | None,
+) -> None:
+    if not previous_elevator_pose or not target_elevator_pose or not car_size:
+        return
+
+    robot_pose = _get_model_pose(get_model_state, robot_model_name)
+    if robot_pose is None:
+        return
+    if not _pose_is_inside_elevator(robot_pose, previous_elevator_pose, car_size):
+        return
+
+    carried_pose = list(robot_pose)
+    carried_pose[0] += float(target_elevator_pose[0]) - float(previous_elevator_pose[0])
+    carried_pose[1] += float(target_elevator_pose[1]) - float(previous_elevator_pose[1])
+    carried_pose[2] += float(target_elevator_pose[2]) - float(previous_elevator_pose[2])
+    _apply_model_pose(set_model_state, robot_model_name, carried_pose)
+
+
+def _get_model_pose(get_model_state, model_name: str) -> list[float] | None:
+    from tf.transformations import euler_from_quaternion
+
+    response = get_model_state(model_name, "world")
+    if not getattr(response, "success", False):
+        return None
+
+    pose = response.pose
+    roll, pitch, yaw = euler_from_quaternion(
+        [
+            pose.orientation.x,
+            pose.orientation.y,
+            pose.orientation.z,
+            pose.orientation.w,
+        ]
+    )
+    return [
+        pose.position.x,
+        pose.position.y,
+        pose.position.z,
+        roll,
+        pitch,
+        yaw,
+    ]
+
+
+def _pose_is_inside_elevator(
+    robot_pose: list[float],
+    elevator_pose: list[float],
+    car_size: list[float],
+) -> bool:
+    margin_xy = 0.25
+    margin_z = 1.3
+    dx = float(robot_pose[0]) - float(elevator_pose[0])
+    dy = float(robot_pose[1]) - float(elevator_pose[1])
+    yaw = float(elevator_pose[5])
+    cos_yaw = math.cos(-yaw)
+    sin_yaw = math.sin(-yaw)
+    local_x = dx * cos_yaw - dy * sin_yaw
+    local_y = dx * sin_yaw + dy * cos_yaw
+
+    half_x = float(car_size[0]) / 2.0 + margin_xy
+    half_y = float(car_size[1]) / 2.0 + margin_xy
+    if abs(local_x) > half_x or abs(local_y) > half_y:
+        return False
+
+    floor_z = float(elevator_pose[2]) - float(car_size[2]) / 2.0
+    return floor_z - 0.2 <= float(robot_pose[2]) <= floor_z + margin_z
 
 
 def _apply_link_pose(set_link_state, model_name: str, link_name: str, pose_values: list[float]) -> None:

@@ -23,6 +23,7 @@ class ElevatorState:
     current_floor: int
     served_floors: list[int]
     floor_poses: dict[int, list[float]]
+    car_size: list[float]
     state: str = "idle"
     doors_open: bool = False
 
@@ -57,6 +58,7 @@ class BuildingControlRuntime:
                     int(key): [float(value) for value in pose]
                     for key, pose in (spec.get("floor_poses", {}) or {}).items()
                 },
+                car_size=[float(value) for value in spec.get("car_size", [1.9, 2.1, 2.3])],
             )
             for spec in elevator_specs
         }
@@ -110,6 +112,7 @@ class BuildingControlRuntime:
                 "message": f"floor {target_floor} is not served by '{elevator_id}'",
             }
 
+        previous_pose = state.floor_poses.get(state.current_floor)
         state.state = "moving" if target_floor != state.current_floor else "idle"
         state.current_floor = target_floor
         state.doors_open = bool(open_doors)
@@ -120,5 +123,7 @@ class BuildingControlRuntime:
             "state": state.state,
             "message": f"elevator '{elevator_id}' moved to floor {target_floor}",
             "model_name": state.model_name,
+            "previous_pose": previous_pose,
             "target_pose": state.floor_poses.get(state.current_floor),
+            "car_size": state.car_size,
         }
