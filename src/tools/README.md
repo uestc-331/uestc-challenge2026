@@ -29,15 +29,40 @@
 
 ## 快捷键
 
-- `W/S`：前进 / 后退
-- `A/D`：左移 / 右移
-- `Q/E`：左转 / 右转
+- `W/S`：前进速度增大 / 减小
+- `A/D`：左移速度增大 / 减小
+- `Q/E`：左转角速度增大 / 减小
 - `Space` 或 `X`：停止
 - `+/-`：增减线速度
 - `[` / `]`：增减角速度
-- `1` 到 `9`：按 `generated_building/door_config.yaml` 中的动态门顺序切换开关
+- `1` 到 `9`：切换动态门开关，默认按下面规则绑定
 - `F1/F2/F3...`：呼叫电梯到楼层索引 `0/1/2...`
 - `Esc` 或 `Ctrl-C`：退出，并发送零速度
+
+## 门按键
+
+脚本会读取 `/home/uestc/SimEnv/generated_building/door_config.yaml`，然后按固定规则排序：
+
+| 按键 | 门 ID | 作用 |
+| --- | --- | --- |
+| `1` | `main_entrance` | 主入口门开/关 |
+| `2` | `elevator_floor_0` | 1 楼电梯厅门开/关 |
+| `3` | `elevator_floor_1` | 2 楼电梯厅门开/关 |
+| `4` | `elevator_floor_2` | 3 楼电梯厅门开/关 |
+| `5` | `elevator_floor_3` | 4 楼电梯厅门开/关，本次场景存在该楼层时有效 |
+| `6` | `elevator_floor_4` | 5 楼电梯厅门开/关，本次场景存在该楼层时有效 |
+
+如果本次场景没有对应楼层，按下该数字会提示没有绑定的门。工具界面里也会实时显示每个数字当前绑定的门和状态。
+
+电梯轿厢不是数字键控制：
+
+| 按键 | 作用 |
+| --- | --- |
+| `F1` | 呼叫电梯到楼层索引 `0`，也就是 1 楼 |
+| `F2` | 呼叫电梯到楼层索引 `1`，也就是 2 楼 |
+| `F3` | 呼叫电梯到楼层索引 `2`，也就是 3 楼 |
+| `F4` | 呼叫电梯到楼层索引 `3`，也就是 4 楼，本次场景存在该楼层时有效 |
+| `F5` | 呼叫电梯到楼层索引 `4`，也就是 5 楼，本次场景存在该楼层时有效 |
 
 ## 相机
 
@@ -54,8 +79,18 @@
 rosrun competition_tools keyboard_competition_control.py --show-camera --image-topic /camera/image_raw
 ```
 
-默认速度为 `0.45 m/s` 和 `0.9 rad/s`。也可以启动时指定：
+运动按键是增量控制：例如按一次 `Q` 会让 `angular.z` 增加一个步长，再按一次 `E` 会减回去，而不是直接跳到反方向。`Space` 或 `X` 会把 `/cmd_vel` 全部清零。
+
+默认每次按键步长为 `0.2 m/s` 和 `0.3 rad/s`，速度上限为 `2.5 m/s` 和 `3.0 rad/s`。
+
+也可以启动时指定：
 
 ```bash
-rosrun competition_tools keyboard_competition_control.py --linear-speed 0.7 --angular-speed 1.2
+rosrun competition_tools keyboard_competition_control.py --linear-step 0.3 --angular-step 0.5
+```
+
+如果想让松开键盘后自动回零：
+
+```bash
+rosrun competition_tools keyboard_competition_control.py --command-timeout 0.25
 ```

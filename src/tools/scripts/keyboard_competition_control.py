@@ -27,7 +27,7 @@ DEFAULT_IMAGE_TOPICS = (
 
 
 class SharedState:
-    def __init__(self):
+    def __init__(self, command_timeout):
         self.lock = threading.Lock()
         self.vx = 0.0
         self.vy = 0.0
@@ -35,6 +35,8 @@ class SharedState:
         self.status = "Ready"
         self.last_service = ""
         self.running = True
+        self.command_timeout = command_timeout
+        self.last_motion_command = 0.0
 
     def set_status(self, text):
         with self.lock:
@@ -52,9 +54,27 @@ class SharedState:
                 self.vy = vy
             if wz is not None:
                 self.wz = wz
+            self.last_motion_command = time.monotonic()
+
+    def adjust_velocity(self, dvx=0.0, dvy=0.0, dwz=0.0, max_vx=0.0, max_vy=0.0, max_wz=0.0):
+        with self.lock:
+            self.vx = clamp(self.vx + dvx, -max_vx, max_vx)
+            self.vy = clamp(self.vy + dvy, -max_vy, max_vy)
+            self.wz = clamp(self.wz + dwz, -max_wz, max_wz)
+            self.last_motion_command = time.monotonic()
 
     def stop(self):
         self.set_velocity(0.0, 0.0, 0.0)
+
+    def apply_motion_timeout(self):
+        if self.command_timeout <= 0:
+            return
+        with self.lock:
+            if self.last_motion_command and time.monotonic() - self.last_motion_command > self.command_timeout:
+                self.vx = 0.0
+                self.vy = 0.0
+                self.wz = 0.0
+                self.last_motion_command = 0.0
 
 
 def load_yaml(path):
@@ -78,7 +98,23 @@ def load_doors(path):
                     "busy": False,
                 }
             )
-    return [door for door in doors if door["id"]]
+    doors = [door for door in doors if door["id"]]
+    return sorted(doors, key=_door_sort_key)
+
+
+def clamp(value, min_value, max_value):
+    return max(min_value, min(max_value, value))
+
+
+def _door_sort_key(door):
+    if door["id"] == "main_entrance":
+        return (0, -1, door["id"])
+    if door["id"].startswith("elevator_floor_"):
+        try:
+            return (1, int(str(door["id"]).rsplit("_", 1)[-1]), door["id"])
+        except ValueError:
+            pass
+    return (2, int(door["floor"]) if str(door["floor"]).isdigit() else 999, door["id"])
 
 
 def load_elevator(path):
@@ -241,6 +277,7 @@ def find_image_topic():
 def publish_loop(pub, state, rate_hz):
     rate = rospy.Rate(rate_hz)
     while not rospy.is_shutdown() and state.running:
+        state.apply_motion_timeout()
         vx, vy, wz, _, _ = state.snapshot()
         msg = Twist()
         msg.linear.x = vx
@@ -259,7 +296,7 @@ def draw_screen(stdscr, args, state, doors, elevator, camera_topic):
         "Competition keyboard control",
         "",
         "Motion: W/S forward/back  A/D left/right  Q/E turn  SPACE stop  X zero all",
-        "Speed:  +/- linear %.2f m/s   [/ ] angular %.2f rad/s" % (args.linear_speed, args.angular_speed),
+        "Step:   +/- linear %.2f m/s   [/ ] angular %.2f rad/s" % (args.linear_step, args.angular_step),
         "Publish: %s  vx=%.2f vy=%.2f wz=%.2f" % (args.cmd_vel_topic, vx, vy, wz),
         "",
         "Doors: number keys toggle configured dynamic doors",
@@ -301,27 +338,27 @@ def curses_main(stdscr, args, state, doors, elevator, camera_topic):
                 state.running = False
                 break
             elif key in (ord("w"), ord("W"), curses.KEY_UP):
-                state.set_velocity(vx=args.linear_speed)
+                state.adjust_velocity(dvx=args.linear_step, max_vx=args.max_linear_speed, max_vy=args.max_linear_speed, max_wz=args.max_angular_speed)
             elif key in (ord("s"), ord("S"), curses.KEY_DOWN):
-                state.set_velocity(vx=-args.linear_speed)
+                state.adjust_velocity(dvx=-args.linear_step, max_vx=args.max_linear_speed, max_vy=args.max_linear_speed, max_wz=args.max_angular_speed)
             elif key in (ord("a"), ord("A"), curses.KEY_LEFT):
-                state.set_velocity(vy=args.linear_speed)
+                state.adjust_velocity(dvy=args.linear_step, max_vx=args.max_linear_speed, max_vy=args.max_linear_speed, max_wz=args.max_angular_speed)
             elif key in (ord("d"), ord("D"), curses.KEY_RIGHT):
-                state.set_velocity(vy=-args.linear_speed)
+                state.adjust_velocity(dvy=-args.linear_step, max_vx=args.max_linear_speed, max_vy=args.max_linear_speed, max_wz=args.max_angular_speed)
             elif key in (ord("q"), ord("Q")):
-                state.set_velocity(wz=args.angular_speed)
+                state.adjust_velocity(dwz=args.angular_step, max_vx=args.max_linear_speed, max_vy=args.max_linear_speed, max_wz=args.max_angular_speed)
             elif key in (ord("e"), ord("E")):
-                state.set_velocity(wz=-args.angular_speed)
+                state.adjust_velocity(dwz=-args.angular_step, max_vx=args.max_linear_speed, max_vy=args.max_linear_speed, max_wz=args.max_angular_speed)
             elif key in (ord(" "), ord("x"), ord("X")):
                 state.stop()
             elif key in (ord("+"), ord("=")):
-                args.linear_speed = min(args.linear_speed + 0.05, 1.5)
+                args.linear_step = min(args.linear_step + 0.05, args.max_linear_speed)
             elif key in (ord("-"), ord("_")):
-                args.linear_speed = max(args.linear_speed - 0.05, 0.05)
+                args.linear_step = max(args.linear_step - 0.05, 0.05)
             elif key == ord("["):
-                args.angular_speed = max(args.angular_speed - 0.05, 0.05)
+                args.angular_step = max(args.angular_step - 0.05, 0.05)
             elif key == ord("]"):
-                args.angular_speed = min(args.angular_speed + 0.05, 2.0)
+                args.angular_step = min(args.angular_step + 0.05, args.max_angular_speed)
             elif ord("1") <= key <= ord("9"):
                 services.toggle_door(key - ord("1"))
             elif curses.KEY_F1 <= key <= curses.KEY_F12:
@@ -340,8 +377,18 @@ def parse_args():
     parser.add_argument("--cmd-vel-topic", default="/cmd_vel")
     parser.add_argument("--door-config", default=DEFAULT_DOOR_CONFIG)
     parser.add_argument("--elevator-config", default=DEFAULT_ELEVATOR_CONFIG)
-    parser.add_argument("--linear-speed", type=float, default=0.45)
-    parser.add_argument("--angular-speed", type=float, default=0.9)
+    parser.add_argument("--linear-step", type=float, default=0.2)
+    parser.add_argument("--angular-step", type=float, default=0.3)
+    parser.add_argument("--linear-speed", dest="linear_step", type=float, help=argparse.SUPPRESS)
+    parser.add_argument("--angular-speed", dest="angular_step", type=float, help=argparse.SUPPRESS)
+    parser.add_argument("--max-linear-speed", type=float, default=2.5)
+    parser.add_argument("--max-angular-speed", type=float, default=3.0)
+    parser.add_argument(
+        "--command-timeout",
+        type=float,
+        default=0.0,
+        help="Seconds before motion command returns to zero if no movement key is repeated. Default 0 keeps the command latched until changed or stopped.",
+    )
     parser.add_argument("--rate", type=float, default=20.0)
     parser.add_argument("--show-camera", action="store_true", help="Open an OpenCV window for the robot camera.")
     parser.add_argument("--image-topic", default="", help="Camera image topic. Empty means auto-detect when --show-camera is used.")
@@ -352,7 +399,7 @@ def main():
     args = parse_args()
     rospy.init_node("keyboard_competition_control", anonymous=False)
 
-    state = SharedState()
+    state = SharedState(args.command_timeout)
     doors = load_doors(args.door_config)
     elevator = load_elevator(args.elevator_config)
     pub = rospy.Publisher(args.cmd_vel_topic, Twist, queue_size=1)
