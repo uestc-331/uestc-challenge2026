@@ -86,3 +86,7 @@ rosservice call /call_elevator "{elevator_id: 'elevator_main', target_floor: 0, 
 - `/call_elevator` 负责移动轿厢到目标楼层。
 - 机器人进出轿厢仍由参赛算法通过 `/cmd_vel` 控制。
 - `open_doors` 字段记录电梯状态，但楼层电梯厅门建议通过 `/set_door_state` 明确开关，便于比赛流程复现。
+
+## 60 s 电梯门动作时间 设置路径
+src/building_generator_core/building_generator_core/exporter.py
+payload["motion_duration"] = 60.0

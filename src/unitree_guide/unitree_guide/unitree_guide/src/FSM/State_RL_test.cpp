@@ -2,6 +2,7 @@
  Copyright (c) 2020-2023, Unitree Robotics.Co.Ltd. All rights reserved.
 ***********************************************************************/
 #include <iostream>
+#include <cstdlib>
 #include "FSM/State_RL_test.h"
 
 State_RL::State_RL(CtrlComponents *ctrlComp)
@@ -65,9 +66,13 @@ void State_RL::run(){
 void State_RL::exit(){
     _percent = 0;
     ampthreadRunning = State_RL::STOP;
-    amp_obs_thread->join();
+    if (amp_obs_thread && amp_obs_thread->joinable()) {
+        amp_obs_thread->join();
+    }
     infer_thread_runnning = State_RL::STOP;
-    infer_thread->join();
+    if (infer_thread && infer_thread->joinable()) {
+        infer_thread->join();
+    }
     std::cout << "amp_obs_thread退出!" << std::endl;
     if (outfile.is_open()) {
         outfile.close();
@@ -451,9 +456,11 @@ void State_RL::load_policy()
     // load model from check point
     std::cout << "cuda::is_available():" << torch::cuda::is_available() << std::endl;
     device= torch::kCPU;
-    if (torch::cuda::is_available()){
+    const char* rlDevice = std::getenv("UNITREE_RL_DEVICE");
+    if (rlDevice && std::string(rlDevice) == "cuda" && torch::cuda::is_available()){
         device = torch::kCUDA;
     }
+    std::cout << "RL torch device: " << (device == torch::kCUDA ? "cuda" : "cpu") << std::endl;
     model = torch::jit::load(model_path);
     std::cout << "load model is successed!" << std::endl;
     model.to(device);

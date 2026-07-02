@@ -8,7 +8,6 @@
 #include <nav_msgs/Odometry.h>
 #include <boost/bind.hpp>   // 将tf监听绑定到ROS回调函数
 
-
 using namespace std;
 ros::Publisher robotVelocity_BASE_frame_pub;
 string robot_name = "a1";
@@ -103,7 +102,6 @@ void callback_BASE(const gazebo_msgs::LinkStates::ConstPtr &msg) {
     rate.sleep();
 }
 
-
 int main(int argc, char **argv) {
     ros::init(argc, argv, "state_from_gazebo");
     ros::NodeHandle nh("~");
@@ -133,6 +131,3 @@ int main(int argc, char **argv) {
     ros::spin();
     return 0;
 }
-
-
-

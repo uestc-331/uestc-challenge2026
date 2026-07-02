@@ -374,9 +374,9 @@
                                     <stddev>0.005</stddev>
                             </noise>
                             </ray>
-            <visualize>true</visualize>
+            <visualize>false</visualize>
                     <samples>24000</samples>
-                    <downsample>1</downsample>
+                    <downsample>3</downsample>  <!--下采样次数，初始值为1，射线ray 数量约等于 samples / downsample-->
                     <csv_file_name>$(find a1_description)/scan_mode/mid360.csv</csv_file_name>
                     <ros_topic>/scan</ros_topic>
                     <frameName>laser_livox</frameName>
@@ -446,7 +446,7 @@
             <distortionT2>0.0</distortionT2>
         </plugin>
         </sensor>
-        </gazebo>
+    </gazebo>
 
         <!-- real_sense  深度相机(kinect)插件 -->
         <gazebo reference="real_sense">

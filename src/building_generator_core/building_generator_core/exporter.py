@@ -252,7 +252,7 @@ def _append_floor_plate(model: ET.Element, *, layout: BuildingLayout, floor: Flo
             name=f"slab_floor_{floor.floor_index}_{section_index}",
             size=(rect.width, rect.length, SLAB_THICKNESS),
             pose=(rect.center[0], rect.center[1], z_floor, 0.0, 0.0, 0.0),
-            color="0.76 0.76 0.77 0.35",
+            color="0.76 0.76 0.77 1",
         )
 
     _append_box(
@@ -1589,7 +1589,7 @@ def _append_wall(
         size=size,
         pose=(center[0], center[1], center[2], 0.0, 0.0, 0.0),
         ## color="0.86 0.86 0.88 1"（RGBA）最后一个参数是透明度，取值范围0-1，1表示不透明
-        color="0.86 0.86 0.88 0.35",
+        color="0.86 0.86 0.88 1",
     )
 
 

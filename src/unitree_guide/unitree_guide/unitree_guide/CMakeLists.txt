@@ -12,7 +12,7 @@ list(APPEND CMAKE_MODULE_PATH
     "${LIBTORCH_ROOT}/share/cmake"
 )
 list(APPEND CMAKE_LIBRARY_PATH "${CUDA_COMPAT_ROOT}/lib")
-set(TORCH_CUDA_ARCH_LIST "12.0" CACHE STRING "CUDA arch list used while configuring libtorch" FORCE)
+set(TORCH_CUDA_ARCH_LIST "8.6" CACHE STRING "CUDA arch list used while configuring libtorch")
 
 find_library(SIMENV_NVTOOLSEXT_LIBRARY nvToolsExt PATHS "${CUDA_COMPAT_ROOT}/lib" NO_DEFAULT_PATH)
 if(SIMENV_NVTOOLSEXT_LIBRARY AND NOT TARGET CUDA::nvToolsExt)
@@ -128,7 +128,7 @@ include_directories(
 
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS} -O3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
+separate_arguments(TORCH_CXX_FLAGS_LIST NATIVE_COMMAND "${TORCH_CXX_FLAGS}")
 
 if(REAL_ROBOT)
     add_definitions(-DCOMPILE_WITH_REAL_ROBOT)
@@ -177,6 +177,7 @@ target_link_libraries(state_from_gazebo ${catkin_LIBRARIES})
 
 
 add_executable(junior_ctrl src/main.cpp ${SRC_LIST})
+target_compile_options(junior_ctrl PRIVATE ${TORCH_CXX_FLAGS_LIST})
 target_link_libraries(junior_ctrl ${TORCH_LIBRARIES} lcm)
 if(CATKIN_MAKE)
     target_link_libraries(junior_ctrl ${catkin_LIBRARIES})
