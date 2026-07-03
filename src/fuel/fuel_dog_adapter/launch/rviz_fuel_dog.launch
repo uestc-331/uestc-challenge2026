@@ -1,0 +1,26 @@
+<launch>
+  <arg name="odom_topic" default="/Odometry_gazebo"/>
+  <arg name="cmd_vel_topic" default="/cmd_vel"/>
+  <arg name="rviz_config" default="$(find fuel_dog_adapter)/config/fuel_dog_exploration.rviz"/>
+
+  <node pkg="fuel_dog_adapter" name="cmd_vel_marker" type="cmd_vel_marker.py" output="screen">
+    <param name="odom_topic" value="$(arg odom_topic)"/>
+    <param name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
+    <param name="marker_topic" value="/fuel_dog_adapter/cmd_vel_marker"/>
+    <param name="frame_id" value="world"/>
+    <param name="timeout" value="0.5"/>
+    <param name="scale" value="1.0"/>
+  </node>
+
+  <node pkg="fuel_dog_adapter" name="fuel_path_visualizer" type="fuel_path_visualizer.py" output="screen">
+    <param name="odom_topic" value="$(arg odom_topic)"/>
+    <param name="position_cmd_topic" value="/position_cmd"/>
+    <param name="executed_path_topic" value="/fuel_dog_adapter/executed_path"/>
+    <param name="generated_path_topic" value="/fuel_dog_adapter/generated_path"/>
+    <param name="frame_id" value="world"/>
+    <param name="max_points" value="2000"/>
+    <param name="min_distance" value="0.03"/>
+  </node>
+
+  <node pkg="rviz" type="rviz" name="fuel_dog_rviz" output="log" args="-d $(arg rviz_config)"/>
+</launch>

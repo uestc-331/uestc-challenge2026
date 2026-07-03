@@ -1,0 +1,130 @@
+<launch>
+  <!-- FUEL visual/depth exploration on the quadruped Gazebo model. -->
+  <arg name="odom_topic" default="/Odometry_gazebo"/>
+  <arg name="depth_topic" default="/real_sense/depth/image_raw"/>
+  <arg name="cloud_topic" default="/unused_cloud"/>
+  <arg name="sensor_pose_topic" default="/fuel_dog_adapter/sensor_pose"/>
+  <arg name="cmd_vel_topic" default="/cmd_vel"/>
+
+  <arg name="map_size_x" default="50.0"/>
+  <arg name="map_size_y" default="50.0"/>
+  <arg name="map_size_z" default="1.8"/>
+
+  <arg name="box_min_x" default="-25.0"/>
+  <arg name="box_min_y" default="-25.0"/>
+  <arg name="box_min_z" default="0.05"/>
+  <arg name="box_max_x" default="25.0"/>
+  <arg name="box_max_y" default="25.0"/>
+  <arg name="box_max_z" default="1.5"/>
+
+  <arg name="init_x" default="0.0"/>
+  <arg name="init_y" default="0.0"/>
+  <arg name="init_z" default="0.45"/>
+  <arg name="viewpoint_z" default="0.45"/>
+
+  <!-- RealSense link offset in a1_description/xacro/robot.xacro. -->
+  <arg name="sensor_offset_x" default="0.28"/>
+  <arg name="sensor_offset_y" default="0.0"/>
+  <arg name="sensor_offset_z" default="0.043"/>
+
+  <!-- 640x480, 60 deg HFOV fallback. Override from /real_sense/depth/camera_info if needed. -->
+  <arg name="cx" default="320.0"/>
+  <arg name="cy" default="240.0"/>
+  <arg name="fx" default="554.256"/>
+  <arg name="fy" default="554.256"/>
+
+  <arg name="max_vel" default="0.6"/>
+  <arg name="max_acc" default="0.8"/>
+  <arg name="max_angular_speed" default="0.8"/>
+  <arg name="max_lateral_speed" default="0.0"/>
+
+  <!-- Looser frontier filters for low-height, forward-facing quadruped exploration. -->
+  <arg name="frontier_cluster_min" default="20"/>
+  <arg name="frontier_cluster_size_z" default="0.7"/>
+  <arg name="frontier_min_visib_num" default="3"/>
+  <arg name="frontier_min_candidate_dist" default="0.45"/>
+  <arg name="frontier_min_candidate_clearance" default="0.12"/>
+  <arg name="frontier_candidate_rmin" default="0.8"/>
+  <arg name="frontier_candidate_rmax" default="1.8"/>
+
+  <node pkg="fuel_dog_adapter" name="odom_to_sensor_pose" type="odom_to_sensor_pose.py" output="screen">
+    <param name="odom_topic" value="$(arg odom_topic)"/>
+    <param name="pose_topic" value="$(arg sensor_pose_topic)"/>
+    <param name="frame_id" value="world"/>
+    <param name="sensor_offset_x" value="$(arg sensor_offset_x)"/>
+    <param name="sensor_offset_y" value="$(arg sensor_offset_y)"/>
+    <param name="sensor_offset_z" value="$(arg sensor_offset_z)"/>
+    <param name="use_optical_frame" value="true"/>
+  </node>
+
+  <include file="$(find exploration_manager)/launch/algorithm.xml">
+    <arg name="map_size_x_" value="$(arg map_size_x)"/>
+    <arg name="map_size_y_" value="$(arg map_size_y)"/>
+    <arg name="map_size_z_" value="$(arg map_size_z)"/>
+
+    <arg name="box_min_x" value="$(arg box_min_x)"/>
+    <arg name="box_min_y" value="$(arg box_min_y)"/>
+    <arg name="box_min_z" value="$(arg box_min_z)"/>
+    <arg name="box_max_x" value="$(arg box_max_x)"/>
+    <arg name="box_max_y" value="$(arg box_max_y)"/>
+    <arg name="box_max_z" value="$(arg box_max_z)"/>
+
+    <arg name="odometry_topic" value="$(arg odom_topic)"/>
+    <arg name="sensor_pose_topic" value="$(arg sensor_pose_topic)"/>
+    <arg name="depth_topic" value="$(arg depth_topic)"/>
+    <arg name="cloud_topic" value="$(arg cloud_topic)"/>
+
+    <arg name="cx" value="$(arg cx)"/>
+    <arg name="cy" value="$(arg cy)"/>
+    <arg name="fx" value="$(arg fx)"/>
+    <arg name="fy" value="$(arg fy)"/>
+
+    <arg name="max_vel" value="$(arg max_vel)"/>
+    <arg name="max_acc" value="$(arg max_acc)"/>
+    <arg name="force_viewpoint_z" value="true"/>
+    <arg name="viewpoint_z" value="$(arg viewpoint_z)"/>
+    <arg name="frontier_cluster_min" value="$(arg frontier_cluster_min)"/>
+    <arg name="frontier_cluster_size_z" value="$(arg frontier_cluster_size_z)"/>
+    <arg name="frontier_min_visib_num" value="$(arg frontier_min_visib_num)"/>
+    <arg name="frontier_min_candidate_dist" value="$(arg frontier_min_candidate_dist)"/>
+    <arg name="frontier_min_candidate_clearance" value="$(arg frontier_min_candidate_clearance)"/>
+    <arg name="frontier_candidate_rmin" value="$(arg frontier_candidate_rmin)"/>
+    <arg name="frontier_candidate_rmax" value="$(arg frontier_candidate_rmax)"/>
+  </include>
+
+  <node pkg="plan_manage" name="traj_server" type="traj_server" output="screen">
+    <remap from="/position_cmd" to="/position_cmd"/>
+    <remap from="/odom_world" to="$(arg odom_topic)"/>
+    <param name="traj_server/time_forward" value="1.0" type="double"/>
+    <param name="traj_server/pub_traj_id" value="4" type="int"/>
+    <param name="traj_server/init_x" value="$(arg init_x)" type="double"/>
+    <param name="traj_server/init_y" value="$(arg init_y)" type="double"/>
+    <param name="traj_server/init_z" value="$(arg init_z)" type="double"/>
+
+    <param name="perception_utils/top_angle" value="0.523599" type="double"/>
+    <param name="perception_utils/left_angle" value="0.523599" type="double"/>
+    <param name="perception_utils/right_angle" value="0.523599" type="double"/>
+    <param name="perception_utils/max_dist" value="5.0" type="double"/>
+    <param name="perception_utils/vis_dist" value="1.0" type="double"/>
+  </node>
+
+  <node pkg="fuel_dog_adapter" name="fuel_poscmd_to_cmdvel" type="fuel_poscmd_to_cmdvel.py" output="screen">
+    <param name="position_cmd_topic" value="/position_cmd"/>
+    <param name="odom_topic" value="$(arg odom_topic)"/>
+    <param name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
+    <param name="max_linear_speed" value="$(arg max_vel)"/>
+    <param name="max_lateral_speed" value="$(arg max_lateral_speed)"/>
+    <param name="max_angular_speed" value="$(arg max_angular_speed)"/>
+    <param name="linear_acc_limit" value="$(arg max_acc)"/>
+    <param name="angular_acc_limit" value="1.2"/>
+    <param name="position_kp" value="0.8"/>
+    <param name="yaw_kp" value="1.2"/>
+    <param name="align_yaw_to_velocity" value="true"/>
+    <param name="forward_only" value="true"/>
+    <param name="disable_lateral" value="true"/>
+    <param name="min_heading_speed" value="0.05"/>
+    <param name="command_timeout" value="0.5"/>
+    <param name="odom_timeout" value="0.5"/>
+    <param name="control_rate" value="30.0"/>
+  </node>
+</launch>

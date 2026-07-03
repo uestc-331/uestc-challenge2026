@@ -88,14 +88,14 @@ void callback_BASE(const gazebo_msgs::LinkStates::ConstPtr &msg) {
 
 
     // set the velocity
-    Odom.twist.twist.linear.x= transformed_linear_vel.x();
-    Odom.twist.twist.linear.x= transformed_linear_vel.y();
-    Odom.twist.twist.linear.x= transformed_linear_vel.z();
+    Odom.twist.twist.linear.x = transformed_linear_vel.x();
+    Odom.twist.twist.linear.y = transformed_linear_vel.y();
+    Odom.twist.twist.linear.z = transformed_linear_vel.z();
 
 
     Odom.twist.twist.angular.x = transformed_angular_vel.x();
-    Odom.twist.twist.angular.x = transformed_angular_vel.y();
-    Odom.twist.twist.angular.x = transformed_angular_vel.z();
+    Odom.twist.twist.angular.y = transformed_angular_vel.y();
+    Odom.twist.twist.angular.z = transformed_angular_vel.z();
 
 
     robotVelocity_BASE_frame_pub.publish(Odom);
