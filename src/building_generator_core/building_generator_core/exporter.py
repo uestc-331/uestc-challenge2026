@@ -114,12 +114,12 @@ def export_sdf(layout: BuildingLayout, target: str, output_dir: str | Path) -> A
 def _render_world_sdf(layout: BuildingLayout) -> str:
     sdf = ET.Element("sdf", {"version": SDF_VERSION})
     world = ET.SubElement(sdf, "world", {"name": "generated_world"})
-    ###自己添加的，改real_time_update_rate  1000->500
-    physics = ET.SubElement(world, "physics", {"type": "ode"})
-    ET.SubElement(physics, "max_step_size").text = "0.002"
-    ET.SubElement(physics, "real_time_factor").text = "1"
-    ET.SubElement(physics, "real_time_update_rate").text = "500"
-    ###
+    # ###自己添加的，改real_time_update_rate  1000->500
+    # physics = ET.SubElement(world, "physics", {"type": "ode"})
+    # ET.SubElement(physics, "max_step_size").text = "0.002"
+    # ET.SubElement(physics, "real_time_factor").text = "1"
+    # ET.SubElement(physics, "real_time_update_rate").text = "500"
+    # ###
     include_sun = ET.SubElement(world, "include")
     ET.SubElement(include_sun, "uri").text = "model://sun"
     include_ground = ET.SubElement(world, "include")
@@ -1589,7 +1589,7 @@ def _append_wall(
         size=size,
         pose=(center[0], center[1], center[2], 0.0, 0.0, 0.0),
         ## color="0.86 0.86 0.88 1"（RGBA）最后一个参数是透明度，取值范围0-1，1表示不透明
-        color="0.86 0.86 0.88 0.35",
+        color="0.86 0.86 0.88 1",
     )
 
 

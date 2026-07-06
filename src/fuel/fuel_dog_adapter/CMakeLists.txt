@@ -16,6 +16,7 @@ catkin_install_python(PROGRAMS
   scripts/fuel_poscmd_to_cmdvel.py
   scripts/cmd_vel_marker.py
   scripts/fuel_path_visualizer.py
+  scripts/sensor_fov_marker.py
   scripts/odom_to_sensor_pose.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

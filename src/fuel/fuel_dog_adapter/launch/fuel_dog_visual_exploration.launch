@@ -37,6 +37,9 @@
   <arg name="max_acc" default="0.8"/>
   <arg name="max_angular_speed" default="0.8"/>
   <arg name="max_lateral_speed" default="0.0"/>
+  <arg name="yaw_seg_num" default="24"/>
+  <arg name="perception_max_dist" default="4.5"/>
+  <arg name="perception_vis_dist" default="2.0"/>
 
   <!-- Looser frontier filters for low-height, forward-facing quadruped exploration. -->
   <arg name="frontier_cluster_min" default="20"/>
@@ -90,6 +93,9 @@
     <arg name="frontier_min_candidate_clearance" value="$(arg frontier_min_candidate_clearance)"/>
     <arg name="frontier_candidate_rmin" value="$(arg frontier_candidate_rmin)"/>
     <arg name="frontier_candidate_rmax" value="$(arg frontier_candidate_rmax)"/>
+    <arg name="yaw_seg_num" value="$(arg yaw_seg_num)"/>
+    <arg name="perception_max_dist" value="$(arg perception_max_dist)"/>
+    <arg name="perception_vis_dist" value="$(arg perception_vis_dist)"/>
   </include>
 
   <node pkg="plan_manage" name="traj_server" type="traj_server" output="screen">
@@ -104,8 +110,8 @@
     <param name="perception_utils/top_angle" value="0.523599" type="double"/>
     <param name="perception_utils/left_angle" value="0.523599" type="double"/>
     <param name="perception_utils/right_angle" value="0.523599" type="double"/>
-    <param name="perception_utils/max_dist" value="5.0" type="double"/>
-    <param name="perception_utils/vis_dist" value="1.0" type="double"/>
+    <param name="perception_utils/max_dist" value="$(arg perception_max_dist)" type="double"/>
+    <param name="perception_utils/vis_dist" value="$(arg perception_vis_dist)" type="double"/>
   </node>
 
   <node pkg="fuel_dog_adapter" name="fuel_poscmd_to_cmdvel" type="fuel_poscmd_to_cmdvel.py" output="screen">
@@ -120,7 +126,7 @@
     <param name="position_kp" value="0.8"/>
     <param name="yaw_kp" value="1.2"/>
     <param name="align_yaw_to_velocity" value="true"/>
-    <param name="forward_only" value="true"/>
+    <param name="forward_only" value="false"/>
     <param name="disable_lateral" value="true"/>
     <param name="min_heading_speed" value="0.05"/>
     <param name="command_timeout" value="0.5"/>

@@ -31,6 +31,9 @@
   <arg name="frontier_candidate_rmin" default="1.5"/>
   <arg name="frontier_candidate_rmax" default="2.5"/>
   <arg name="frontier_min_visib_num" default="15"/>
+  <arg name="yaw_seg_num" default="12"/>
+  <arg name="perception_max_dist" default="4.5"/>
+  <arg name="perception_vis_dist" default="1.0"/>
 
   <!-- main node -->
   <node pkg="exploration_manager" name="exploration_node" type="exploration_node" output="screen">
@@ -44,7 +47,7 @@
     <param name="sdf_map/map_size_y"   value="$(arg map_size_y_)" /> 
     <param name="sdf_map/map_size_z"   value="$(arg map_size_z_)" /> 
     <!-- <param name="sdf_map/obstacles_inflation"     value="0.099" />  -->
-    <param name="sdf_map/obstacles_inflation"     value="0.199" /> 
+    <param name="sdf_map/obstacles_inflation"     value="0.3" /> 
     <param name="sdf_map/local_bound_inflate"    value="0.5"/>
     <param name="sdf_map/local_map_margin" value="50"/>
     <param name="sdf_map/ground_height"        value="-1.0"/>
@@ -128,8 +131,8 @@
     <param name="perception_utils/top_angle" value="0.56125" type="double"/>;
     <param name="perception_utils/left_angle" value="0.69222" type="double"/>;
     <param name="perception_utils/right_angle" value="0.68901" type="double"/>;
-    <param name="perception_utils/max_dist" value="4.5" type="double"/>;
-    <param name="perception_utils/vis_dist" value="1.0" type="double"/>;
+    <param name="perception_utils/max_dist" value="$(arg perception_max_dist)" type="double"/>;
+    <param name="perception_utils/vis_dist" value="$(arg perception_vis_dist)" type="double"/>;
 
 
     <param name="heading_planner/yaw_diff" value="$(eval 30 * 3.1415926 / 180.0)" type="double"/>
@@ -144,6 +147,7 @@
     <!-- <param name="manager/max_vel" value="$(arg max_vel)" type="double"/> -->
     <param name="manager/max_vel" value="$(arg max_vel)" type="double"/>
     <param name="manager/max_acc" value="$(arg max_acc)" type="double"/>
+    <param name="manager/yaw_seg_num" value="$(arg yaw_seg_num)" type="int"/>
     <param name="manager/max_jerk" value="4" type="double"/>
     <param name="manager/dynamic_environment" value="0" type="int"/>
     <param name="manager/local_segment_length" value="6.0" type="double"/>

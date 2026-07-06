@@ -229,16 +229,16 @@ void FastExplorationFSM::visualize() {
   //   visualization_->drawCubes({}, 0.1, Vector4d(0, 0, 0, 0.5), "dead_frontier", i, 4);
 
   // Draw global top viewpoints info
-  // visualization_->drawSpheres(ed_ptr->points_, 0.2, Vector4d(0, 0.5, 0, 1), "points", 0, 6);
+  visualization_->drawSpheres(ed_ptr->points_, 0.25, Vector4d(0, 0.8, 0.2, 1), "global_viewpoints", 0, 6);
   // visualization_->drawLines(ed_ptr->global_tour_, 0.07, Vector4d(0, 0.5, 0, 1), "global_tour", 0, 6);
-  // visualization_->drawLines(ed_ptr->points_, ed_ptr->views_, 0.05, Vector4d(0, 1, 0.5, 1), "view", 0, 6);
+  visualization_->drawLines(ed_ptr->points_, ed_ptr->views_, 0.05, Vector4d(0, 1, 0.5, 1), "global_view_dirs", 1, 6);
   // visualization_->drawLines(ed_ptr->points_, ed_ptr->averages_, 0.03, Vector4d(1, 0, 0, 1),
   // "point-average", 0, 6);
 
   // Draw local refined viewpoints info
-  // visualization_->drawSpheres(ed_ptr->refined_points_, 0.2, Vector4d(0, 0, 1, 1), "refined_pts", 0, 6);
-  // visualization_->drawLines(ed_ptr->refined_points_, ed_ptr->refined_views_, 0.05,
-  //                           Vector4d(0.5, 0, 1, 1), "refined_view", 0, 6);
+  visualization_->drawSpheres(ed_ptr->refined_points_, 0.18, Vector4d(0.1, 0.3, 1, 1), "refined_viewpoints", 2, 6);
+  visualization_->drawLines(ed_ptr->refined_points_, ed_ptr->refined_views_, 0.04,
+                            Vector4d(0.5, 0, 1, 1), "refined_view_dirs", 3, 6);
   // visualization_->drawLines(ed_ptr->refined_tour_, 0.07, Vector4d(0, 0, 1, 1), "refined_tour", 0, 6);
   // visualization_->drawLines(ed_ptr->refined_views1_, ed_ptr->refined_views2_, 0.04, Vector4d(0, 0, 0,
   // 1),

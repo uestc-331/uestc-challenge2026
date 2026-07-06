@@ -28,6 +28,7 @@ void FastPlannerManager::initPlanModules(ros::NodeHandle& nh) {
   nh.param("manager/accept_vel", pp_.accept_vel_, pp_.max_vel_ + 0.5);
   nh.param("manager/accept_acc", pp_.accept_acc_, pp_.max_acc_ + 0.5);
   nh.param("manager/max_yawdot", pp_.max_yawdot_, -1.0);
+  nh.param("manager/yaw_seg_num", pp_.yaw_seg_num_, 12);
   nh.param("manager/dynamic_environment", pp_.dynamic_, -1);
   nh.param("manager/clearance_threshold", pp_.clearance_, -1.0);
   nh.param("manager/local_segment_length", pp_.local_traj_len_, -1.0);
@@ -773,7 +774,7 @@ void FastPlannerManager::planYaw(const Eigen::Vector3d& start_yaw) {
 
 void FastPlannerManager::planYawExplore(const Eigen::Vector3d& start_yaw, const double& end_yaw,
     bool lookfwd, const double& relax_time) {
-  const int seg_num = 12;
+  const int seg_num = max(12, pp_.yaw_seg_num_);
   double dt_yaw = local_data_.duration_ / seg_num;  // time of B-spline segment
   Eigen::Vector3d start_yaw3d = start_yaw;
   std::cout << "dt_yaw: " << dt_yaw << ", start yaw: " << start_yaw3d.transpose()

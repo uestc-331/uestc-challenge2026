@@ -2,6 +2,10 @@
   <arg name="odom_topic" default="/Odometry_gazebo"/>
   <arg name="cmd_vel_topic" default="/cmd_vel"/>
   <arg name="rviz_config" default="$(find fuel_dog_adapter)/config/fuel_dog_exploration.rviz"/>
+  <arg name="sensor_fov_dist" default="2.0"/>
+
+  <node pkg="tf" type="static_transform_publisher" name="world_to_map_for_fuel_rviz"
+        args="0 0 0 0 0 0 world map 100"/>
 
   <node pkg="fuel_dog_adapter" name="cmd_vel_marker" type="cmd_vel_marker.py" output="screen">
     <param name="odom_topic" value="$(arg odom_topic)"/>
@@ -20,6 +24,19 @@
     <param name="frame_id" value="world"/>
     <param name="max_points" value="2000"/>
     <param name="min_distance" value="0.03"/>
+  </node>
+
+  <node pkg="fuel_dog_adapter" name="sensor_fov_marker" type="sensor_fov_marker.py" output="screen">
+    <param name="pose_topic" value="/fuel_dog_adapter/sensor_pose"/>
+    <param name="marker_topic" value="/fuel_dog_adapter/sensor_fov_marker"/>
+    <param name="frame_id" value="world"/>
+    <param name="fx" value="554.256"/>
+    <param name="fy" value="554.256"/>
+    <param name="cx" value="320.0"/>
+    <param name="cy" value="240.0"/>
+    <param name="width" value="640.0"/>
+    <param name="height" value="480.0"/>
+    <param name="max_dist" value="$(arg sensor_fov_dist)"/>
   </node>
 
   <node pkg="rviz" type="rviz" name="fuel_dog_rviz" output="log" args="-d $(arg rviz_config)"/>
