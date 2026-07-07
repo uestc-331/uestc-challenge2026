@@ -84,6 +84,8 @@
 
     <arg name="max_vel" value="$(arg max_vel)"/>
     <arg name="max_acc" value="$(arg max_acc)"/>
+    <arg name="fixed_z" value="$(arg init_z)"/>
+    <arg name="z_margin" value="0.15"/>
     <arg name="force_viewpoint_z" value="true"/>
     <arg name="viewpoint_z" value="$(arg viewpoint_z)"/>
     <arg name="frontier_cluster_min" value="$(arg frontier_cluster_min)"/>

@@ -52,6 +52,9 @@ void BsplineOptimizer::setParam(ros::NodeHandle& nh) {
   nh.param("optimization/algorithm2", algorithm2_, -1);
   nh.param("manager/bspline_degree", bspline_degree_, 3);
 
+  nh.param("optimization/fixed_z", fixed_z_, -999.0);
+  nh.param("optimization/z_margin", z_margin_, 0.2);
+
   time_lb_ = -1;  // Not used by in most case
 }
 
@@ -177,6 +180,11 @@ void BsplineOptimizer::optimize() {
   for (int k = 0; k < 3; ++k) {
     bmin[k] += 0.1;
     bmax[k] -= 0.1;
+  }
+  // For ground robots: constrain Z to walking height
+  if (fixed_z_ > -100.0) {
+    bmin[2] = max(bmin[2], fixed_z_ - z_margin_);
+    bmax[2] = min(bmax[2], fixed_z_ + z_margin_);
   }
   // Deprecated: does not optimize start and end control points
   // for (int i = order_; i < pt_num; ++i)

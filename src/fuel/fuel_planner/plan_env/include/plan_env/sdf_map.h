@@ -257,12 +257,11 @@ inline void SDFMap::inflatePoint(const Eigen::Vector3i& pt, int step, vector<Eig
   //   pts[num++] = Eigen::Vector3i(pt(0), pt(1), pt(2) + z);
   // }
 
-  /* ---------- all inflate ---------- */
+  /* ---------- XY only inflate, no Z ---------- */
   for (int x = -step; x <= step; ++x)
-    for (int y = -step; y <= step; ++y)
-      for (int z = -step; z <= step; ++z) {
-        pts[num++] = Eigen::Vector3i(pt(0) + x, pt(1) + y, pt(2) + z);
-      }
+    for (int y = -step; y <= step; ++y) {
+      pts[num++] = Eigen::Vector3i(pt(0) + x, pt(1) + y, pt(2));
+    }
 }
 }
 #endif

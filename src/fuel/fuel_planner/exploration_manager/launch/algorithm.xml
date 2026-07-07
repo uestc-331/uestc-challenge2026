@@ -22,6 +22,8 @@
 
   <arg name="max_vel"/>
   <arg name="max_acc"/>
+  <arg name="fixed_z" default="-999.0"/>
+  <arg name="z_margin" default="0.2"/>
   <arg name="force_viewpoint_z" default="false"/>
   <arg name="viewpoint_z" default="0.45"/>
   <arg name="frontier_cluster_min" default="100"/>
@@ -196,6 +198,8 @@
     <param name="optimization/max_acc" value="$(arg max_acc)" type="double"/>
     <param name="optimization/algorithm1" value="15" type="int"/>
     <param name="optimization/algorithm2" value="11" type="int"/>
+    <param name="optimization/fixed_z" value="$(arg fixed_z)" type="double"/>
+    <param name="optimization/z_margin" value="$(arg z_margin)" type="double"/>
     <param name="optimization/max_iteration_num1" value="2" type="int"/>
     <param name="optimization/max_iteration_num2" value="2000" type="int"/>
     <param name="optimization/max_iteration_num3" value="200" type="int"/>

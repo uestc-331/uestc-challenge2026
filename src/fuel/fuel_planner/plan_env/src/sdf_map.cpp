@@ -432,7 +432,7 @@ void SDFMap::clearAndInflateLocalMap() {
   // clean outdated occupancy
 
   int inf_step = ceil(mp_->obstacles_inflation_ / mp_->resolution_);
-  vector<Eigen::Vector3i> inf_pts(pow(2 * inf_step + 1, 3));
+  vector<Eigen::Vector3i> inf_pts(pow(2 * inf_step + 1, 2));
   // inf_pts.resize(4 * inf_step + 3);
 
   for (int x = md_->local_bound_min_(0); x <= md_->local_bound_max_(0); ++x)

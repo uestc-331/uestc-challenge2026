@@ -27,6 +27,10 @@
   <arg name="max_acc" default="0.8"/>
   <arg name="max_angular_speed" default="0.8"/>
 
+  <!-- Ground robot: fix trajectory Z to walking height -->
+  <arg name="fixed_z" default="0.4"/>
+  <arg name="z_margin" default="0.15"/>
+
   <node pkg="fuel_dog_adapter" name="odom_to_sensor_pose" type="odom_to_sensor_pose.py" output="screen">
     <param name="odom_topic" value="$(arg odom_topic)"/>
     <param name="pose_topic" value="$(arg sensor_pose_topic)"/>
@@ -60,6 +64,8 @@
 
     <arg name="max_vel" value="$(arg max_vel)"/>
     <arg name="max_acc" value="$(arg max_acc)"/>
+    <arg name="fixed_z" value="$(arg fixed_z)"/>
+    <arg name="z_margin" value="$(arg z_margin)"/>
   </include>
 
   <node pkg="plan_manage" name="traj_server" type="traj_server" output="screen">
@@ -82,13 +88,28 @@
     <param name="position_cmd_topic" value="/position_cmd"/>
     <param name="odom_topic" value="$(arg odom_topic)"/>
     <param name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
+    <!-- PD gains (fallbacks; overridden by trajectory kx/kv when available) -->
+    <param name="position_kp" value="5.7"/>
+    <param name="position_kd" value="3.4"/>
+    <param name="yaw_kp" value="2.0"/>
+    <!-- feedforward gains -->
+    <param name="velocity_ff_gain" value="0.8"/>
+    <param name="accel_ff_gain" value="0.25"/>
+    <param name="yaw_ff_gain" value="0.5"/>
+    <!-- look-ahead for corner anticipation -->
+    <param name="lookahead_time" value="0.15"/>
+    <!-- speed/accel limits -->
     <param name="max_linear_speed" value="$(arg max_vel)"/>
     <param name="max_lateral_speed" value="$(arg max_vel)"/>
     <param name="max_angular_speed" value="$(arg max_angular_speed)"/>
     <param name="linear_acc_limit" value="$(arg max_acc)"/>
-    <param name="angular_acc_limit" value="1.2"/>
-    <param name="position_kp" value="0.8"/>
-    <param name="yaw_kp" value="1.2"/>
+    <param name="angular_acc_limit" value="1.5"/>
+    <!-- behaviour flags -->
+    <param name="align_yaw_to_velocity" value="true"/>
+    <param name="forward_only" value="true"/>
+    <param name="disable_lateral" value="true"/>
+    <param name="min_heading_speed" value="0.03"/>
+    <!-- timing -->
     <param name="command_timeout" value="0.5"/>
     <param name="odom_timeout" value="0.5"/>
     <param name="control_rate" value="30.0"/>

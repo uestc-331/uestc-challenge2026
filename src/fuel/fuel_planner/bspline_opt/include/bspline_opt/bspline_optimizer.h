@@ -107,6 +107,8 @@ private:
   double dist0_;              // safe distance
   double max_vel_, max_acc_;  // dynamic limits
   double wnl_, dlmin_;
+  double fixed_z_ = -999.0;  // fixed Z height for ground robots (<0 means disabled)
+  double z_margin_ = 0.2;    // Z tolerance around fixed_z_
   int algorithm1_;                // optimization algorithms for quadratic cost
   int algorithm2_;                // optimization algorithms for general cost
   int max_iteration_num_[4];      // stopping criteria that can be used

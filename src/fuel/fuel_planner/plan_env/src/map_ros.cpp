@@ -60,6 +60,8 @@ void MapROS::init() {
   vis_timer_ = node_.createTimer(ros::Duration(0.05), &MapROS::visCallback, this);
 
   map_all_pub_ = node_.advertise<sensor_msgs::PointCloud2>("/sdf_map/occupancy_all", 10);
+  map_all_inflate_pub_ =
+      node_.advertise<sensor_msgs::PointCloud2>("/sdf_map/occupancy_all_inflate", 10);
   map_local_pub_ = node_.advertise<sensor_msgs::PointCloud2>("/sdf_map/occupancy_local", 10);
   map_local_inflate_pub_ =
       node_.advertise<sensor_msgs::PointCloud2>("/sdf_map/occupancy_local_inflate", 10);
@@ -230,14 +232,30 @@ void MapROS::publishMapAll() {
           pt.z = pos(2);
           cloud1.push_back(pt);
         }
+        else if (map_->md_->occupancy_buffer_inflate_[map_->toAddress(x, y, z)] == 1) {
+          Eigen::Vector3d pos;
+          map_->indexToPos(Eigen::Vector3i(x, y, z), pos);
+          if (pos(2) > visualization_truncate_height_) continue;
+          if (pos(2) < visualization_truncate_low_) continue;
+          pt.x = pos(0);
+          pt.y = pos(1);
+          pt.z = pos(2);
+          cloud2.push_back(pt);
+        }
       }
   cloud1.width = cloud1.points.size();
   cloud1.height = 1;
   cloud1.is_dense = true;
   cloud1.header.frame_id = frame_id_;
+  cloud2.width = cloud2.points.size();
+  cloud2.height = 1;
+  cloud2.is_dense = true;
+  cloud2.header.frame_id = frame_id_;
   sensor_msgs::PointCloud2 cloud_msg;
   pcl::toROSMsg(cloud1, cloud_msg);
   map_all_pub_.publish(cloud_msg);
+  pcl::toROSMsg(cloud2, cloud_msg);
+  map_all_inflate_pub_.publish(cloud_msg);
 
   // Output time and known volumn
   double time_now = (ros::Time::now() - map_start_time_).toSec();
@@ -281,21 +299,21 @@ void MapROS::publishMapLocal() {
           pt.z = pos(2);
           cloud.push_back(pt);
         }
-        // else if (map_->md_->occupancy_buffer_inflate_[map_->toAddress(x, y, z)] == 1)
-        // {
-        //   // Inflated occupied cells
-        //   Eigen::Vector3d pos;
-        //   map_->indexToPos(Eigen::Vector3i(x, y, z), pos);
-        //   if (pos(2) > visualization_truncate_height_)
-        //     continue;
-        //   if (pos(2) < visualization_truncate_low_)
-        //     continue;
+        else if (map_->md_->occupancy_buffer_inflate_[map_->toAddress(x, y, z)] == 1)
+        {
+          // Inflated occupied cells
+          Eigen::Vector3d pos;
+          map_->indexToPos(Eigen::Vector3i(x, y, z), pos);
+          if (pos(2) > visualization_truncate_height_)
+            continue;
+          if (pos(2) < visualization_truncate_low_)
+            continue;
 
-        //   pt.x = pos(0);
-        //   pt.y = pos(1);
-        //   pt.z = pos(2);
-        //   cloud2.push_back(pt);
-        // }
+          pt.x = pos(0);
+          pt.y = pos(1);
+          pt.z = pos(2);
+          cloud2.push_back(pt);
+        }
       }
 
   cloud.width = cloud.points.size();

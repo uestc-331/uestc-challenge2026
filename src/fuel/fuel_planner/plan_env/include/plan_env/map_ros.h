@@ -64,8 +64,8 @@ private:
   SynchronizerImagePose sync_image_pose_;
   SynchronizerCloudPose sync_cloud_pose_;
 
-  ros::Publisher map_local_pub_, map_local_inflate_pub_, esdf_pub_, map_all_pub_, unknown_pub_,
-      update_range_pub_, depth_pub_;
+  ros::Publisher map_local_pub_, map_local_inflate_pub_, map_all_inflate_pub_, esdf_pub_,
+      map_all_pub_, unknown_pub_, update_range_pub_, depth_pub_;
   ros::Timer esdf_timer_, vis_timer_;
 
   // params, depth projection

@@ -372,86 +372,103 @@
           "floor_index": 0,
           "furniture": [
             {
-              "id": "floor_0_room_2_desk",
-              "kind": "desk",
+              "id": "floor_0_room_2_table",
+              "kind": "meeting_table",
               "pose": [
-                -7.0,
-                31.952499999999993,
+                -5.3,
+                28.894999999999996,
                 0.45,
                 0.0,
                 0.0,
                 0.0
               ],
               "size": [
-                1.5,
-                0.7,
+                2.2,
+                1.0,
                 0.75
               ]
             },
             {
-              "id": "floor_0_room_2_chair",
+              "id": "floor_0_room_2_chair_north",
               "kind": "chair",
               "pose": [
-                -7.0,
-                31.052499999999995,
+                -5.3,
+                31.952499999999993,
                 0.28,
                 0.0,
                 0.0,
                 0.0
               ],
               "size": [
-                0.55,
-                0.55,
+                0.5,
+                0.5,
                 0.55
               ]
             },
             {
-              "id": "floor_0_room_2_cabinet",
+              "id": "floor_0_room_2_chair_south",
+              "kind": "chair",
+              "pose": [
+                -5.3,
+                25.8375,
+                0.28,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "size": [
+                0.5,
+                0.5,
+                0.55
+              ]
+            },
+            {
+              "id": "floor_0_room_2_chair_west",
+              "kind": "chair",
+              "pose": [
+                -7.45,
+                28.894999999999996,
+                0.28,
+                0.0,
+                0.0,
+                1.57
+              ],
+              "size": [
+                0.5,
+                0.5,
+                0.55
+              ]
+            },
+            {
+              "id": "floor_0_room_2_chair_east",
+              "kind": "chair",
+              "pose": [
+                -3.1499999999999995,
+                28.894999999999996,
+                0.28,
+                0.0,
+                0.0,
+                1.57
+              ],
+              "size": [
+                0.5,
+                0.5,
+                0.55
+              ]
+            },
+            {
+              "id": "floor_0_room_2_credenza",
               "kind": "cabinet",
               "pose": [
                 -3.5999999999999996,
                 25.8375,
-                0.9,
-                0.0,
-                0.0,
-                0.0
-              ],
-              "size": [
-                0.6,
-                1.0,
-                1.8
-              ]
-            },
-            {
-              "id": "floor_0_room_2_side_table",
-              "kind": "side_table",
-              "pose": [
-                -3.5999999999999996,
-                31.952499999999993,
-                0.32,
-                0.0,
-                0.0,
-                0.0
-              ],
-              "size": [
-                0.7,
-                0.7,
-                0.45
-              ]
-            },
-            {
-              "id": "floor_0_room_2_planter",
-              "kind": "planter",
-              "pose": [
-                -5.3,
-                25.8375,
                 0.45,
                 0.0,
                 0.0,
                 0.0
               ],
               "size": [
-                0.45,
+                1.2,
                 0.45,
                 0.9
               ]
@@ -466,7 +483,7 @@
             0.0
           ],
           "id": "floor_0_room_2",
-          "room_type": "office",
+          "room_type": "meeting",
           "side": "left"
         },
         {
@@ -631,10 +648,10 @@
       "office": 3,
       "storage": 1
     },
-    "seed": 409089022
+    "seed": 2112437440
   },
   "model_name": "generated_building",
-  "signature": "5f40dc994d500e4a",
+  "signature": "1152b61f4ff91f23",
   "target": "gazebo_classic",
   "target_points": {
     "elevators": {

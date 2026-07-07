@@ -10,7 +10,6 @@ Panels:
         - /FUEL Planning1
         - /FUEL Planning1/frontier1
         - /FUEL Planning1/viewpoints1
-        - /FUEL Planning1/viewpoints1/Status1
         - /Dog State1
       Splitter Ratio: 0.5
     Tree Height: 679
@@ -67,7 +66,7 @@ Visualization Manager:
           Axis: Z
           Channel Name: intensity
           Class: rviz/PointCloud2
-          Color: 80; 80; 80
+          Color: 92; 53; 102
           Color Transformer: FlatColor
           Decay Time: 0
           Enabled: true
@@ -110,6 +109,62 @@ Visualization Manager:
           Size (m): 0.07999999821186066
           Style: Boxes
           Topic: /sdf_map/occupancy_local_inflate
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: true
+        - Alpha: 0.5
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 80; 80; 255
+          Color Transformer: FlatColor
+          Decay Time: 0
+          Enabled: false
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Min Color: 0; 0; 0
+          Name: occupied_all
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.07999999821186066
+          Style: Boxes
+          Topic: /sdf_map/occupancy_all
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: false
+        - Alpha: 0.30000001192092896
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 160; 30
+          Color Transformer: FlatColor
+          Decay Time: 0
+          Enabled: true
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Min Color: 0; 0; 0
+          Name: occupied_all_inflate
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.07999999821186066
+          Style: Boxes
+          Topic: /sdf_map/occupancy_all_inflate
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
@@ -195,7 +250,10 @@ Visualization Manager:
           Marker Topic: /planning_vis/viewpoints
           Name: viewpoints
           Namespaces:
-            {}
+            global_view_dirs: true
+            global_viewpoints: true
+            refined_view_dirs: true
+            refined_viewpoints: true
           Queue Size: 10
           Value: true
         - Class: rviz/Marker
@@ -215,13 +273,13 @@ Visualization Manager:
           Queue Size: 10
           Value: true
         - Class: rviz/Marker
-          Enabled: true
+          Enabled: false
           Marker Topic: /planning_vis/yaw
           Name: yaw
           Namespaces:
             {}
           Queue Size: 10
-          Value: true
+          Value: false
         - Class: rviz/Marker
           Enabled: true
           Marker Topic: /planning/travel_traj
@@ -255,13 +313,13 @@ Visualization Manager:
           Unreliable: false
           Value: true
         - Class: rviz/Marker
-          Enabled: true
+          Enabled: false
           Marker Topic: /planning/position_cmd_vis
           Name: position_cmd
           Namespaces:
-            current_pose: true
+            {}
           Queue Size: 10
-          Value: true
+          Value: false
         - Class: rviz/Marker
           Enabled: true
           Marker Topic: /fuel_dog_adapter/sensor_fov_marker
@@ -291,7 +349,7 @@ Visualization Manager:
               Scale: 1
               Value: true
             Value: true
-          Enabled: true
+          Enabled: false
           Keep: 100
           Name: odom
           Position Tolerance: 0.05000000074505806
@@ -308,7 +366,7 @@ Visualization Manager:
             Value: Arrow
           Topic: /Odometry_gazebo
           Unreliable: false
-          Value: true
+          Value: false
         - Alpha: 1
           Axes Length: 0.5
           Axes Radius: 0.029999999329447746
@@ -375,7 +433,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 10.298810958862305
+      Distance: 41.933082580566406
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -383,17 +441,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 4.104702472686768
-        Y: -9.578083992004395
-        Z: 7.575634479522705
+        X: 1.7083044052124023
+        Y: 12.182926177978516
+        Z: -3.207529306411743
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.9699997901916504
+      Pitch: 1.5697963237762451
       Target Frame: world
-      Yaw: 0.5581206679344177
+      Yaw: 4.721271514892578
     Saved: ~
 Window Geometry:
   Displays:
@@ -411,7 +469,7 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1400
-  X: 2928
-  Y: 155
+  X: 2729
+  Y: 153
   depth_image:
     collapsed: false

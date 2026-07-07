@@ -83,16 +83,14 @@ void FastExplorationFSM::FSMCallback(const ros::TimerEvent& e) {
         fd_->start_yaw_(0) = fd_->odom_yaw_;
         fd_->start_yaw_(1) = fd_->start_yaw_(2) = 0.0;
       } else {
-        // Replan from non-static state, starting from 'replan_time' seconds later
-        LocalTrajData* info = &planner_manager_->local_data_;
-        double t_r = (ros::Time::now() - info->start_time_).toSec() + fp_->replan_time_;
+        // Replan from non-static state, use actual odometry position
+        // so the new trajectory starts from where the robot really is
+        fd_->start_pt_ = fd_->odom_pos_;
+        fd_->start_vel_ = fd_->odom_vel_;
+        fd_->start_acc_.setZero();
 
-        fd_->start_pt_ = info->position_traj_.evaluateDeBoorT(t_r);
-        fd_->start_vel_ = info->velocity_traj_.evaluateDeBoorT(t_r);
-        fd_->start_acc_ = info->acceleration_traj_.evaluateDeBoorT(t_r);
-        fd_->start_yaw_(0) = info->yaw_traj_.evaluateDeBoorT(t_r)[0];
-        fd_->start_yaw_(1) = info->yawdot_traj_.evaluateDeBoorT(t_r)[0];
-        fd_->start_yaw_(2) = info->yawdotdot_traj_.evaluateDeBoorT(t_r)[0];
+        fd_->start_yaw_(0) = fd_->odom_yaw_;
+        fd_->start_yaw_(1) = fd_->start_yaw_(2) = 0.0;
       }
 
       // Inform traj_server the replanning

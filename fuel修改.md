@@ -186,6 +186,19 @@ roslaunch unitree_guide multi_floor_gazeboSim.launch
 cd /home/uestc/tzb/uestc-challenge2026
 source devel/setup.bash
 roslaunch fuel_dog_adapter fuel_dog_visual_exploration.launch
+// 触发探索
+rostopic pub -1 /waypoint_generator/waypoints nav_msgs/Path "header:
+  frame_id: 'world'
+poses:
+- header:
+    frame_id: 'world'
+  pose:
+    position:
+      x: 0.0
+      y: 0.0
+      z: 1.0
+    orientation:
+      w: 1.0"
 ```
 
 该模式订阅 `/real_sense/depth/image_raw`，通过 `/fuel_dog_adapter/sensor_pose` 提供相机光学坐标系位姿，适合使用 Gazebo 里 A1 模型自带的 RealSense/Kinect 深度相机。
