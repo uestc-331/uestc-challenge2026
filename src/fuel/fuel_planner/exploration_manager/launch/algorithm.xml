@@ -182,6 +182,8 @@
     <param name="astar/resolution_astar" value="0.2" type="double"/>
     <param name="astar/allocate_num" value="1000000" type="int"/>
     <param name="astar/max_search_time" value="0.001" type="double"/>
+    <param name="astar/fixed_z" value="$(arg fixed_z)" type="double"/>
+    <param name="astar/z_margin" value="$(arg z_margin)" type="double"/>
 
   <!-- trajectory optimization -->
     <param name="optimization/ld_smooth" value="20.0" type="double"/>

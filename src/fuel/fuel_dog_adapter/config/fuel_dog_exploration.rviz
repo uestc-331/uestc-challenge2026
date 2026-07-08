@@ -11,6 +11,7 @@ Panels:
         - /FUEL Planning1/frontier1
         - /FUEL Planning1/viewpoints1
         - /Dog State1
+        - /Dog State1/cmd_vel_arrow1
       Splitter Ratio: 0.5
     Tree Height: 679
   - Class: rviz/Selection
@@ -209,7 +210,7 @@ Visualization Manager:
           Color: 255; 255; 255
           Color Transformer: Intensity
           Decay Time: 0
-          Enabled: true
+          Enabled: false
           Invert Rainbow: false
           Max Color: 255; 255; 255
           Min Color: 0; 0; 0
@@ -224,7 +225,7 @@ Visualization Manager:
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
-          Value: true
+          Value: false
         - Class: rviz/Marker
           Enabled: true
           Marker Topic: /sdf_map/update_range
@@ -250,6 +251,7 @@ Visualization Manager:
           Marker Topic: /planning_vis/viewpoints
           Name: viewpoints
           Namespaces:
+            astar_path: true
             global_view_dirs: true
             global_viewpoints: true
             refined_view_dirs: true
@@ -262,6 +264,14 @@ Visualization Manager:
           Name: planned_bspline
           Namespaces:
             B-Spline: true
+          Queue Size: 10
+          Value: true
+        - Class: rviz/Marker
+          Enabled: true
+          Marker Topic: /planning_vis/next_goal
+          Name: astar_path
+          Namespaces:
+            {}
           Queue Size: 10
           Value: true
         - Class: rviz/Marker
@@ -321,13 +331,13 @@ Visualization Manager:
           Queue Size: 10
           Value: false
         - Class: rviz/Marker
-          Enabled: true
+          Enabled: false
           Marker Topic: /fuel_dog_adapter/sensor_fov_marker
           Name: actual_sensor_fov
           Namespaces:
-            actual_sensor_fov: true
+            {}
           Queue Size: 10
-          Value: true
+          Value: false
       Enabled: true
       Name: FUEL Planning
     - Class: rviz/Group
@@ -433,7 +443,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 7.158145427703857
+      Distance: 26.46352195739746
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -441,17 +451,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -1.411639928817749
-        Y: 15.946965217590332
-        Z: -1.9259486198425293
+        X: 5.327315807342529
+        Y: 10.4528169631958
+        Z: 2.1980810165405273
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.2197966575622559
+      Pitch: 1.054796814918518
       Target Frame: world
-      Yaw: 4.666273593902588
+      Yaw: 4.661281585693359
     Saved: ~
 Window Geometry:
   Displays:

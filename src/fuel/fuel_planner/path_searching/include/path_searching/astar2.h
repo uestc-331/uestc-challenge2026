@@ -55,11 +55,12 @@ public:
   double max_search_time_;
 
 private:
-  void backtrack(const NodePtr& end_node, const Eigen::Vector3d& end);
-  void posToIndex(const Eigen::Vector3d& pt, Eigen::Vector3i& idx);
-  double getDiagHeu(const Eigen::Vector3d& x1, const Eigen::Vector3d& x2);
-  double getManhHeu(const Eigen::Vector3d& x1, const Eigen::Vector3d& x2);
-  double getEuclHeu(const Eigen::Vector3d& x1, const Eigen::Vector3d& x2);
+	  void backtrack(const NodePtr& end_node, const Eigen::Vector3d& end);
+	  void posToIndex(const Eigen::Vector3d& pt, Eigen::Vector3i& idx);
+	  Eigen::Vector3d projectToSearchPlane(const Eigen::Vector3d& pt) const;
+	  double getDiagHeu(const Eigen::Vector3d& x1, const Eigen::Vector3d& x2);
+	  double getManhHeu(const Eigen::Vector3d& x1, const Eigen::Vector3d& x2);
+	  double getEuclHeu(const Eigen::Vector3d& x1, const Eigen::Vector3d& x2);
 
   // main data structure
   vector<NodePtr> path_node_pool_;
@@ -74,11 +75,13 @@ private:
 
   // parameter
   double margin_;
-  int allocate_num_;
-  double tie_breaker_;
-  double resolution_, inv_resolution_;
-  Eigen::Vector3d map_size_3d_, origin_;
-};
+	  int allocate_num_;
+	  double tie_breaker_;
+	  double resolution_, inv_resolution_;
+	  double fixed_z_, z_margin_;
+	  bool use_fixed_z_;
+	  Eigen::Vector3d map_size_3d_, origin_;
+	};
 
 }  // namespace fast_planner
 

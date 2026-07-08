@@ -257,7 +257,7 @@ void FastExplorationFSM::visualize() {
   visualization_->drawBspline(info->position_traj_, 0.1, Vector4d(1.0, 0.0, 0.0, 1), false, 0.15,
                               Vector4d(1, 1, 0, 1));
   // visualization_->drawSpheres(plan_data->kino_path_, 0.1, Vector4d(1, 0, 1, 1), "kino_path", 0, 0);
-  // visualization_->drawLines(ed_ptr->path_next_goal_, 0.05, Vector4d(0, 1, 1, 1), "next_goal", 1, 6);
+  visualization_->drawLines(ed_ptr->path_next_goal_, 0.06, Vector4d(0, 1, 1, 1), "astar_path", 1, 6);
 }
 
 void FastExplorationFSM::clearVisMarker() {

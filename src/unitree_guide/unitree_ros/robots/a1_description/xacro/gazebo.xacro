@@ -481,6 +481,7 @@
                     <distortion_k3>0.0</distortion_k3>
                     <distortion_t1>0.0</distortion_t1>
                     <distortion_t2>0.0</distortion_t2>
+                    <!-- 0.05m以内的点不进入点云，解决深度图穿墙问题 -->
                     <pointCloudCutoff>0.05</pointCloudCutoff>
                 </plugin>
             </sensor>

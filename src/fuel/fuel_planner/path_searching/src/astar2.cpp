@@ -16,9 +16,12 @@ Astar::~Astar() {
 
 void Astar::init(ros::NodeHandle& nh, const EDTEnvironment::Ptr& env) {
   nh.param("astar/resolution_astar", resolution_, -1.0);
-  nh.param("astar/lambda_heu", lambda_heu_, -1.0);
-  nh.param("astar/max_search_time", max_search_time_, -1.0);
-  nh.param("astar/allocate_num", allocate_num_, -1);
+	  nh.param("astar/lambda_heu", lambda_heu_, -1.0);
+	  nh.param("astar/max_search_time", max_search_time_, -1.0);
+	  nh.param("astar/allocate_num", allocate_num_, -1);
+	  nh.param("astar/fixed_z", fixed_z_, -999.0);
+	  nh.param("astar/z_margin", z_margin_, 0.2);
+	  use_fixed_z_ = fixed_z_ > -100.0;
 
   tie_breaker_ = 1.0 + 1.0 / 1000;
 
@@ -27,8 +30,11 @@ void Astar::init(ros::NodeHandle& nh, const EDTEnvironment::Ptr& env) {
   /* ---------- map params ---------- */
   this->inv_resolution_ = 1.0 / resolution_;
   edt_env_->sdf_map_->getRegion(origin_, map_size_3d_);
-  cout << "origin_: " << origin_.transpose() << endl;
-  cout << "map size: " << map_size_3d_.transpose() << endl;
+	  cout << "origin_: " << origin_.transpose() << endl;
+	  cout << "map size: " << map_size_3d_.transpose() << endl;
+	  if (use_fixed_z_) {
+	    cout << "astar fixed z: " << fixed_z_ << ", margin: " << z_margin_ << endl;
+	  }
 
   path_node_pool_.resize(allocate_num_);
   for (int i = 0; i < allocate_num_; i++) {
@@ -44,16 +50,18 @@ void Astar::setResolution(const double& res) {
   this->inv_resolution_ = 1.0 / resolution_;
 }
 
-int Astar::search(const Eigen::Vector3d& start_pt, const Eigen::Vector3d& end_pt) {
-  NodePtr cur_node = path_node_pool_[0];
-  cur_node->parent = NULL;
-  cur_node->position = start_pt;
-  posToIndex(start_pt, cur_node->index);
-  cur_node->g_score = 0.0;
-  cur_node->f_score = lambda_heu_ * getDiagHeu(cur_node->position, end_pt);
+	int Astar::search(const Eigen::Vector3d& start_pt, const Eigen::Vector3d& end_pt) {
+	  const Eigen::Vector3d start = projectToSearchPlane(start_pt);
+	  const Eigen::Vector3d end = projectToSearchPlane(end_pt);
+	  NodePtr cur_node = path_node_pool_[0];
+	  cur_node->parent = NULL;
+	  cur_node->position = start;
+	  posToIndex(start, cur_node->index);
+	  cur_node->g_score = 0.0;
+	  cur_node->f_score = lambda_heu_ * getDiagHeu(cur_node->position, end);
 
-  Eigen::Vector3i end_index;
-  posToIndex(end_pt, end_index);
+	  Eigen::Vector3i end_index;
+	  posToIndex(end, end_index);
 
   open_set_.push(cur_node);
   open_set_map_.insert(make_pair(cur_node->index, cur_node));
@@ -67,15 +75,15 @@ int Astar::search(const Eigen::Vector3d& start_pt, const Eigen::Vector3d& end_pt
     bool reach_end = abs(cur_node->index(0) - end_index(0)) <= 1 &&
         abs(cur_node->index(1) - end_index(1)) <= 1 && abs(cur_node->index(2) - end_index(2)) <= 1;
     if (reach_end) {
-      backtrack(cur_node, end_pt);
-      return REACH_END;
+	      backtrack(cur_node, end);
+	      return REACH_END;
     }
 
     // Early termination if time up
     if ((ros::Time::now() - t1).toSec() > max_search_time_) {
       // std::cout << "early";
-      early_terminate_cost_ = cur_node->g_score + getDiagHeu(cur_node->position, end_pt);
-      return NO_PATH;
+	      early_terminate_cost_ = cur_node->g_score + getDiagHeu(cur_node->position, end);
+	      return NO_PATH;
     }
 
     open_set_.pop();
@@ -87,12 +95,14 @@ int Astar::search(const Eigen::Vector3d& start_pt, const Eigen::Vector3d& end_pt
     Eigen::Vector3d nbr_pos;
     Eigen::Vector3d step;
 
-    for (double dx = -resolution_; dx <= resolution_ + 1e-3; dx += resolution_)
-      for (double dy = -resolution_; dy <= resolution_ + 1e-3; dy += resolution_)
-        for (double dz = -resolution_; dz <= resolution_ + 1e-3; dz += resolution_) {
-          step << dx, dy, dz;
-          if (step.norm() < 1e-3) continue;
-          nbr_pos = cur_pos + step;
+	    for (double dx = -resolution_; dx <= resolution_ + 1e-3; dx += resolution_)
+	      for (double dy = -resolution_; dy <= resolution_ + 1e-3; dy += resolution_)
+	        for (double dz = use_fixed_z_ ? 0.0 : -resolution_;
+	             dz <= (use_fixed_z_ ? 0.0 : resolution_) + 1e-3; dz += resolution_) {
+	          step << dx, dy, dz;
+	          if (step.norm() < 1e-3) continue;
+	          nbr_pos = cur_pos + step;
+	          if (use_fixed_z_) nbr_pos(2) = fixed_z_;
           // Check safety
           if (!edt_env_->sdf_map_->isInBox(nbr_pos)) continue;
           if (edt_env_->sdf_map_->getInflateOccupancy(nbr_pos) == 1 ||
@@ -136,19 +146,25 @@ int Astar::search(const Eigen::Vector3d& start_pt, const Eigen::Vector3d& end_pt
             continue;
 
           neighbor->parent = cur_node;
-          neighbor->g_score = tmp_g_score;
-          neighbor->f_score = tmp_g_score + lambda_heu_ * getDiagHeu(nbr_pos, end_pt);
-          open_set_.push(neighbor);
-          open_set_map_[nbr_idx] = neighbor;
-        }
-  }
+	          neighbor->g_score = tmp_g_score;
+	          neighbor->f_score = tmp_g_score + lambda_heu_ * getDiagHeu(nbr_pos, end);
+	          open_set_.push(neighbor);
+	          open_set_map_[nbr_idx] = neighbor;
+		}
+	  }
   // cout << "open set empty, no path!" << endl;
   // cout << "use node num: " << use_node_num_ << endl;
   // cout << "iter num: " << iter_num_ << endl;
-  return NO_PATH;
-}
+	  return NO_PATH;
+	}
 
-double Astar::getEarlyTerminateCost() {
+	Eigen::Vector3d Astar::projectToSearchPlane(const Eigen::Vector3d& pt) const {
+	  Eigen::Vector3d projected = pt;
+	  if (use_fixed_z_) projected(2) = fixed_z_;
+	  return projected;
+	}
+
+	double Astar::getEarlyTerminateCost() {
   return early_terminate_cost_;
 }
 
