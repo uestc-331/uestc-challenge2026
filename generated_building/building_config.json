@@ -2,7 +2,7 @@
   "building_depth": 36.0,
   "building_width": 20.0,
   "danger_count": 3,
-  "distractor_count": 5,
+  "distractor_count": 6,
   "entrance_pose": [
     0.0,
     0.0,
@@ -18,7 +18,7 @@
   "num_floors": 1,
   "room_count": 4,
   "schema": "competition_building_config_v1",
-  "seed": 1013897918,
+  "seed": 1057812836,
   "target_points": {
     "elevators": {
       "0": [
