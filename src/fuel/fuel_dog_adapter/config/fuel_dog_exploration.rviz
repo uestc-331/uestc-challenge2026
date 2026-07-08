@@ -281,13 +281,13 @@ Visualization Manager:
           Queue Size: 10
           Value: false
         - Class: rviz/Marker
-          Enabled: true
+          Enabled: false
           Marker Topic: /planning/travel_traj
           Name: executed_traj
           Namespaces:
-            "": true
+            {}
           Queue Size: 10
-          Value: true
+          Value: false
         - Alpha: 1
           Buffer Length: 1
           Class: rviz/Path
@@ -433,7 +433,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 41.933082580566406
+      Distance: 7.158145427703857
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -441,17 +441,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 1.7083044052124023
-        Y: 12.182926177978516
-        Z: -3.207529306411743
+        X: -1.411639928817749
+        Y: 15.946965217590332
+        Z: -1.9259486198425293
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.5697963237762451
+      Pitch: 1.2197966575622559
       Target Frame: world
-      Yaw: 4.721271514892578
+      Yaw: 4.666273593902588
     Saved: ~
 Window Geometry:
   Displays:

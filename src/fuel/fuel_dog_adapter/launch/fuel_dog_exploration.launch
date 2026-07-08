@@ -27,9 +27,9 @@
   <arg name="max_acc" default="0.8"/>
   <arg name="max_angular_speed" default="0.8"/>
 
-  <!-- Ground robot: fix trajectory Z to walking height -->
-  <arg name="fixed_z" default="0.4"/>
-  <arg name="z_margin" default="0.15"/>
+  <!-- Ground robot: fix trajectory Z to walking height (match dog body height in Gazebo ~0.32) -->
+  <arg name="fixed_z" default="0.32"/>
+  <arg name="z_margin" default="0.05"/>
 
   <node pkg="fuel_dog_adapter" name="odom_to_sensor_pose" type="odom_to_sensor_pose.py" output="screen">
     <param name="odom_topic" value="$(arg odom_topic)"/>

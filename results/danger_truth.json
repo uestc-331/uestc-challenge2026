@@ -1,6 +1,6 @@
 {
   "schema": "competition_danger_truth_v1",
-  "seed": 2112437440,
+  "seed": 1764883094,
   "building": {
     "model_name": "generated_building",
     "floor_count": 1,
@@ -22,11 +22,11 @@
   },
   "danger_sources": [
     {
-      "id": 1,
+      "id": 0,
       "model_name": "danger_red_sphere_00",
       "position": [
-        8.26,
-        35.17,
+        2.263,
+        24.339,
         0.15
       ],
       "floor_index": 0,
@@ -40,8 +40,23 @@
       "id": 2,
       "model_name": "danger_red_sphere_01",
       "position": [
-        -7.995,
-        35.074,
+        -4.659,
+        26.978,
+        0.15
+      ],
+      "floor_index": 0,
+      "room_id": "floor_0_room_2",
+      "color": "red",
+      "shape": "sphere",
+      "is_danger": true,
+      "radius": 0.15
+    },
+    {
+      "id": 3,
+      "model_name": "danger_red_sphere_02",
+      "position": [
+        -2.948,
+        28.514,
         0.15
       ],
       "floor_index": 0,
@@ -53,14 +68,29 @@
     },
     {
       "id": 5,
-      "model_name": "danger_red_sphere_02",
+      "model_name": "danger_red_sphere_03",
       "position": [
-        -6.34,
-        22.508,
+        5.114,
+        15.8,
         0.15
       ],
       "floor_index": 0,
-      "room_id": "floor_0_room_2",
+      "room_id": "floor_0_room_1",
+      "color": "red",
+      "shape": "sphere",
+      "is_danger": true,
+      "radius": 0.15
+    },
+    {
+      "id": 8,
+      "model_name": "danger_red_sphere_04",
+      "position": [
+        8.292,
+        27.561,
+        0.15
+      ],
+      "floor_index": 0,
+      "room_id": "floor_0_room_3",
       "color": "red",
       "shape": "sphere",
       "is_danger": true,
@@ -69,45 +99,15 @@
   ],
   "distraction_sources": [
     {
-      "id": 0,
-      "model_name": "distractor_green_sphere_00",
+      "id": 1,
+      "model_name": "distractor_red_box_00",
       "position": [
-        5.123,
-        23.612,
+        7.057,
+        10.335,
         0.15
       ],
       "floor_index": 0,
-      "room_id": "floor_0_room_3",
-      "color": "green",
-      "shape": "sphere",
-      "is_danger": false,
-      "radius": 0.15
-    },
-    {
-      "id": 3,
-      "model_name": "distractor_green_sphere_01",
-      "position": [
-        -8.736,
-        11.869,
-        0.15
-      ],
-      "floor_index": 0,
-      "room_id": "floor_0_room_0",
-      "color": "green",
-      "shape": "sphere",
-      "is_danger": false,
-      "radius": 0.15
-    },
-    {
-      "id": 4,
-      "model_name": "distractor_red_box_02",
-      "position": [
-        8.535,
-        33.358,
-        0.15
-      ],
-      "floor_index": 0,
-      "room_id": "floor_0_room_3",
+      "room_id": "floor_0_room_1",
       "color": "red",
       "shape": "box",
       "is_danger": false,
@@ -118,11 +118,56 @@
       ]
     },
     {
-      "id": 6,
-      "model_name": "distractor_red_box_03",
+      "id": 4,
+      "model_name": "distractor_green_sphere_01",
       "position": [
-        -4.01,
-        22.669,
+        -4.495,
+        32.405,
+        0.15
+      ],
+      "floor_index": 0,
+      "room_id": "floor_0_room_2",
+      "color": "green",
+      "shape": "sphere",
+      "is_danger": false,
+      "radius": 0.15
+    },
+    {
+      "id": 6,
+      "model_name": "distractor_green_sphere_02",
+      "position": [
+        -2.088,
+        18.396,
+        0.15
+      ],
+      "floor_index": 0,
+      "room_id": "floor_0_room_0",
+      "color": "green",
+      "shape": "sphere",
+      "is_danger": false,
+      "radius": 0.15
+    },
+    {
+      "id": 7,
+      "model_name": "distractor_green_sphere_03",
+      "position": [
+        -4.946,
+        14.188,
+        0.15
+      ],
+      "floor_index": 0,
+      "room_id": "floor_0_room_0",
+      "color": "green",
+      "shape": "sphere",
+      "is_danger": false,
+      "radius": 0.15
+    },
+    {
+      "id": 9,
+      "model_name": "distractor_red_box_04",
+      "position": [
+        -4.945,
+        34.418,
         0.15
       ],
       "floor_index": 0,

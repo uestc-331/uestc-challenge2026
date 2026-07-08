@@ -46,6 +46,7 @@ class FuelPosCmdToCmdVel:
         self.align_yaw_to_velocity = rospy.get_param("~align_yaw_to_velocity", True)
         self.forward_only = rospy.get_param("~forward_only", True)
         self.disable_lateral = rospy.get_param("~disable_lateral", True)
+        self.ignore_unplanned_yaw = rospy.get_param("~ignore_unplanned_yaw", True)
         self.min_heading_speed = rospy.get_param("~min_heading_speed", 0.05)
 
         # ------ limits ------
@@ -149,8 +150,15 @@ class FuelPosCmdToCmdVel:
         # ---- yaw control --------------------------------------------------
         world_speed = math.hypot(world_ax, world_ay)
         yaw_ff = self.yaw_ff_gain * cmd.yaw_dot
+        has_planned_traj = cmd.trajectory_id > 0
 
-        if self.align_yaw_to_velocity and world_speed > self.min_heading_speed:
+        if self.ignore_unplanned_yaw and not has_planned_traj:
+            # traj_server publishes an initial UAV-style command with yaw=0 and
+            # trajectory_id=0. Keep the current yaw so the dog does not rotate
+            # before FUEL has produced a real exploration trajectory.
+            target_yaw = yaw
+            yaw_ff = 0.0
+        elif self.align_yaw_to_velocity and world_speed > self.min_heading_speed:
             # use velocity direction for target yaw (good for non-holonomic)
             target_yaw = math.atan2(world_ay, world_ax)
         else:

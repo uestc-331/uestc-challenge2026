@@ -370,3 +370,32 @@ catkin_make
 - 当前版本按 2.5D 单楼层探索处理，没有接入电梯、多楼层切换或楼梯策略。
 - `/livox/Pointcloud2` 需要由工程已有的 `pointcloud2livox.py` 正常发布。
 - 如果 `/cmd_vel` 有输出但狗不动，需要确认 `junior_ctrl` 是否已进入接收速度命令的控制状态。
+
+## 控制参数
+几个调速度的旋钮，按优先级排列：
+   
+  1. 提速最直接 — max_vel / max_acc
+  <arg name="max_vel" default="0.6"/>   <!-- 上限，往上拉：0.8、1.0 -->
+  <arg name="max_acc" default="0.8"/>   <!-- 加速快慢，往上拉 -->
+  这是硬帽子。控制器算出再大的速度，超过 max_vel 就会被截断。先把这个提到 0.8
+  试试。
+
+  2. 追轨迹更激进 — velocity_ff_gain
+  <param name="velocity_ff_gain" value="1.0"/>  <!-- 1.0 → 1.2 → 1.5 -->
+  >1.0
+  会让狗"追着轨迹跑"，稳态速度会略高于轨迹速度。但如果拐角处容易切弯，别调太高。
+
+  3. 提前感知 — lookahead_time
+  <param name="lookahead_time" value="0.1"/>  <!-- 0.1 → 0.2 → 0.3 -->
+  往前看更远 → 位置误差更大 → P 项输出更大的速度指令。代价是拐角可能切得更厉害。
+
+  4. 减少阻尼 — position_kd
+  <param name="position_kd" value="1.5"/>  <!-- 1.5 → 1.0 → 0.5 -->
+  D 越小阻尼越小，加速越快。降到 0 等于纯 P 控制，可能震荡。
+
+  5. 拐角偏航加速 — angular_acc_limit
+  <param name="angular_acc_limit" value="1.5"/>  <!-- 1.5 → 2.0 -->
+  拐角处旋转更快，减少降速时间。
+
+  建议的调参顺序：先提 max_vel 到 0.8，如果拐角还跟得上，再逐步提 lookahead_time
+  到 0.2。
