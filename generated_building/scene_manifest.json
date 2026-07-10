@@ -6,8 +6,8 @@
     "truth_file_for_referee": "/home/uestc/tzb/uestc-challenge2026/results/danger_truth.json",
     "velocity_command_topic": "/cmd_vel"
   },
-  "danger_count": 3,
-  "distractor_count": 6,
+  "danger_count": 4,
+  "distractor_count": 4,
   "door_config": "/home/uestc/tzb/uestc-challenge2026/generated_building/door_config.yaml",
   "elevator_config": "/home/uestc/tzb/uestc-challenge2026/generated_building/elevator_config.yaml",
   "layout_metadata": "/home/uestc/tzb/uestc-challenge2026/generated_building/layout_metadata.json",
@@ -19,8 +19,8 @@
     "z": 0.6
   },
   "schema": "competition_scene_manifest_v1",
-  "seed": 1057812836,
-  "source_count": 9,
+  "seed": 1786596422,
+  "source_count": 8,
   "truth_file": "/home/uestc/tzb/uestc-challenge2026/results/danger_truth.json",
   "validation_report": "/home/uestc/tzb/uestc-challenge2026/generated_building/generation_checks.json",
   "world_file": "/home/uestc/tzb/uestc-challenge2026/generated_building/competition_scene.world"

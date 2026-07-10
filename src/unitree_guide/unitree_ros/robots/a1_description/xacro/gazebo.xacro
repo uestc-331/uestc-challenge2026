@@ -341,7 +341,8 @@
 
 
      <!-- gazebo livox mid360 plugins -->
-    <xacro:property name="M_PI" value="3.14159"/> 
+    <!--下采样次数，初始值为1，射线ray 数量约等于 samples / downsample-->
+    <!-- <xacro:property name="M_PI" value="3.14159"/> 
     <gazebo reference="laser_livox">
         <sensor type="ray" name="laser_livox">
             <pose>0 0 0 0 0 0</pose>
@@ -376,13 +377,13 @@
                             </ray>
             <visualize>false</visualize>
                     <samples>24000</samples>
-                    <downsample>3</downsample>  <!--下采样次数，初始值为1，射线ray 数量约等于 samples / downsample-->
+                    <downsample>3</downsample>
                     <csv_file_name>$(find a1_description)/scan_mode/mid360.csv</csv_file_name>
                     <ros_topic>/scan</ros_topic>
                     <frameName>laser_livox</frameName>
             </plugin>
         </sensor>
-    </gazebo>
+    </gazebo> -->
 
 
     <!-- gazebo livox imu-link plugins -->

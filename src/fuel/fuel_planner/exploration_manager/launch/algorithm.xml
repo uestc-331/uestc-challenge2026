@@ -34,8 +34,9 @@
   <arg name="frontier_candidate_rmax" default="2.5"/>
   <arg name="frontier_min_visib_num" default="15"/>
   <arg name="yaw_seg_num" default="12"/>
-  <arg name="perception_max_dist" default="4.5"/>
-  <arg name="perception_vis_dist" default="1.0"/>
+  <!-- 默认值 -->
+  <arg name="perception_max_dist" default="5.0"/>
+  <arg name="perception_vis_dist" default="2.0"/>
 
   <!-- main node -->
   <node pkg="exploration_manager" name="exploration_node" type="exploration_node" output="screen">
@@ -61,7 +62,7 @@
     <param name="sdf_map/p_max"  value="0.90"/>
     <param name="sdf_map/p_occ"  value="0.80"/>
     <param name="sdf_map/min_ray_length" value="0.5"/>
-    <param name="sdf_map/max_ray_length" value="4.5"/>
+    <param name="sdf_map/max_ray_length" value="5.0"/>
     <param name="sdf_map/virtual_ceil_height"   value="-10"/>
     <param name="sdf_map/optimistic" value="false" type="bool"/>
     <param name="sdf_map/signed_dist" value="false" type="bool"/>
@@ -110,7 +111,9 @@
     <param name="exploration/am" value="$(eval 1.0 * arg('max_acc'))" type="double"/>
     <param name="exploration/yd" value="$(eval 60 * 3.1415926 / 180.0)" type="double"/>
     <param name="exploration/ydd" value="$(eval 90 * 3.1415926 / 180.0)" type="double"/>
-    <param name="exploration/w_dir" value="1.5" type="double"/>
+    <!-- 当前速度方向权重 -->
+    <param name="exploration/w_dir" value="3.0" type="double"/>
+    <!--  -->
     <param name="exploration/tsp_dir" value="$(find lkh_tsp_solver)/resource" type="string"/>
     <param name="exploration/relax_time" value="1.0" type="double"/>
 
@@ -187,15 +190,15 @@
 
   <!-- trajectory optimization -->
     <param name="optimization/ld_smooth" value="20.0" type="double"/>
-    <param name="optimization/ld_dist" value="10.0" type="double"/>
+    <param name="optimization/ld_dist" value="20.0" type="double"/>
     <param name="optimization/ld_feasi" value="2.0" type="double"/>
     <param name="optimization/ld_start" value="100.0" type="double"/>
     <param name="optimization/ld_end" value="0.5" type="double"/>
-    <param name="optimization/ld_guide" value="1.5" type="double"/>
+    <param name="optimization/ld_guide" value="10.0" type="double"/>
     <param name="optimization/ld_waypt" value="0.3" type="double"/>
     <param name="optimization/ld_view" value="0.0" type="double"/>
     <param name="optimization/ld_time" value="1.0" type="double"/>
-    <param name="optimization/dist0" value="0.7" type="double"/>
+    <param name="optimization/dist0" value="0.55" type="double"/>
     <param name="optimization/max_vel" value="$(arg max_vel)" type="double"/>
     <param name="optimization/max_acc" value="$(arg max_acc)" type="double"/>
     <param name="optimization/algorithm1" value="15" type="int"/>

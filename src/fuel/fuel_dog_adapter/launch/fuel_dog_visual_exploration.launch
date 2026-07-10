@@ -8,7 +8,7 @@
 
   <arg name="map_size_x" default="50.0"/>
   <arg name="map_size_y" default="100.0"/>
-  <arg name="map_size_z" default="2.0"/>
+  <arg name="map_size_z" default="1.6"/>
 
   <arg name="box_min_x" default="-25.0"/>
   <arg name="box_min_y" default="-50.0"/>
@@ -33,12 +33,12 @@
   <arg name="fx" default="554.256"/>
   <arg name="fy" default="554.256"/>
 
-  <arg name="max_vel" default="1.0"/>
-  <arg name="max_acc" default="1.2"/>
-  <arg name="max_angular_speed" default="1.0"/>
+  <arg name="max_vel" default="1.5"/>
+  <arg name="max_acc" default="1.0"/>
+  <arg name="max_angular_speed" default="1.8"/>
   <arg name="max_lateral_speed" default="0.0"/>
   <arg name="yaw_seg_num" default="24"/>
-  <arg name="perception_max_dist" default="4.5"/>
+  <arg name="perception_max_dist" default="5.0"/>
   <arg name="perception_vis_dist" default="2.0"/>
 
   <!-- Ground robot: fix trajectory Z to walking height (match dog body in Gazebo ~0.32) -->
@@ -127,11 +127,11 @@
     <!-- PD gains (fallbacks; overridden by trajectory kx/kv when available) -->
     <param name="position_kp" value="5.7"/>
     <param name="position_kd" value="1.5"/>
-    <param name="yaw_kp" value="2.0"/>
+    <param name="yaw_kp" value="2.8"/>
     <!-- feedforward gains -->
     <param name="velocity_ff_gain" value="1.0"/>
     <param name="accel_ff_gain" value="0.2"/>
-    <param name="yaw_ff_gain" value="0.3"/>
+    <param name="yaw_ff_gain" value="0.0"/>
     <!-- look-ahead for corner anticipation -->
     <param name="lookahead_time" value="0.1"/>
     <!-- speed/accel limits -->
@@ -139,7 +139,7 @@
     <param name="max_lateral_speed" value="$(arg max_lateral_speed)"/>
     <param name="max_angular_speed" value="$(arg max_angular_speed)"/>
     <param name="linear_acc_limit" value="$(arg max_acc)"/>
-    <param name="angular_acc_limit" value="1.5"/>
+    <param name="angular_acc_limit" value="2.0"/>
     <!-- behaviour flags -->
     <param name="align_yaw_to_velocity" value="true"/>
     <param name="forward_only" value="false"/>

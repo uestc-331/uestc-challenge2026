@@ -182,7 +182,7 @@ def _append_foundation(model: ET.Element, layout: BuildingLayout) -> None:
         name="foundation",
         size=(layout.footprint["width"] + 2.0, layout.footprint["length"] + 2.0, 0.3),
         pose=(0.0, layout.footprint["length"] / 2.0, -0.15, 0.0, 0.0, 0.0),
-        color="0.58 0.58 0.60 1",
+        color="0.58 0.58 0.60 0.35",
     )
 
 
@@ -192,7 +192,7 @@ def _append_entrance_apron(model: ET.Element, layout: BuildingLayout) -> None:
         name="entrance_apron",
         size=(4.5, 2.4, 0.08),
         pose=(0.0, -1.2, 0.04, 0.0, 0.0, 0.0),
-        color="0.62 0.62 0.64 1",
+        color="0.62 0.62 0.64 0.35",
     )
 
 
@@ -252,7 +252,7 @@ def _append_floor_plate(model: ET.Element, *, layout: BuildingLayout, floor: Flo
             name=f"slab_floor_{floor.floor_index}_{section_index}",
             size=(rect.width, rect.length, SLAB_THICKNESS),
             pose=(rect.center[0], rect.center[1], z_floor, 0.0, 0.0, 0.0),
-            color="0.76 0.76 0.77 0.35",
+            color="0.76 0.76 0.77 1.0",
         )
 
     _append_box(
@@ -261,7 +261,7 @@ def _append_floor_plate(model: ET.Element, *, layout: BuildingLayout, floor: Flo
         size=(WALL_THICKNESS, floor.stair_bounds.length, SLAB_THICKNESS),
         pose=(floor.stair_bounds.x_max, floor.stair_bounds.center[1], z_floor, 0.0, 0.0, 0.0),
         ## 改了透明度
-        color="0.76 0.76 0.77 0.35",
+        color="0.76 0.76 0.77 1.0",
     )
 
 
