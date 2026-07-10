@@ -7,18 +7,26 @@
   <arg name="cmd_vel_topic" default="/cmd_vel"/>
 
   <arg name="map_size_x" default="50.0"/>
-  <arg name="map_size_y" default="100.0"/>
+  <arg name="map_size_y" default="50.0"/>
   <arg name="map_size_z" default="1.6"/>
 
-  <arg name="box_min_x" default="-25.0"/>
-  <arg name="box_min_y" default="-50.0"/>
+  <arg name="box_min_x" default="-2.0"/>
+  <arg name="box_min_y" default="-2.5"/>
   <arg name="box_min_z" default="0.05"/>
-  <arg name="box_max_x" default="25.0"/>
-  <arg name="box_max_y" default="50.0"/>
+  <arg name="box_max_x" default="2.0"/>
+  <arg name="box_max_y" default="20.0"/>
   <arg name="box_max_z" default="1.5"/>
 
+  <arg name="enable_dynamic_box" default="true"/>
+  <arg name="dynamic_box_expand_y" default="9.0"/>
+  <arg name="dynamic_box_shrink_y" default="8.8"/>
+  <arg name="dynamic_box_gate_min_x" default="-0.9"/>
+  <arg name="dynamic_box_gate_max_x" default="0.9"/>
+  <arg name="dynamic_box_min_x_after" default="-25.0"/>
+  <arg name="dynamic_box_max_x_after" default="25.0"/>
+
   <arg name="init_x" default="0.0"/>
-  <arg name="init_y" default="2.2"/>
+  <arg name="init_y" default="-2.2"/>
   <arg name="init_z" default="0.3"/>
   <arg name="viewpoint_z" default="0.35"/>
 
@@ -33,13 +41,23 @@
   <arg name="fx" default="554.256"/>
   <arg name="fy" default="554.256"/>
 
-  <arg name="max_vel" default="1.5"/>
+  <arg name="max_vel" default="1.3"/>
   <arg name="max_acc" default="1.0"/>
-  <arg name="max_angular_speed" default="1.8"/>
+  <arg name="max_angular_speed" default="1.5"/>
   <arg name="max_lateral_speed" default="0.0"/>
   <arg name="yaw_seg_num" default="24"/>
   <arg name="perception_max_dist" default="5.0"/>
   <arg name="perception_vis_dist" default="2.0"/>
+
+  <!-- Return-home target. By default, FUEL returns to the pose where exploration was triggered. -->
+  <arg name="return_home" default="true"/>
+  <arg name="return_home_tolerance" default="0.25"/>
+  <arg name="return_home_yaw_tolerance" default="0.08"/>
+  <arg name="use_fixed_return_home" default="true"/>
+  <arg name="return_home_x" default="0.8"/>
+  <arg name="return_home_y" default="2.62"/>
+  <arg name="return_home_z" default="0.31"/>
+  <arg name="return_home_yaw" default="0.0"/>
 
   <!-- Ground robot: fix trajectory Z to walking height (match dog body in Gazebo ~0.32) -->
   <arg name="fixed_z" default="0.30"/>
@@ -75,6 +93,7 @@
     <arg name="box_max_x" value="$(arg box_max_x)"/>
     <arg name="box_max_y" value="$(arg box_max_y)"/>
     <arg name="box_max_z" value="$(arg box_max_z)"/>
+    <arg name="enable_dynamic_box" value="$(arg enable_dynamic_box)"/>
 
     <arg name="odometry_topic" value="$(arg odom_topic)"/>
     <arg name="sensor_pose_topic" value="$(arg sensor_pose_topic)"/>
@@ -102,6 +121,14 @@
     <arg name="yaw_seg_num" value="$(arg yaw_seg_num)"/>
     <arg name="perception_max_dist" value="$(arg perception_max_dist)"/>
     <arg name="perception_vis_dist" value="$(arg perception_vis_dist)"/>
+    <arg name="return_home" value="$(arg return_home)"/>
+    <arg name="return_home_tolerance" value="$(arg return_home_tolerance)"/>
+    <arg name="return_home_yaw_tolerance" value="$(arg return_home_yaw_tolerance)"/>
+    <arg name="use_fixed_return_home" value="$(arg use_fixed_return_home)"/>
+    <arg name="return_home_x" value="$(arg return_home_x)"/>
+    <arg name="return_home_y" value="$(arg return_home_y)"/>
+    <arg name="return_home_z" value="$(arg return_home_z)"/>
+    <arg name="return_home_yaw" value="$(arg return_home_yaw)"/>
   </include>
 
   <node pkg="plan_manage" name="traj_server" type="traj_server" output="screen">
@@ -150,5 +177,18 @@
     <param name="command_timeout" value="0.5"/>
     <param name="odom_timeout" value="0.5"/>
     <param name="control_rate" value="30.0"/>
+  </node>
+
+  <node if="$(arg enable_dynamic_box)" pkg="fuel_dog_adapter" name="dynamic_exploration_box" type="dynamic_exploration_box.py" output="screen">
+    <param name="odom_topic" value="$(arg odom_topic)"/>
+    <param name="expand_y" value="$(arg dynamic_box_expand_y)"/>
+    <param name="shrink_y" value="$(arg dynamic_box_shrink_y)"/>
+    <param name="gate_min_x" value="$(arg dynamic_box_gate_min_x)"/>
+    <param name="gate_max_x" value="$(arg dynamic_box_gate_max_x)"/>
+    <param name="box_min_x_before" value="$(arg box_min_x)"/>
+    <param name="box_max_x_before" value="$(arg box_max_x)"/>
+    <param name="box_min_x_after" value="$(arg dynamic_box_min_x_after)"/>
+    <param name="box_max_x_after" value="$(arg dynamic_box_max_x_after)"/>
+    <param name="target_namespace" value="/exploration_node"/>
   </node>
 </launch>

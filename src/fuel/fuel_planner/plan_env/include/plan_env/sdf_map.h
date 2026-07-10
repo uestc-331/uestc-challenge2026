@@ -56,6 +56,7 @@ public:
   void updateESDF3d();
   void resetBuffer();
   void resetBuffer(const Eigen::Vector3d& min, const Eigen::Vector3d& max);
+  void updateBoxFromParams();
 
   void getRegion(Eigen::Vector3d& ori, Eigen::Vector3d& size);
   void getBox(Eigen::Vector3d& bmin, Eigen::Vector3d& bmax);
@@ -65,6 +66,7 @@ public:
 
 private:
   void clearAndInflateLocalMap();
+  void dynamicBoxCallback(const ros::TimerEvent& e);
   void inflatePoint(const Eigen::Vector3i& pt, int step, vector<Eigen::Vector3i>& pts);
   void setCacheOccupancy(const int& adr, const int& occ);
   Eigen::Vector3d closetPointInMap(const Eigen::Vector3d& pt, const Eigen::Vector3d& camera_pt);
@@ -75,6 +77,8 @@ private:
   unique_ptr<MapData> md_;
   unique_ptr<MapROS> mr_;
   unique_ptr<RayCaster> caster_;
+  ros::NodeHandle node_;
+  ros::Timer dynamic_box_timer_;
 
   friend MapROS;
 

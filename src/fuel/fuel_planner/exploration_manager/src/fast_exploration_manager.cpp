@@ -1,6 +1,7 @@
 // #include <fstream>
 #include <exploration_manager/fast_exploration_manager.h>
 #include <thread>
+#include <cmath>
 #include <iostream>
 #include <fstream>
 #include <lkh_tsp_solver/lkh_interface.h>
@@ -289,6 +290,44 @@ int FastExplorationManager::planExploreMotion(
   ROS_WARN("Total time: %lf", total);
   ROS_ERROR_COND(total > 0.1, "Total time too long!!!");
 
+  return SUCCEED;
+}
+
+int FastExplorationManager::planReturnHome(const Vector3d& pos, const Vector3d& vel,
+    const Vector3d& acc, const Vector3d& yaw, const Vector3d& home_pos, const double& home_yaw) {
+  ros::Time t1 = ros::Time::now();
+  ed_->points_.clear();
+  ed_->views_.clear();
+  ed_->global_tour_.clear();
+  ed_->refined_points_.clear();
+  ed_->refined_views_.clear();
+  ed_->refined_views1_.clear();
+  ed_->refined_views2_.clear();
+
+  std::cout << "Return home: start " << pos.transpose() << ", home " << home_pos.transpose()
+            << ", home yaw: " << home_yaw << std::endl;
+
+  planner_manager_->path_finder_->reset();
+  if (planner_manager_->path_finder_->search(pos, home_pos) != Astar::REACH_END) {
+    ROS_ERROR("No path to home");
+    return FAIL;
+  }
+
+  ed_->path_next_goal_ = planner_manager_->path_finder_->getPath();
+  shortenPath(ed_->path_next_goal_);
+  ed_->next_goal_ = home_pos;
+  ed_->global_tour_ = ed_->path_next_goal_;
+
+  double diff = std::fabs(std::atan2(std::sin(home_yaw - yaw[0]), std::cos(home_yaw - yaw[0])));
+  double time_lb = diff / ViewNode::yd_;
+  planner_manager_->planExploreTraj(ed_->path_next_goal_, vel, acc, time_lb);
+
+  if (planner_manager_->local_data_.position_traj_.getTimeSum() < time_lb - 0.1)
+    ROS_ERROR("Return-home lower bound not satified!");
+
+  planner_manager_->planYawExplore(yaw, home_yaw, true, ep_->relax_time_);
+
+  ROS_WARN("Return home traj: %lf", (ros::Time::now() - t1).toSec());
   return SUCCEED;
 }
 

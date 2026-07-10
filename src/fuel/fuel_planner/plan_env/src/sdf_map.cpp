@@ -10,6 +10,7 @@ SDFMap::~SDFMap() {
 }
 
 void SDFMap::initMap(ros::NodeHandle& nh) {
+  node_ = nh;
   mp_.reset(new MapParam);
   md_.reset(new MapData);
   mr_.reset(new MapROS);
@@ -82,6 +83,11 @@ void SDFMap::initMap(ros::NodeHandle& nh) {
   }
   posToIndex(mp_->box_mind_, mp_->box_min_);
   posToIndex(mp_->box_maxd_, mp_->box_max_);
+  boundIndex(mp_->box_min_);
+  boundIndex(mp_->box_max_);
+  ROS_WARN("SDF map box: min %.3f %.3f %.3f, max %.3f %.3f %.3f",
+           mp_->box_mind_(0), mp_->box_mind_(1), mp_->box_mind_(2),
+           mp_->box_maxd_(0), mp_->box_maxd_(1), mp_->box_maxd_(2));
 
   // Initialize ROS wrapper
   mr_->setMap(this);
@@ -90,6 +96,49 @@ void SDFMap::initMap(ros::NodeHandle& nh) {
 
   caster_.reset(new RayCaster);
   caster_->setParams(mp_->resolution_, mp_->map_origin_);
+
+  bool enable_dynamic_box = false;
+  double dynamic_box_rate = 1.0;
+  nh.param("sdf_map/enable_dynamic_box", enable_dynamic_box, false);
+  nh.param("sdf_map/dynamic_box_rate", dynamic_box_rate, 1.0);
+  if (enable_dynamic_box) {
+    dynamic_box_timer_ =
+        nh.createTimer(ros::Duration(1.0 / max(dynamic_box_rate, 0.1)),
+                       &SDFMap::dynamicBoxCallback, this);
+    ROS_WARN("SDF map dynamic box update enabled, rate: %.2f Hz", dynamic_box_rate);
+  }
+}
+
+void SDFMap::dynamicBoxCallback(const ros::TimerEvent& e) {
+  updateBoxFromParams();
+}
+
+void SDFMap::updateBoxFromParams() {
+  if (!mp_) return;
+
+  Eigen::Vector3d new_min = mp_->box_mind_;
+  Eigen::Vector3d new_max = mp_->box_maxd_;
+  vector<string> axis = { "x", "y", "z" };
+  for (int i = 0; i < 3; ++i) {
+    node_.getParam("sdf_map/box_min_" + axis[i], new_min[i]);
+    node_.getParam("sdf_map/box_max_" + axis[i], new_max[i]);
+    new_min[i] = max(new_min[i], mp_->map_min_boundary_[i]);
+    new_max[i] = min(new_max[i], mp_->map_max_boundary_[i]);
+  }
+
+  if ((new_min - mp_->box_mind_).norm() < 1e-4 && (new_max - mp_->box_maxd_).norm() < 1e-4)
+    return;
+
+  mp_->box_mind_ = new_min;
+  mp_->box_maxd_ = new_max;
+  posToIndex(mp_->box_mind_, mp_->box_min_);
+  posToIndex(mp_->box_maxd_, mp_->box_max_);
+  boundIndex(mp_->box_min_);
+  boundIndex(mp_->box_max_);
+
+  ROS_WARN("SDF map dynamic box updated: min %.3f %.3f %.3f, max %.3f %.3f %.3f",
+           mp_->box_mind_(0), mp_->box_mind_(1), mp_->box_mind_(2),
+           mp_->box_maxd_(0), mp_->box_maxd_(1), mp_->box_maxd_(2));
 }
 
 void SDFMap::resetBuffer() {

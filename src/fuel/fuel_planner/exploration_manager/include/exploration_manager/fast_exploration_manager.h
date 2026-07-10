@@ -28,8 +28,10 @@ public:
 
   void initialize(ros::NodeHandle& nh);
 
-  int planExploreMotion(const Vector3d& pos, const Vector3d& vel, const Vector3d& acc,
-                        const Vector3d& yaw);
+	  int planExploreMotion(const Vector3d& pos, const Vector3d& vel, const Vector3d& acc,
+	                        const Vector3d& yaw);
+  int planReturnHome(const Vector3d& pos, const Vector3d& vel, const Vector3d& acc,
+                     const Vector3d& yaw, const Vector3d& home_pos, const double& home_yaw);
 
   // Benchmark method, classic frontier and rapid frontier
   int classicFrontier(const Vector3d& pos, const double& yaw);

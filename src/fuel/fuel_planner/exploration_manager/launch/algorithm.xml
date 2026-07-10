@@ -9,6 +9,7 @@
   <arg name="box_max_x"/>
   <arg name="box_max_y"/>
   <arg name="box_max_z"/>
+  <arg name="enable_dynamic_box" default="false"/>
 
   <arg name="odometry_topic"/>
   <arg name="sensor_pose_topic"/>
@@ -37,6 +38,14 @@
   <!-- 默认值 -->
   <arg name="perception_max_dist" default="5.0"/>
   <arg name="perception_vis_dist" default="2.0"/>
+  <arg name="return_home" default="false"/>
+  <arg name="return_home_tolerance" default="0.5"/>
+  <arg name="return_home_yaw_tolerance" default="0.15"/>
+  <arg name="use_fixed_return_home" default="false"/>
+  <arg name="return_home_x" default="0.0"/>
+  <arg name="return_home_y" default="0.0"/>
+  <arg name="return_home_z" default="0.3"/>
+  <arg name="return_home_yaw" default="0.0"/>
 
   <!-- main node -->
   <node pkg="exploration_manager" name="exploration_node" type="exploration_node" output="screen">
@@ -72,6 +81,8 @@
     <param name="sdf_map/box_max_x" value="$(arg box_max_x)" type="double"/>
     <param name="sdf_map/box_max_y" value="$(arg box_max_y)" type="double"/>
     <param name="sdf_map/box_max_z" value="$(arg box_max_z)" type="double"/>
+    <param name="sdf_map/enable_dynamic_box" value="$(arg enable_dynamic_box)" type="bool"/>
+    <param name="sdf_map/dynamic_box_rate" value="2.0" type="double"/>
 
     <param name="map_ros/cx" value="$(arg cx)"/>
     <param name="map_ros/cy" value="$(arg cy)"/>
@@ -94,6 +105,14 @@
     <param name="fsm/thresh_replan1" value="0.5" type="double"/>
     <param name="fsm/thresh_replan2" value="0.5" type="double"/>
     <param name="fsm/thresh_replan3" value="1.5" type="double"/>
+    <param name="fsm/return_home" value="$(arg return_home)" type="bool"/>
+    <param name="fsm/return_home_tolerance" value="$(arg return_home_tolerance)" type="double"/>
+    <param name="fsm/return_home_yaw_tolerance" value="$(arg return_home_yaw_tolerance)" type="double"/>
+    <param name="fsm/use_fixed_return_home" value="$(arg use_fixed_return_home)" type="bool"/>
+    <param name="fsm/return_home_x" value="$(arg return_home_x)" type="double"/>
+    <param name="fsm/return_home_y" value="$(arg return_home_y)" type="double"/>
+    <param name="fsm/return_home_z" value="$(arg return_home_z)" type="double"/>
+    <param name="fsm/return_home_yaw" value="$(arg return_home_yaw)" type="double"/>
 
     <!-- <param name="fsm/thresh_replan1" value="0.00001" type="double"/> -->
     <!-- <param name="fsm/thresh_replan2" value="100.0" type="double"/> -->
@@ -112,7 +131,7 @@
     <param name="exploration/yd" value="$(eval 60 * 3.1415926 / 180.0)" type="double"/>
     <param name="exploration/ydd" value="$(eval 90 * 3.1415926 / 180.0)" type="double"/>
     <!-- 当前速度方向权重 -->
-    <param name="exploration/w_dir" value="3.0" type="double"/>
+    <param name="exploration/w_dir" value="1.5" type="double"/>
     <!--  -->
     <param name="exploration/tsp_dir" value="$(find lkh_tsp_solver)/resource" type="string"/>
     <param name="exploration/relax_time" value="1.0" type="double"/>

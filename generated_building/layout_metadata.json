@@ -127,86 +127,103 @@
           "floor_index": 0,
           "furniture": [
             {
-              "id": "floor_0_room_0_sofa_a",
-              "kind": "sofa",
-              "pose": [
-                -7.0,
-                10.638333333333334,
-                0.45,
-                0.0,
-                0.0,
-                0.0
-              ],
-              "size": [
-                1.8,
-                0.8,
-                0.8
-              ]
-            },
-            {
-              "id": "floor_0_room_0_sofa_b",
-              "kind": "sofa",
-              "pose": [
-                -3.5999999999999996,
-                10.638333333333334,
-                0.45,
-                0.0,
-                0.0,
-                3.14
-              ],
-              "size": [
-                1.8,
-                0.8,
-                0.8
-              ]
-            },
-            {
-              "id": "floor_0_room_0_coffee_table",
-              "kind": "coffee_table",
+              "id": "floor_0_room_0_table",
+              "kind": "meeting_table",
               "pose": [
                 -5.3,
                 12.526666666666667,
-                0.25,
+                0.45,
                 0.0,
                 0.0,
                 0.0
               ],
               "size": [
-                0.8,
-                0.6,
-                0.4
+                2.2,
+                1.0,
+                0.75
               ]
             },
             {
-              "id": "floor_0_room_0_bookshelf",
-              "kind": "bookshelf",
+              "id": "floor_0_room_0_chair_north",
+              "kind": "chair",
+              "pose": [
+                -5.3,
+                14.415000000000001,
+                0.28,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "size": [
+                0.5,
+                0.5,
+                0.55
+              ]
+            },
+            {
+              "id": "floor_0_room_0_chair_south",
+              "kind": "chair",
+              "pose": [
+                -5.3,
+                10.638333333333334,
+                0.28,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "size": [
+                0.5,
+                0.5,
+                0.55
+              ]
+            },
+            {
+              "id": "floor_0_room_0_chair_west",
+              "kind": "chair",
+              "pose": [
+                -7.45,
+                12.526666666666667,
+                0.28,
+                0.0,
+                0.0,
+                1.57
+              ],
+              "size": [
+                0.5,
+                0.5,
+                0.55
+              ]
+            },
+            {
+              "id": "floor_0_room_0_chair_east",
+              "kind": "chair",
+              "pose": [
+                -3.1499999999999995,
+                12.526666666666667,
+                0.28,
+                0.0,
+                0.0,
+                1.57
+              ],
+              "size": [
+                0.5,
+                0.5,
+                0.55
+              ]
+            },
+            {
+              "id": "floor_0_room_0_credenza",
+              "kind": "cabinet",
               "pose": [
                 -3.5999999999999996,
-                14.415000000000001,
-                0.85,
+                10.638333333333334,
+                0.45,
                 0.0,
                 0.0,
                 0.0
               ],
               "size": [
-                0.45,
                 1.2,
-                1.7
-              ]
-            },
-            {
-              "id": "floor_0_room_0_planter",
-              "kind": "planter",
-              "pose": [
-                -7.0,
-                14.415000000000001,
-                0.45,
-                0.0,
-                0.0,
-                0.0
-              ],
-              "size": [
-                0.45,
                 0.45,
                 0.9
               ]
@@ -221,7 +238,7 @@
             0.0
           ],
           "id": "floor_0_room_0",
-          "room_type": "lounge",
+          "room_type": "meeting",
           "side": "left"
         },
         {
@@ -472,79 +489,79 @@
           "floor_index": 0,
           "furniture": [
             {
-              "id": "floor_0_room_3_desk",
-              "kind": "desk",
+              "id": "floor_0_room_3_sofa_a",
+              "kind": "sofa",
               "pose": [
                 3.5999999999999996,
-                23.76833333333333,
+                19.991666666666667,
                 0.45,
                 0.0,
                 0.0,
                 0.0
               ],
               "size": [
-                1.5,
-                0.7,
-                0.75
+                1.8,
+                0.8,
+                0.8
               ]
             },
             {
-              "id": "floor_0_room_3_chair",
-              "kind": "chair",
-              "pose": [
-                3.5999999999999996,
-                22.868333333333332,
-                0.28,
-                0.0,
-                0.0,
-                0.0
-              ],
-              "size": [
-                0.55,
-                0.55,
-                0.55
-              ]
-            },
-            {
-              "id": "floor_0_room_3_cabinet",
-              "kind": "cabinet",
+              "id": "floor_0_room_3_sofa_b",
+              "kind": "sofa",
               "pose": [
                 7.0,
                 19.991666666666667,
-                0.9,
+                0.45,
                 0.0,
                 0.0,
-                0.0
+                3.14
               ],
               "size": [
-                0.6,
-                1.0,
-                1.8
+                1.8,
+                0.8,
+                0.8
               ]
             },
             {
-              "id": "floor_0_room_3_side_table",
-              "kind": "side_table",
+              "id": "floor_0_room_3_coffee_table",
+              "kind": "coffee_table",
               "pose": [
-                7.0,
-                23.76833333333333,
-                0.32,
+                5.3,
+                21.88,
+                0.25,
                 0.0,
                 0.0,
                 0.0
               ],
               "size": [
-                0.7,
-                0.7,
-                0.45
+                0.8,
+                0.6,
+                0.4
+              ]
+            },
+            {
+              "id": "floor_0_room_3_bookshelf",
+              "kind": "bookshelf",
+              "pose": [
+                7.0,
+                23.76833333333333,
+                0.85,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "size": [
+                0.45,
+                1.2,
+                1.7
               ]
             },
             {
               "id": "floor_0_room_3_planter",
               "kind": "planter",
               "pose": [
-                5.3,
-                19.991666666666667,
+                3.5999999999999996,
+                23.76833333333333,
                 0.45,
                 0.0,
                 0.0,
@@ -566,7 +583,7 @@
             0.0
           ],
           "id": "floor_0_room_3",
-          "room_type": "office",
+          "room_type": "lounge",
           "side": "right"
         },
         {
@@ -587,95 +604,78 @@
           "floor_index": 0,
           "furniture": [
             {
-              "id": "floor_0_room_4_table",
-              "kind": "meeting_table",
+              "id": "floor_0_room_4_desk",
+              "kind": "desk",
               "pose": [
-                -5.3,
-                31.23333333333333,
+                -7.0,
+                33.12166666666666,
                 0.45,
                 0.0,
                 0.0,
                 0.0
               ],
               "size": [
-                2.2,
-                1.0,
+                1.5,
+                0.7,
                 0.75
               ]
             },
             {
-              "id": "floor_0_room_4_chair_north",
+              "id": "floor_0_room_4_chair",
               "kind": "chair",
               "pose": [
-                -5.3,
-                33.12166666666666,
+                -7.0,
+                32.221666666666664,
                 0.28,
                 0.0,
                 0.0,
                 0.0
               ],
               "size": [
-                0.5,
-                0.5,
+                0.55,
+                0.55,
                 0.55
               ]
             },
             {
-              "id": "floor_0_room_4_chair_south",
-              "kind": "chair",
-              "pose": [
-                -5.3,
-                29.345,
-                0.28,
-                0.0,
-                0.0,
-                0.0
-              ],
-              "size": [
-                0.5,
-                0.5,
-                0.55
-              ]
-            },
-            {
-              "id": "floor_0_room_4_chair_west",
-              "kind": "chair",
-              "pose": [
-                -7.45,
-                31.23333333333333,
-                0.28,
-                0.0,
-                0.0,
-                1.57
-              ],
-              "size": [
-                0.5,
-                0.5,
-                0.55
-              ]
-            },
-            {
-              "id": "floor_0_room_4_chair_east",
-              "kind": "chair",
-              "pose": [
-                -3.1499999999999995,
-                31.23333333333333,
-                0.28,
-                0.0,
-                0.0,
-                1.57
-              ],
-              "size": [
-                0.5,
-                0.5,
-                0.55
-              ]
-            },
-            {
-              "id": "floor_0_room_4_credenza",
+              "id": "floor_0_room_4_cabinet",
               "kind": "cabinet",
               "pose": [
                 -3.5999999999999996,
+                29.345,
+                0.9,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "size": [
+                0.6,
+                1.0,
+                1.8
+              ]
+            },
+            {
+              "id": "floor_0_room_4_side_table",
+              "kind": "side_table",
+              "pose": [
+                -3.5999999999999996,
+                33.12166666666666,
+                0.32,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "size": [
+                0.7,
+                0.7,
+                0.45
+              ]
+            },
+            {
+              "id": "floor_0_room_4_planter",
+              "kind": "planter",
+              "pose": [
+                -5.3,
                 29.345,
                 0.45,
                 0.0,
@@ -683,7 +683,7 @@
                 0.0
               ],
               "size": [
-                1.2,
+                0.45,
                 0.45,
                 0.9
               ]
@@ -698,7 +698,7 @@
             0.0
           ],
           "id": "floor_0_room_4",
-          "room_type": "meeting",
+          "room_type": "office",
           "side": "left"
         },
         {
@@ -719,79 +719,79 @@
           "floor_index": 0,
           "furniture": [
             {
-              "id": "floor_0_room_5_sofa_a",
-              "kind": "sofa",
+              "id": "floor_0_room_5_desk",
+              "kind": "desk",
               "pose": [
                 3.5999999999999996,
-                29.345,
+                33.12166666666666,
                 0.45,
                 0.0,
                 0.0,
                 0.0
               ],
               "size": [
-                1.8,
-                0.8,
-                0.8
+                1.5,
+                0.7,
+                0.75
               ]
             },
             {
-              "id": "floor_0_room_5_sofa_b",
-              "kind": "sofa",
+              "id": "floor_0_room_5_chair",
+              "kind": "chair",
+              "pose": [
+                3.5999999999999996,
+                32.221666666666664,
+                0.28,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "size": [
+                0.55,
+                0.55,
+                0.55
+              ]
+            },
+            {
+              "id": "floor_0_room_5_cabinet",
+              "kind": "cabinet",
               "pose": [
                 7.0,
                 29.345,
-                0.45,
-                0.0,
-                0.0,
-                3.14
-              ],
-              "size": [
-                1.8,
-                0.8,
-                0.8
-              ]
-            },
-            {
-              "id": "floor_0_room_5_coffee_table",
-              "kind": "coffee_table",
-              "pose": [
-                5.3,
-                31.23333333333333,
-                0.25,
+                0.9,
                 0.0,
                 0.0,
                 0.0
               ],
               "size": [
-                0.8,
                 0.6,
-                0.4
+                1.0,
+                1.8
               ]
             },
             {
-              "id": "floor_0_room_5_bookshelf",
-              "kind": "bookshelf",
+              "id": "floor_0_room_5_side_table",
+              "kind": "side_table",
               "pose": [
                 7.0,
                 33.12166666666666,
-                0.85,
+                0.32,
                 0.0,
                 0.0,
                 0.0
               ],
               "size": [
-                0.45,
-                1.2,
-                1.7
+                0.7,
+                0.7,
+                0.45
               ]
             },
             {
               "id": "floor_0_room_5_planter",
               "kind": "planter",
               "pose": [
-                3.5999999999999996,
-                33.12166666666666,
+                5.3,
+                29.345,
                 0.45,
                 0.0,
                 0.0,
@@ -813,7 +813,7 @@
             0.0
           ],
           "id": "floor_0_room_5",
-          "room_type": "lounge",
+          "room_type": "office",
           "side": "right"
         }
       ],
@@ -846,10 +846,10 @@
       "office": 3,
       "storage": 1
     },
-    "seed": 1786596422
+    "seed": 748401720
   },
   "model_name": "generated_building",
-  "signature": "aea6836e7bc71576",
+  "signature": "8dd3b048f6fc7745",
   "target": "gazebo_classic",
   "target_points": {
     "elevators": {

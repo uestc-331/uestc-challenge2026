@@ -11,12 +11,14 @@ using Eigen::Vector3d;
 namespace fast_planner {
 struct FSMData {
   // FSM data
-  bool trigger_, have_odom_, static_state_;
+  bool trigger_, have_odom_, static_state_, have_home_;
   vector<string> state_str_;
 
   Eigen::Vector3d odom_pos_, odom_vel_;  // odometry state
   Eigen::Quaterniond odom_orient_;
   double odom_yaw_;
+  Eigen::Vector3d home_pos_;
+  double home_yaw_;
 
   Eigen::Vector3d start_pt_, start_vel_, start_acc_, start_yaw_;  // start state
   vector<Eigen::Vector3d> start_poss;
@@ -28,6 +30,12 @@ struct FSMParam {
   double replan_thresh2_;
   double replan_thresh3_;
   double replan_time_;  // second
+  bool return_home_;
+  double return_home_tolerance_;
+  double return_home_yaw_tolerance_;
+  bool use_fixed_return_home_;
+  Eigen::Vector3d fixed_return_home_pos_;
+  double fixed_return_home_yaw_;
 };
 
 struct ExplorationData {

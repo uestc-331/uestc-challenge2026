@@ -29,7 +29,7 @@ class PlanningVisualization;
 struct FSMParam;
 struct FSMData;
 
-enum EXPL_STATE { INIT, WAIT_TRIGGER, PLAN_TRAJ, PUB_TRAJ, EXEC_TRAJ, FINISH };
+enum EXPL_STATE { INIT, WAIT_TRIGGER, PLAN_TRAJ, PUB_TRAJ, EXEC_TRAJ, RETURN_HOME, PUB_RETURN, EXEC_RETURN, FINISH };
 
 class FastExplorationFSM {
 private:
@@ -48,10 +48,11 @@ private:
   ros::NodeHandle node_;
   ros::Timer exec_timer_, safety_timer_, vis_timer_, frontier_timer_;
   ros::Subscriber trigger_sub_, odom_sub_;
-  ros::Publisher replan_pub_, new_pub_, bspline_pub_;
+  ros::Publisher replan_pub_, new_pub_, finish_pub_, bspline_pub_;
 
   /* helper functions */
   int callExplorationPlanner();
+  int callReturnHomePlanner();
   void transitState(EXPL_STATE new_state, string pos_call);
 
   /* ROS functions */

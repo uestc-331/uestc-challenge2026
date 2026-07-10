@@ -8,9 +8,17 @@
 #include <plan_env/edt_environment.h>
 #include <plan_env/sdf_map.h>
 
+#include <cmath>
+
 using Eigen::Vector4d;
 
 namespace fast_planner {
+namespace {
+double normalizeYawError(double yaw) {
+  return std::atan2(std::sin(yaw), std::cos(yaw));
+}
+}
+
 void FastExplorationFSM::init(ros::NodeHandle& nh) {
   fp_.reset(new FSMParam);
   fd_.reset(new FSMData);
@@ -20,6 +28,14 @@ void FastExplorationFSM::init(ros::NodeHandle& nh) {
   nh.param("fsm/thresh_replan2", fp_->replan_thresh2_, -1.0);
   nh.param("fsm/thresh_replan3", fp_->replan_thresh3_, -1.0);
   nh.param("fsm/replan_time", fp_->replan_time_, -1.0);
+  nh.param("fsm/return_home", fp_->return_home_, true);
+  nh.param("fsm/return_home_tolerance", fp_->return_home_tolerance_, 0.5);
+  nh.param("fsm/return_home_yaw_tolerance", fp_->return_home_yaw_tolerance_, 0.15);
+  nh.param("fsm/use_fixed_return_home", fp_->use_fixed_return_home_, false);
+  nh.param("fsm/return_home_x", fp_->fixed_return_home_pos_(0), 0.0);
+  nh.param("fsm/return_home_y", fp_->fixed_return_home_pos_(1), 0.0);
+  nh.param("fsm/return_home_z", fp_->fixed_return_home_pos_(2), 0.3);
+  nh.param("fsm/return_home_yaw", fp_->fixed_return_home_yaw_, 0.0);
 
   /* Initialize main modules */
   expl_manager_.reset(new FastExplorationManager);
@@ -29,7 +45,9 @@ void FastExplorationFSM::init(ros::NodeHandle& nh) {
   planner_manager_ = expl_manager_->planner_manager_;
   state_ = EXPL_STATE::INIT;
   fd_->have_odom_ = false;
-  fd_->state_str_ = { "INIT", "WAIT_TRIGGER", "PLAN_TRAJ", "PUB_TRAJ", "EXEC_TRAJ", "FINISH" };
+  fd_->have_home_ = false;
+  fd_->state_str_ = { "INIT", "WAIT_TRIGGER", "PLAN_TRAJ", "PUB_TRAJ", "EXEC_TRAJ",
+    "RETURN_HOME", "PUB_RETURN", "EXEC_RETURN", "FINISH" };
   fd_->static_state_ = true;
   fd_->trigger_ = false;
 
@@ -44,6 +62,7 @@ void FastExplorationFSM::init(ros::NodeHandle& nh) {
 
   replan_pub_ = nh.advertise<std_msgs::Empty>("/planning/replan", 10);
   new_pub_ = nh.advertise<std_msgs::Empty>("/planning/new", 10);
+  finish_pub_ = nh.advertise<std_msgs::Empty>("/planning/finish", 10);
   bspline_pub_ = nh.advertise<bspline::Bspline>("/planning/bspline", 10);
 }
 
@@ -96,13 +115,23 @@ void FastExplorationFSM::FSMCallback(const ros::TimerEvent& e) {
       // Inform traj_server the replanning
       replan_pub_.publish(std_msgs::Empty());
       int res = callExplorationPlanner();
-      if (res == SUCCEED) {
-        transitState(PUB_TRAJ, "FSM");
-      } else if (res == NO_FRONTIER) {
-        transitState(FINISH, "FSM");
+	      if (res == SUCCEED) {
+	        transitState(PUB_TRAJ, "FSM");
+	      } else if (res == NO_FRONTIER) {
         fd_->static_state_ = true;
-        clearVisMarker();
-      } else if (res == FAIL) {
+        double dist_to_home = fd_->have_home_ ? (fd_->odom_pos_ - fd_->home_pos_).head<2>().norm() : -1.0;
+        ROS_WARN("No frontier. return_home: %d, have_home: %d, dist_to_home: %.3f, tolerance: %.3f",
+                 fp_->return_home_, fd_->have_home_, dist_to_home, fp_->return_home_tolerance_);
+        if (fp_->return_home_ && fd_->have_home_ &&
+            dist_to_home > fp_->return_home_tolerance_) {
+          ROS_WARN("Exploration finished, return home.");
+          transitState(RETURN_HOME, "FSM");
+        } else {
+          finish_pub_.publish(std_msgs::Empty());
+          transitState(FINISH, "FSM");
+          clearVisMarker();
+        }
+	      } else if (res == FAIL) {
         // Still in PLAN_TRAJ state, keep replanning
         ROS_WARN("plan fail");
         fd_->static_state_ = true;
@@ -145,10 +174,70 @@ void FastExplorationFSM::FSMCallback(const ros::TimerEvent& e) {
         transitState(PLAN_TRAJ, "FSM");
         ROS_WARN("Replan: periodic call=======================================");
       }
+	      break;
+	    }
+
+    case RETURN_HOME: {
+      fd_->start_pt_ = fd_->odom_pos_;
+      fd_->start_vel_ = fd_->odom_vel_;
+      fd_->start_acc_.setZero();
+      fd_->start_yaw_(0) = fd_->odom_yaw_;
+      fd_->start_yaw_(1) = fd_->start_yaw_(2) = 0.0;
+
+      replan_pub_.publish(std_msgs::Empty());
+      int res = callReturnHomePlanner();
+      if (res == SUCCEED) {
+        transitState(PUB_RETURN, "FSM");
+      } else {
+        ROS_WARN("return home plan fail");
+      }
       break;
     }
-  }
-}
+
+    case PUB_RETURN: {
+      double dt = (ros::Time::now() - fd_->newest_traj_.start_time).toSec();
+      if (dt > 0) {
+        bspline_pub_.publish(fd_->newest_traj_);
+        fd_->static_state_ = false;
+        transitState(EXEC_RETURN, "FSM");
+
+        thread vis_thread(&FastExplorationFSM::visualize, this);
+        vis_thread.detach();
+      }
+      break;
+    }
+
+    case EXEC_RETURN: {
+      LocalTrajData* info = &planner_manager_->local_data_;
+      double t_cur = (ros::Time::now() - info->start_time_).toSec();
+      double time_to_end = info->duration_ - t_cur;
+      double dist_to_home = (fd_->odom_pos_ - fd_->home_pos_).head<2>().norm();
+      double yaw_error = std::fabs(normalizeYawError(fd_->home_yaw_ - fd_->odom_yaw_));
+      if (dist_to_home <= fp_->return_home_tolerance_ &&
+          yaw_error <= fp_->return_home_yaw_tolerance_) {
+        ROS_INFO("return home finished. dist: %.3f, yaw error: %.3f", dist_to_home, yaw_error);
+        fd_->static_state_ = true;
+        finish_pub_.publish(std_msgs::Empty());
+        transitState(FINISH, "FSM");
+        clearVisMarker();
+        return;
+      }
+      if (dist_to_home <= fp_->return_home_tolerance_) {
+        ROS_WARN_THROTTLE(1.0, "Return-home position reached, aligning yaw. yaw error: %.3f, tolerance: %.3f",
+                          yaw_error, fp_->return_home_yaw_tolerance_);
+        break;
+      }
+      if (time_to_end < fp_->replan_thresh1_) {
+        ROS_WARN("Return-home traj ended but robot is still %.3f m from home, replan return.",
+                 dist_to_home);
+        fd_->static_state_ = true;
+        transitState(RETURN_HOME, "FSM");
+        return;
+      }
+      break;
+    }
+	  }
+	}
 
 int FastExplorationFSM::callExplorationPlanner() {
   ros::Time time_r = ros::Time::now() + ros::Duration(fp_->replan_time_);
@@ -162,6 +251,44 @@ int FastExplorationFSM::callExplorationPlanner() {
 
   // int res = expl_manager_->rapidFrontier(fd_->start_pt_, fd_->start_vel_, fd_->start_yaw_[0],
   // classic_);
+
+  if (res == SUCCEED) {
+    auto info = &planner_manager_->local_data_;
+    info->start_time_ = (ros::Time::now() - time_r).toSec() > 0 ? ros::Time::now() : time_r;
+
+    bspline::Bspline bspline;
+    bspline.order = planner_manager_->pp_.bspline_degree_;
+    bspline.start_time = info->start_time_;
+    bspline.traj_id = info->traj_id_;
+    Eigen::MatrixXd pos_pts = info->position_traj_.getControlPoint();
+    for (int i = 0; i < pos_pts.rows(); ++i) {
+      geometry_msgs::Point pt;
+      pt.x = pos_pts(i, 0);
+      pt.y = pos_pts(i, 1);
+      pt.z = pos_pts(i, 2);
+      bspline.pos_pts.push_back(pt);
+    }
+    Eigen::VectorXd knots = info->position_traj_.getKnot();
+    for (int i = 0; i < knots.rows(); ++i) {
+      bspline.knots.push_back(knots(i));
+    }
+    Eigen::MatrixXd yaw_pts = info->yaw_traj_.getControlPoint();
+    for (int i = 0; i < yaw_pts.rows(); ++i) {
+      double yaw = yaw_pts(i, 0);
+      bspline.yaw_pts.push_back(yaw);
+    }
+    bspline.yaw_dt = info->yaw_traj_.getKnotSpan();
+    fd_->newest_traj_ = bspline;
+  }
+  return res;
+}
+
+int FastExplorationFSM::callReturnHomePlanner() {
+  ros::Time time_r = ros::Time::now() + ros::Duration(fp_->replan_time_);
+
+  int res = expl_manager_->planReturnHome(fd_->start_pt_, fd_->start_vel_, fd_->start_acc_,
+                                          fd_->start_yaw_, fd_->home_pos_, fd_->home_yaw_);
+  classic_ = false;
 
   if (res == SUCCEED) {
     auto info = &planner_manager_->local_data_;
@@ -326,18 +453,28 @@ void FastExplorationFSM::triggerCallback(const nav_msgs::PathConstPtr& msg) {
   if (msg->poses[0].pose.position.z < -0.1) return;
   if (state_ != WAIT_TRIGGER) return;
   fd_->trigger_ = true;
+  if (fp_->use_fixed_return_home_) {
+    fd_->home_pos_ = fp_->fixed_return_home_pos_;
+    fd_->home_yaw_ = fp_->fixed_return_home_yaw_;
+  } else {
+    fd_->home_pos_ = fd_->odom_pos_;
+    fd_->home_yaw_ = fd_->odom_yaw_;
+  }
+  fd_->have_home_ = true;
+  ROS_INFO("Set return-home pose: %.3f %.3f %.3f, yaw %.3f", fd_->home_pos_(0),
+           fd_->home_pos_(1), fd_->home_pos_(2), fd_->home_yaw_);
   cout << "Triggered!" << endl;
   transitState(PLAN_TRAJ, "triggerCallback");
 }
 
 void FastExplorationFSM::safetyCallback(const ros::TimerEvent& e) {
-  if (state_ == EXPL_STATE::EXEC_TRAJ) {
+  if (state_ == EXPL_STATE::EXEC_TRAJ || state_ == EXPL_STATE::EXEC_RETURN) {
     // Check safety and trigger replan if necessary
     double dist;
     bool safe = planner_manager_->checkTrajCollision(dist);
     if (!safe) {
       ROS_WARN("Replan: collision detected==================================");
-      transitState(PLAN_TRAJ, "safetyCallback");
+      transitState(state_ == EXPL_STATE::EXEC_RETURN ? RETURN_HOME : PLAN_TRAJ, "safetyCallback");
     }
   }
 }

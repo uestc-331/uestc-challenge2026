@@ -177,6 +177,13 @@ void newCallback(std_msgs::Empty msg) {
   traj_real_.clear();
 }
 
+void finishCallback(std_msgs::Empty msg) {
+  receive_traj_ = false;
+  traj_.clear();
+  traj_duration_ = 0.0;
+  ROS_WARN("[Traj server]: finish, stop publishing position_cmd.");
+}
+
 void odomCallbck(const nav_msgs::Odometry& msg) {
   if (msg.child_frame_id == "X" || msg.child_frame_id == "O") return;
   odom = msg;
@@ -441,6 +448,7 @@ int main(int argc, char** argv) {
   ros::Subscriber bspline_sub = node.subscribe("planning/bspline", 10, bsplineCallback);
   ros::Subscriber replan_sub = node.subscribe("planning/replan", 10, replanCallback);
   ros::Subscriber new_sub = node.subscribe("planning/new", 10, newCallback);
+  ros::Subscriber finish_sub = node.subscribe("planning/finish", 10, finishCallback);
   ros::Subscriber odom_sub = node.subscribe("/odom_world", 50, odomCallbck);
   ros::Subscriber pg_T_vio_sub = node.subscribe("/loop_fusion/pg_T_vio", 10, pgTVioCallback);
 
