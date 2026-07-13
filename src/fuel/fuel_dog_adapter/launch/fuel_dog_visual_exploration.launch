@@ -19,8 +19,8 @@
   <arg name="box_max_z" default="0.65"/>
 
   <arg name="enable_dynamic_box" default="true"/>
-  <arg name="dynamic_box_expand_y" default="9.0"/>
-  <arg name="dynamic_box_shrink_y" default="8.8"/>
+  <arg name="dynamic_box_expand_y" default="9.2"/>
+  <arg name="dynamic_box_shrink_y" default="9.0"/>
   <arg name="dynamic_box_gate_min_x" default="-0.9"/>
   <arg name="dynamic_box_gate_max_x" default="0.9"/>
   <arg name="dynamic_box_min_x_after" default="-25.0"/>

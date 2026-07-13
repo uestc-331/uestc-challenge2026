@@ -74,6 +74,7 @@ void FrontierFinder::searchFrontiers() {
   std::cout << "Before remove: " << frontiers_.size() << std::endl;
 
   removed_ids_.clear();
+  removeFrontiersOutsideCurrentBox();
   int rmv_idx = 0;
   for (auto iter = frontiers_.begin(); iter != frontiers_.end();) {
     if (haveOverlap(iter->box_min_, iter->box_max_, update_min, update_max) &&
@@ -259,6 +260,47 @@ bool FrontierFinder::isInBoxes(
   return false;
 }
 
+void FrontierFinder::filterViewpointsInCurrentBox(Frontier& frontier) {
+  vector<Viewpoint> filtered;
+  filtered.reserve(frontier.viewpoints_.size());
+  for (auto& viewpoint : frontier.viewpoints_) {
+    if (edt_env_->sdf_map_->isInBox(viewpoint.pos_)) filtered.push_back(viewpoint);
+  }
+  frontier.viewpoints_.swap(filtered);
+}
+
+void FrontierFinder::removeFrontiersOutsideCurrentBox() {
+  auto clearFlag = [&](const Frontier& frontier) {
+    Eigen::Vector3i idx;
+    for (auto& cell : frontier.cells_) {
+      edt_env_->sdf_map_->posToIndex(cell, idx);
+      frontier_flag_[toadr(idx)] = 0;
+    }
+  };
+
+  int rmv_idx = 0;
+  for (auto iter = frontiers_.begin(); iter != frontiers_.end();) {
+    filterViewpointsInCurrentBox(*iter);
+    if (!edt_env_->sdf_map_->isInBox(iter->average_) || iter->viewpoints_.empty()) {
+      clearFlag(*iter);
+      iter = frontiers_.erase(iter);
+      removed_ids_.push_back(rmv_idx);
+    } else {
+      ++rmv_idx;
+      ++iter;
+    }
+  }
+
+  for (auto iter = dormant_frontiers_.begin(); iter != dormant_frontiers_.end();) {
+    if (!edt_env_->sdf_map_->isInBox(iter->average_)) {
+      clearFlag(*iter);
+      iter = dormant_frontiers_.erase(iter);
+    } else {
+      ++iter;
+    }
+  }
+}
+
 void FrontierFinder::updateFrontierCostMatrix() {
   std::cout << "cost mat size before remove: " << std::endl;
   for (auto ftr : frontiers_)
@@ -399,6 +441,7 @@ void FrontierFinder::computeFrontiersToVisit() {
   for (auto& tmp_ftr : tmp_frontiers_) {
     // Search viewpoints around frontier
     sampleViewpoints(tmp_ftr);
+    filterViewpointsInCurrentBox(tmp_ftr);
     if (!tmp_ftr.viewpoints_.empty()) {
       ++new_num;
       list<Frontier>::iterator inserted = frontiers_.insert(frontiers_.end(), tmp_ftr);
@@ -431,9 +474,11 @@ void FrontierFinder::getTopViewpointsInfo(
   yaws.clear();
   averages.clear();
   for (auto frontier : frontiers_) {
+    if (frontier.viewpoints_.empty()) continue;
     bool no_view = true;
     for (auto view : frontier.viewpoints_) {
       // Retrieve the first viewpoint that is far enough and has highest coverage
+      if (!edt_env_->sdf_map_->isInBox(view.pos_)) continue;
       if ((view.pos_ - cur_pos).norm() < min_candidate_dist_) continue;
       points.push_back(view.pos_);
       yaws.push_back(view.yaw_);
@@ -443,10 +488,13 @@ void FrontierFinder::getTopViewpointsInfo(
     }
     if (no_view) {
       // All viewpoints are very close, just use the first one (with highest coverage).
-      auto view = frontier.viewpoints_.front();
-      points.push_back(view.pos_);
-      yaws.push_back(view.yaw_);
-      averages.push_back(frontier.average_);
+      for (auto view : frontier.viewpoints_) {
+        if (!edt_env_->sdf_map_->isInBox(view.pos_)) continue;
+        points.push_back(view.pos_);
+        yaws.push_back(view.yaw_);
+        averages.push_back(frontier.average_);
+        break;
+      }
     }
   }
 }
@@ -460,12 +508,14 @@ void FrontierFinder::getViewpointsInfo(
     // Scan all frontiers to find one with the same id
     for (auto frontier : frontiers_) {
       if (frontier.id_ == id) {
+        if (frontier.viewpoints_.empty()) continue;
         // Get several top viewpoints that are far enough
         vector<Eigen::Vector3d> pts;
         vector<double> ys;
         int visib_thresh = frontier.viewpoints_.front().visib_num_ * max_decay;
         for (auto view : frontier.viewpoints_) {
           if (pts.size() >= view_num || view.visib_num_ <= visib_thresh) break;
+          if (!edt_env_->sdf_map_->isInBox(view.pos_)) continue;
           if ((view.pos_ - cur_pos).norm() < min_candidate_dist_) continue;
           pts.push_back(view.pos_);
           ys.push_back(view.yaw_);
@@ -474,6 +524,7 @@ void FrontierFinder::getViewpointsInfo(
           // All viewpoints are very close, ignore the distance limit
           for (auto view : frontier.viewpoints_) {
             if (pts.size() >= view_num || view.visib_num_ <= visib_thresh) break;
+            if (!edt_env_->sdf_map_->isInBox(view.pos_)) continue;
             pts.push_back(view.pos_);
             ys.push_back(view.yaw_);
           }

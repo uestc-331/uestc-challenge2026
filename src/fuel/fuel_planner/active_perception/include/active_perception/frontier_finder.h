@@ -89,6 +89,8 @@ private:
   void computeFrontierInfo(Frontier& frontier);
   void downsample(const vector<Vector3d>& cluster_in, vector<Vector3d>& cluster_out);
   void sampleViewpoints(Frontier& frontier);
+  void filterViewpointsInCurrentBox(Frontier& frontier);
+  void removeFrontiersOutsideCurrentBox();
 
   int countVisibleCells(const Vector3d& pos, const double& yaw, const vector<Vector3d>& cluster);
   bool isNearUnknown(const Vector3d& pos);
