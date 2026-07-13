@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(fuel_dog_adapter)
 
 find_package(catkin REQUIRED COMPONENTS
+  building_generator_interfaces
   geometry_msgs
   nav_msgs
   rospy
@@ -19,5 +20,6 @@ catkin_install_python(PROGRAMS
   scripts/sensor_fov_marker.py
   scripts/odom_to_sensor_pose.py
   scripts/dynamic_exploration_box.py
+  scripts/fuel_multifloor_mission.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

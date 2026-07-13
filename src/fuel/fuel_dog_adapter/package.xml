@@ -9,6 +9,8 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <build_depend>building_generator_interfaces</build_depend>
+  <exec_depend>building_generator_interfaces</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>nav_msgs</exec_depend>
   <exec_depend>quadrotor_msgs</exec_depend>

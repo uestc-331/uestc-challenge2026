@@ -1,0 +1,65 @@
+<launch>
+  <arg name="odom_topic" default="/Odometry_gazebo"/>
+  <arg name="cmd_vel_topic" default="/cmd_vel"/>
+
+  <arg name="start_floor" default="0"/>
+  <arg name="elevator_id" default="elevator_main"/>
+  <arg name="door_prefix" default="elevator_floor_"/>
+
+  <!-- Tune these to the generated building. They are world-frame x/y/yaw targets. -->
+  <arg name="elevator_inside_x" default="2.7"/>
+  <arg name="elevator_inside_y" default="2.62"/>
+  <arg name="elevator_inside_yaw" default="0.0"/>
+  <arg name="floor_exit_x" default="0.0"/>
+  <arg name="floor_exit_y" default="3.0"/>
+  <arg name="floor_exit_yaw" default="1.57"/>
+  <arg name="floor0_final_x" default="$(arg floor_exit_x)"/>
+  <arg name="floor0_final_y" default="$(arg floor_exit_y)"/>
+  <arg name="floor0_final_yaw" default="$(arg floor_exit_yaw)"/>
+
+  <arg name="xy_tolerance" default="0.25"/>
+  <arg name="yaw_tolerance" default="0.15"/>
+  <arg name="max_linear_speed" default="1.2"/>
+  <arg name="max_angular_speed" default="1.0"/>
+  <arg name="slow_radius" default="0.2"/>
+  <arg name="nav_timeout" default="90.0"/>
+
+  <!-- Default: first-floor FUEL is already running; mission waits for its finish. -->
+  <arg name="manage_fuel" default="true"/>
+  <arg name="auto_start_first_fuel" default="false"/>
+  <arg name="fuel_launch" default="fuel_dog_visual_exploration.launch"/>
+  <arg name="fuel_extra_args" default=""/>
+  <arg name="floor_z_box_low" default="0.25"/>
+  <arg name="floor_z_box_high" default="0.55"/>
+  <arg name="map_size_z" default="1.6"/>
+
+  <node pkg="fuel_dog_adapter" name="fuel_multifloor_mission" type="fuel_multifloor_mission.py" output="screen">
+    <param name="odom_topic" value="$(arg odom_topic)"/>
+    <param name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
+    <param name="start_floor" value="$(arg start_floor)"/>
+    <param name="elevator_id" value="$(arg elevator_id)"/>
+    <param name="door_prefix" value="$(arg door_prefix)"/>
+    <param name="elevator_inside_x" value="$(arg elevator_inside_x)"/>
+    <param name="elevator_inside_y" value="$(arg elevator_inside_y)"/>
+    <param name="elevator_inside_yaw" value="$(arg elevator_inside_yaw)"/>
+    <param name="floor_exit_x" value="$(arg floor_exit_x)"/>
+    <param name="floor_exit_y" value="$(arg floor_exit_y)"/>
+    <param name="floor_exit_yaw" value="$(arg floor_exit_yaw)"/>
+    <param name="floor0_final_x" value="$(arg floor0_final_x)"/>
+    <param name="floor0_final_y" value="$(arg floor0_final_y)"/>
+    <param name="floor0_final_yaw" value="$(arg floor0_final_yaw)"/>
+    <param name="xy_tolerance" value="$(arg xy_tolerance)"/>
+    <param name="yaw_tolerance" value="$(arg yaw_tolerance)"/>
+    <param name="max_linear_speed" value="$(arg max_linear_speed)"/>
+    <param name="max_angular_speed" value="$(arg max_angular_speed)"/>
+    <param name="slow_radius" value="$(arg slow_radius)"/>
+    <param name="nav_timeout" value="$(arg nav_timeout)"/>
+    <param name="manage_fuel" value="$(arg manage_fuel)"/>
+    <param name="auto_start_first_fuel" value="$(arg auto_start_first_fuel)"/>
+    <param name="fuel_launch" value="$(arg fuel_launch)"/>
+    <param name="fuel_extra_args" value="$(arg fuel_extra_args)"/>
+    <param name="floor_z_box_low" value="$(arg floor_z_box_low)"/>
+    <param name="floor_z_box_high" value="$(arg floor_z_box_high)"/>
+    <param name="map_size_z" value="$(arg map_size_z)"/>
+  </node>
+</launch>

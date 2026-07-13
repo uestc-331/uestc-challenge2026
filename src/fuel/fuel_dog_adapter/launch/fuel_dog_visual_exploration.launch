@@ -8,14 +8,15 @@
 
   <arg name="map_size_x" default="50.0"/>
   <arg name="map_size_y" default="50.0"/>
-  <arg name="map_size_z" default="1.6"/>
+  <arg name="map_size_z" default="4.0"/>
+  <arg name="ground_height" default="0.0"/>
 
   <arg name="box_min_x" default="-2.0"/>
   <arg name="box_min_y" default="-2.5"/>
   <arg name="box_min_z" default="0.05"/>
   <arg name="box_max_x" default="2.0"/>
   <arg name="box_max_y" default="20.0"/>
-  <arg name="box_max_z" default="1.5"/>
+  <arg name="box_max_z" default="0.65"/>
 
   <arg name="enable_dynamic_box" default="true"/>
   <arg name="dynamic_box_expand_y" default="9.0"/>
@@ -52,7 +53,7 @@
   <!-- Return-home target. By default, FUEL returns to the pose where exploration was triggered. -->
   <arg name="return_home" default="true"/>
   <arg name="return_home_tolerance" default="0.25"/>
-  <arg name="return_home_yaw_tolerance" default="0.08"/>
+  <arg name="return_home_yaw_tolerance" default="0.1"/>
   <arg name="use_fixed_return_home" default="true"/>
   <arg name="return_home_x" default="0.8"/>
   <arg name="return_home_y" default="2.62"/>
@@ -86,6 +87,7 @@
     <arg name="map_size_x_" value="$(arg map_size_x)"/>
     <arg name="map_size_y_" value="$(arg map_size_y)"/>
     <arg name="map_size_z_" value="$(arg map_size_z)"/>
+    <arg name="ground_height" value="$(arg ground_height)"/>
 
     <arg name="box_min_x" value="$(arg box_min_x)"/>
     <arg name="box_min_y" value="$(arg box_min_y)"/>
