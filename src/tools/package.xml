@@ -8,8 +8,10 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <depend>rosgraph</depend>
   <depend>rospy</depend>
   <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>cv_bridge</depend>
   <depend>building_generator_interfaces</depend>

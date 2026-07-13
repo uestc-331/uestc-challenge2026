@@ -20,10 +20,49 @@ CONTROLLER_FOREGROUND="${CONTROLLER_FOREGROUND:-1}"
 START_BUILDING_CONTROL="${START_BUILDING_CONTROL:-1}"
 RESET_ROS_MASTER="${RESET_ROS_MASTER:-1}"
 UNITREE_CTRL_DT="${UNITREE_CTRL_DT:-0.004}"
+SIM_FAST="${SIM_FAST:-0}"
 ROBOT_X="${ROBOT_X:-0.0}"
-ROBOT_Y="${ROBOT_Y:--2.2}"
+ROBOT_Y="${ROBOT_Y:--1.5}"
 ROBOT_Z="${ROBOT_Z:-0.6}"
 ROBOT_YAW="${ROBOT_YAW:-1.5708}"
+
+if [ "$SIM_FAST" = "1" ]; then
+  ENABLE_REALSENSE="${ENABLE_REALSENSE:-false}"
+  ENABLE_LIVOX="${ENABLE_LIVOX:-false}"
+  ENABLE_CAMERA="${ENABLE_CAMERA:-true}"
+  ENABLE_LIVOX_CONVERTER="${ENABLE_LIVOX_CONVERTER:-0}"
+  CONTACT_UPDATE_RATE="${CONTACT_UPDATE_RATE:-40}"
+  IMU_UPDATE_RATE="${IMU_UPDATE_RATE:-250}"
+  LIVOX_UPDATE_RATE="${LIVOX_UPDATE_RATE:-5}"
+  LIVOX_SAMPLES="${LIVOX_SAMPLES:-6000}"
+  LIVOX_DOWNSAMPLE="${LIVOX_DOWNSAMPLE:-4}"
+  CAMERA_UPDATE_RATE="${CAMERA_UPDATE_RATE:-15}"
+  CAMERA_WIDTH="${CAMERA_WIDTH:-640}"
+  CAMERA_HEIGHT="${CAMERA_HEIGHT:-480}"
+  REALSENSE_UPDATE_RATE="${REALSENSE_UPDATE_RATE:-5}"
+  REALSENSE_WIDTH="${REALSENSE_WIDTH:-320}"
+  REALSENSE_HEIGHT="${REALSENSE_HEIGHT:-240}"
+  PHYSICS_MAX_STEP_SIZE="${PHYSICS_MAX_STEP_SIZE:-0.001}"
+  PHYSICS_REAL_TIME_UPDATE_RATE="${PHYSICS_REAL_TIME_UPDATE_RATE:-1000}"
+else
+  ENABLE_REALSENSE="${ENABLE_REALSENSE:-true}"
+  ENABLE_LIVOX="${ENABLE_LIVOX:-true}"
+  ENABLE_CAMERA="${ENABLE_CAMERA:-true}"
+  ENABLE_LIVOX_CONVERTER="${ENABLE_LIVOX_CONVERTER:-1}"
+  CONTACT_UPDATE_RATE="${CONTACT_UPDATE_RATE:-100}"
+  IMU_UPDATE_RATE="${IMU_UPDATE_RATE:-1000}"
+  LIVOX_UPDATE_RATE="${LIVOX_UPDATE_RATE:-10}"
+  LIVOX_SAMPLES="${LIVOX_SAMPLES:-24000}"
+  LIVOX_DOWNSAMPLE="${LIVOX_DOWNSAMPLE:-1}"
+  CAMERA_UPDATE_RATE="${CAMERA_UPDATE_RATE:-30}"
+  CAMERA_WIDTH="${CAMERA_WIDTH:-800}"
+  CAMERA_HEIGHT="${CAMERA_HEIGHT:-800}"
+  REALSENSE_UPDATE_RATE="${REALSENSE_UPDATE_RATE:-10}"
+  REALSENSE_WIDTH="${REALSENSE_WIDTH:-640}"
+  REALSENSE_HEIGHT="${REALSENSE_HEIGHT:-480}"
+  PHYSICS_MAX_STEP_SIZE="${PHYSICS_MAX_STEP_SIZE:-0.001}"
+  PHYSICS_REAL_TIME_UPDATE_RATE="${PHYSICS_REAL_TIME_UPDATE_RATE:-1000}"
+fi
 
 echo "Terminating previous Gazebo, launch, controller, and optional joystick processes..."
 pkill -f "[r]oslaunch unitree_guide multi_floor_gazeboSim.launch" 2>/dev/null || true
@@ -66,6 +105,8 @@ GENERATOR_ARGS=(
   --robot-y "$ROBOT_Y"
   --robot-z "$ROBOT_Z"
   --robot-yaw "$ROBOT_YAW"
+  --physics-max-step-size "$PHYSICS_MAX_STEP_SIZE"
+  --physics-real-time-update-rate "$PHYSICS_REAL_TIME_UPDATE_RATE"
 )
 if [ -n "$SEED" ]; then
   GENERATOR_ARGS+=(--seed "$SEED")
@@ -88,6 +129,7 @@ echo "  World:   $BUILDING_WORLD_FILE"
 echo "  Truth:   $RESULTS_DIR/danger_truth.json"
 echo "  Manifest:$SCENE_OUTPUT_DIR/scene_manifest.json"
 echo "  Result:  $RESULTS_DIR/detected_danger.json"
+echo "  Profile: SIM_FAST=$SIM_FAST realsense=$ENABLE_REALSENSE livox=$ENABLE_LIVOX livox_converter=$ENABLE_LIVOX_CONVERTER"
 echo "=========================================="
 
 if [ "$START_VIRTUAL_JOY" = "1" ]; then
@@ -101,6 +143,21 @@ setsid nohup roslaunch unitree_guide multi_floor_gazeboSim.launch \
   gui:="$GUI" \
   paused:="$PAUSED" \
   start_joy:="$START_JOY_NODE" \
+  enable_realsense:="$ENABLE_REALSENSE" \
+  enable_livox:="$ENABLE_LIVOX" \
+  enable_camera:="$ENABLE_CAMERA" \
+  enable_livox_converter:="$ENABLE_LIVOX_CONVERTER" \
+  contact_update_rate:="$CONTACT_UPDATE_RATE" \
+  imu_update_rate:="$IMU_UPDATE_RATE" \
+  livox_update_rate:="$LIVOX_UPDATE_RATE" \
+  livox_samples:="$LIVOX_SAMPLES" \
+  livox_downsample:="$LIVOX_DOWNSAMPLE" \
+  camera_update_rate:="$CAMERA_UPDATE_RATE" \
+  camera_width:="$CAMERA_WIDTH" \
+  camera_height:="$CAMERA_HEIGHT" \
+  realsense_update_rate:="$REALSENSE_UPDATE_RATE" \
+  realsense_width:="$REALSENSE_WIDTH" \
+  realsense_height:="$REALSENSE_HEIGHT" \
   user_debug:=False \
   rname:=a1 \
   robot_x:="$ROBOT_X" \

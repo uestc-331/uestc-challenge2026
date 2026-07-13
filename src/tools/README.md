@@ -2,6 +2,21 @@
 
 键盘控制比赛仿真的辅助工具。
 
+## 房间物品数据集自动录制
+
+`record_room_dataset.py` 会自动启动仿真，固定一层楼和十个房间，默认打开 Gazebo GUI，关闭 Livox 和 RealSense，仅保留前视相机；随后给前台 `junior_ctrl` 输入 `2` 和 `6`，打开主大门，依次移动到每个房间门口并左右扫视录制图像。
+脚本会在每一轮重新创建对应的 `run_XXX` 目录，避免日志和数据追加到上一次结果里。
+
+```bash
+cd /home/uestc/SimEnv
+source /opt/ros/noetic/setup.bash
+source devel/setup.bash
+rosrun competition_tools record_room_dataset.py --runs 3
+```
+
+默认输出到 `datasets/room_objects/run_001/room_01_...`。运行时会打印当前完成到第几次、第几个门。
+如果需要无界面采集，可以加 `--no-gui`。
+
 ## 启动流程
 
 1. 启动仿真：

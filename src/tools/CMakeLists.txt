@@ -14,5 +14,6 @@ catkin_package()
 catkin_install_python(
   PROGRAMS
     scripts/keyboard_competition_control.py
+    scripts/record_room_dataset.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

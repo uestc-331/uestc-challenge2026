@@ -153,7 +153,13 @@ def main(argv: list[str] | None = None) -> int:
     sources = _place_sources(layout, obstacle_rng, danger_count, distractor_count)
 
     world_path = output_dir / "competition_scene.world"
-    _write_world_with_sources(Path(artifact_paths.world_sdf), world_path, sources)
+    _write_world_with_sources(
+        Path(artifact_paths.world_sdf),
+        world_path,
+        sources,
+        max_step_size=args.physics_max_step_size,
+        real_time_update_rate=args.physics_real_time_update_rate,
+    )
     # Keep world.sdf as the full competition world as well; model.sdf remains the bare building model.
     Path(artifact_paths.world_sdf).write_text(world_path.read_text(encoding="utf-8"), encoding="utf-8")
 
@@ -221,6 +227,8 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--robot-y", type=float, default=-2.2)
     parser.add_argument("--robot-z", type=float, default=0.6)
     parser.add_argument("--robot-yaw", type=float, default=1.5708)
+    parser.add_argument("--physics-max-step-size", type=float, default=0.001)
+    parser.add_argument("--physics-real-time-update-rate", type=int, default=1000)
     return parser
 
 
@@ -343,14 +351,40 @@ def _overlaps_existing_sources(candidate: PlacedSource, placed: list[PlacedSourc
     return False
 
 
-def _write_world_with_sources(source_world: Path, destination_world: Path, sources: list[PlacedSource]) -> None:
+def _write_world_with_sources(
+    source_world: Path,
+    destination_world: Path,
+    sources: list[PlacedSource],
+    *,
+    max_step_size: float,
+    real_time_update_rate: int,
+) -> None:
     root = ET.parse(source_world).getroot()
     world = root.find("world")
     if world is None:
         raise ValueError(f"world element not found in {source_world}")
+    _ensure_physics(world, max_step_size=max_step_size, real_time_update_rate=real_time_update_rate)
     for source in sources:
         world.append(_build_source_model(source))
     destination_world.write_text(_to_pretty_xml(root), encoding="utf-8")
+
+
+def _ensure_physics(world: ET.Element, *, max_step_size: float, real_time_update_rate: int) -> None:
+    physics = world.find("physics")
+    if physics is None:
+        physics = ET.Element("physics", {"name": "competition_physics", "type": "ode"})
+        world.insert(0, physics)
+    physics.set("type", physics.get("type", "ode"))
+    _set_child_text(physics, "max_step_size", f"{max_step_size:g}")
+    _set_child_text(physics, "real_time_factor", "1")
+    _set_child_text(physics, "real_time_update_rate", str(real_time_update_rate))
+
+
+def _set_child_text(parent: ET.Element, tag: str, text: str) -> None:
+    child = parent.find(tag)
+    if child is None:
+        child = ET.SubElement(parent, tag)
+    child.text = text
 
 
 def _build_source_model(source: PlacedSource) -> ET.Element:

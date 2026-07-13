@@ -12,3 +12,4 @@
 | [传感器与 ROS 话题](sensors-and-topics.md) | 传感器位姿、话题、频率和坐标系 |
 | [常见问题](troubleshooting.md) | 控制周期 warning、服务异常、依赖缺失等问题 |
 | [完整参考文档](reference.md) | 拆分前的完整说明，保留用于交叉核对 |
+| [代码框架总览](codebase-overview.md) | 面向后续接手和新聊天窗口的工程结构、启动链路和修改入口 |

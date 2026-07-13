@@ -1,0 +1,15 @@
+python3 src/tools/scripts/route_truth_yolo_pipeline.py collect \
+  --truth-file results/danger_truth.json \
+  --output-dir outputs/yolo_dataset_route \
+  --duration 1800 \
+  --fps 3
+
+python src/tools/scripts/route_truth_yolo_pipeline.py train \
+  --data outputs/yolo_dataset_route/dataset.yaml \
+  --project outputs/yolo_runs_route \
+  --name yolov10s_route \
+  --model yolov10s.pt \
+  --imgsz 960 \
+  --epochs 200 \
+  --batch 8 \
+  --device 0

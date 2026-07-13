@@ -1,0 +1,2 @@
+#关闭雷达和相机启动仿真
+ENABLE_REALSENSE=false ENABLE_LIVOX=false ENABLE_LIVOX_CONVERTER=0 ./auto.sh
