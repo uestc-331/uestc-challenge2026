@@ -91,6 +91,7 @@ private:
   void sampleViewpoints(Frontier& frontier);
   void filterViewpointsInCurrentBox(Frontier& frontier);
   void removeFrontiersOutsideCurrentBox();
+  bool isInStartupIgnoreRegion(const Vector3d& pos) const;
 
   int countVisibleCells(const Vector3d& pos, const double& yaw, const vector<Vector3d>& cluster);
   bool isNearUnknown(const Vector3d& pos);
@@ -117,6 +118,7 @@ private:
   vector<int> removed_ids_;
   list<Frontier>::iterator first_new_ftr_;
   Frontier next_frontier_;
+  bool reset_cost_matrix_;
 
   // Params
   int cluster_min_;
@@ -125,6 +127,9 @@ private:
       min_candidate_clearance_;
   bool force_viewpoint_z_;
   double viewpoint_z_;
+  bool startup_ignore_near_frontier_;
+  double startup_ignore_radius_;
+  Vector3d startup_ignore_center_;
   int down_sample_;
   double min_view_finish_fraction_, resolution_;
   int min_visib_num_, candidate_rnum_;

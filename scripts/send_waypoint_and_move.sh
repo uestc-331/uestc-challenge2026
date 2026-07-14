@@ -23,10 +23,10 @@ poses:
 echo "[$(date '+%H:%M:%S')] Waiting 2 seconds..."
 sleep 2
 
-echo "[$(date '+%H:%M:%S')] Publishing /cmd_vel linear.x=0.8 for 1 second..."
+echo "[$(date '+%H:%M:%S')] Publishing /cmd_vel linear.x=0.9 for 1 second..."
 rostopic pub -r 30 /cmd_vel geometry_msgs/Twist "
 linear:
-  x: 0.8
+  x: 0.9
   y: 0.0
   z: 0.0
 angular:

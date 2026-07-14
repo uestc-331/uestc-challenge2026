@@ -1,1 +1,5 @@
-[INFO] [1783947702.377994, 0.000000]: building_generator_classic_control ready
+[INFO] [1784019979.983516, 0.000000]: building_generator_classic_control ready
+[INFO] [1784020377.190640, 88.802000]: Animating dynamic_elevator_floor_0 door panels over 60.0 seconds
+[INFO] [1784020470.028891, 105.121000]: Animating dynamic_elevator_floor_0 door panels over 60.0 seconds
+[INFO] [1784020538.743388, 115.269000]: Animating dynamic_elevator_floor_1 door panels over 60.0 seconds
+[INFO] [1784020638.385511, 137.276000]: Animating dynamic_elevator_floor_1 door panels over 60.0 seconds

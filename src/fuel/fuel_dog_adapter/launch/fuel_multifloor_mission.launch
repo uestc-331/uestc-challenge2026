@@ -17,8 +17,9 @@
   <arg name="floor0_final_y" default="$(arg floor_exit_y)"/>
   <arg name="floor0_final_yaw" default="$(arg floor_exit_yaw)"/>
 
-  <arg name="xy_tolerance" default="0.25"/>
-  <arg name="yaw_tolerance" default="0.15"/>
+  <!-- 进入电梯目标点的相关参数 -->
+  <arg name="xy_tolerance" default="0.3"/>
+  <arg name="yaw_tolerance" default="0.2"/>
   <arg name="max_linear_speed" default="1.2"/>
   <arg name="max_angular_speed" default="1.0"/>
   <arg name="slow_radius" default="0.2"/>
@@ -26,12 +27,16 @@
 
   <!-- Default: first-floor FUEL is already running; mission waits for its finish. -->
   <arg name="manage_fuel" default="true"/>
-  <arg name="auto_start_first_fuel" default="false"/>
+  <arg name="auto_start_first_fuel" default="true"/>
   <arg name="fuel_launch" default="fuel_dog_visual_exploration.launch"/>
   <arg name="fuel_extra_args" default=""/>
   <arg name="floor_z_box_low" default="0.25"/>
   <arg name="floor_z_box_high" default="0.35"/>
   <arg name="map_size_z" default="1.6"/>
+  <arg name="startup_spin" default="true"/>
+  <arg name="startup_spin_angle" default="6.28318530718"/>
+  <arg name="startup_spin_speed" default="1.0"/>
+  <arg name="startup_spin_timeout" default="25.0"/>
 
   <node pkg="fuel_dog_adapter" name="fuel_multifloor_mission" type="fuel_multifloor_mission.py" output="screen">
     <param name="odom_topic" value="$(arg odom_topic)"/>
@@ -61,5 +66,9 @@
     <param name="floor_z_box_low" value="$(arg floor_z_box_low)"/>
     <param name="floor_z_box_high" value="$(arg floor_z_box_high)"/>
     <param name="map_size_z" value="$(arg map_size_z)"/>
+    <param name="startup_spin" value="$(arg startup_spin)"/>
+    <param name="startup_spin_angle" value="$(arg startup_spin_angle)"/>
+    <param name="startup_spin_speed" value="$(arg startup_spin_speed)"/>
+    <param name="startup_spin_timeout" value="$(arg startup_spin_timeout)"/>
   </node>
 </launch>

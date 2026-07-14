@@ -11,10 +11,10 @@
   <arg name="map_size_z" default="4.0"/>
   <arg name="ground_height" default="0.0"/>
 
-  <arg name="box_min_x" default="-2.0"/>
+  <arg name="box_min_x" default="-1.6"/>
   <arg name="box_min_y" default="-2.5"/>
   <arg name="box_min_z" default="0.05"/>
-  <arg name="box_max_x" default="2.0"/>
+  <arg name="box_max_x" default="1.6"/>
   <arg name="box_max_y" default="20.0"/>
   <arg name="box_max_z" default="0.65"/>
 
@@ -72,6 +72,8 @@
   <arg name="frontier_min_candidate_clearance" default="0.12"/>
   <arg name="frontier_candidate_rmin" default="0.8"/>
   <arg name="frontier_candidate_rmax" default="1.8"/>
+  <arg name="frontier_startup_ignore_near" default="true"/>
+  <arg name="frontier_startup_ignore_radius" default="0.5"/>
 
   <node pkg="fuel_dog_adapter" name="odom_to_sensor_pose" type="odom_to_sensor_pose.py" output="screen">
     <param name="odom_topic" value="$(arg odom_topic)"/>
@@ -120,6 +122,11 @@
     <arg name="frontier_min_candidate_clearance" value="$(arg frontier_min_candidate_clearance)"/>
     <arg name="frontier_candidate_rmin" value="$(arg frontier_candidate_rmin)"/>
     <arg name="frontier_candidate_rmax" value="$(arg frontier_candidate_rmax)"/>
+    <arg name="frontier_startup_ignore_near" value="$(arg frontier_startup_ignore_near)"/>
+    <arg name="frontier_startup_ignore_radius" value="$(arg frontier_startup_ignore_radius)"/>
+    <arg name="frontier_startup_ignore_x" value="$(arg init_x)"/>
+    <arg name="frontier_startup_ignore_y" value="$(arg init_y)"/>
+    <arg name="frontier_startup_ignore_z" value="$(arg init_z)"/>
     <arg name="yaw_seg_num" value="$(arg yaw_seg_num)"/>
     <arg name="perception_max_dist" value="$(arg perception_max_dist)"/>
     <arg name="perception_vis_dist" value="$(arg perception_vis_dist)"/>

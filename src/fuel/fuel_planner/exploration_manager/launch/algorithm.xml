@@ -35,6 +35,11 @@
   <arg name="frontier_candidate_rmin" default="1.5"/>
   <arg name="frontier_candidate_rmax" default="2.5"/>
   <arg name="frontier_min_visib_num" default="15"/>
+  <arg name="frontier_startup_ignore_near" default="true"/>
+  <arg name="frontier_startup_ignore_radius" default="0.5"/>
+  <arg name="frontier_startup_ignore_x" default="0.0"/>
+  <arg name="frontier_startup_ignore_y" default="0.0"/>
+  <arg name="frontier_startup_ignore_z" default="0.0"/>
   <arg name="yaw_seg_num" default="12"/>
   <!-- 默认值 -->
   <arg name="perception_max_dist" default="5.0"/>
@@ -151,6 +156,11 @@
     <param name="frontier/down_sample" value="3" type="int"/>;
     <param name="frontier/min_visib_num" value="$(arg frontier_min_visib_num)" type="int"/>;
     <param name="frontier/min_view_finish_fraction" value="0.2" type="double"/>;
+    <param name="frontier/startup_ignore_near_frontier" value="$(arg frontier_startup_ignore_near)" type="bool"/>;
+    <param name="frontier/startup_ignore_radius" value="$(arg frontier_startup_ignore_radius)" type="double"/>;
+    <param name="frontier/startup_ignore_x" value="$(arg frontier_startup_ignore_x)" type="double"/>;
+    <param name="frontier/startup_ignore_y" value="$(arg frontier_startup_ignore_y)" type="double"/>;
+    <param name="frontier/startup_ignore_z" value="$(arg frontier_startup_ignore_z)" type="double"/>;
 
     <!-- Perception utils -->
     <param name="perception_utils/top_angle" value="0.56125" type="double"/>;

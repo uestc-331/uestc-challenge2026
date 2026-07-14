@@ -22,6 +22,7 @@
 namespace fast_planner {
 FrontierFinder::FrontierFinder(const EDTEnvironment::Ptr& edt, ros::NodeHandle& nh) {
   this->edt_env_ = edt;
+  reset_cost_matrix_ = false;
   int voxel_num = edt->sdf_map_->getVoxelNum();
   frontier_flag_ = vector<char>(voxel_num, 0);
   fill(frontier_flag_.begin(), frontier_flag_.end(), 0);
@@ -37,9 +38,19 @@ FrontierFinder::FrontierFinder(const EDTEnvironment::Ptr& edt, ros::NodeHandle& 
   nh.param("frontier/candidate_rnum", candidate_rnum_, -1);
   nh.param("frontier/force_viewpoint_z", force_viewpoint_z_, false);
   nh.param("frontier/viewpoint_z", viewpoint_z_, 0.45);
+  nh.param("frontier/startup_ignore_near_frontier", startup_ignore_near_frontier_, false);
+  nh.param("frontier/startup_ignore_radius", startup_ignore_radius_, 0.0);
+  nh.param("frontier/startup_ignore_x", startup_ignore_center_[0], 0.0);
+  nh.param("frontier/startup_ignore_y", startup_ignore_center_[1], 0.0);
+  nh.param("frontier/startup_ignore_z", startup_ignore_center_[2], 0.0);
   nh.param("frontier/down_sample", down_sample_, -1);
   nh.param("frontier/min_visib_num", min_visib_num_, -1);
   nh.param("frontier/min_view_finish_fraction", min_view_finish_fraction_, -1.0);
+
+  if (startup_ignore_near_frontier_ && startup_ignore_radius_ > 1e-3) {
+    ROS_WARN("Frontier startup ignore circle enabled: center %.3f %.3f, radius %.3f",
+             startup_ignore_center_[0], startup_ignore_center_[1], startup_ignore_radius_);
+  }
 
   raycaster_.reset(new RayCaster);
   resolution_ = edt_env_->sdf_map_->getResolution();
@@ -278,13 +289,16 @@ void FrontierFinder::removeFrontiersOutsideCurrentBox() {
     }
   };
 
+  bool removed = false;
   int rmv_idx = 0;
   for (auto iter = frontiers_.begin(); iter != frontiers_.end();) {
     filterViewpointsInCurrentBox(*iter);
-    if (!edt_env_->sdf_map_->isInBox(iter->average_) || iter->viewpoints_.empty()) {
+    if (!edt_env_->sdf_map_->isInBox(iter->average_) || isInStartupIgnoreRegion(iter->average_) ||
+        iter->viewpoints_.empty()) {
       clearFlag(*iter);
       iter = frontiers_.erase(iter);
       removed_ids_.push_back(rmv_idx);
+      removed = true;
     } else {
       ++rmv_idx;
       ++iter;
@@ -292,13 +306,15 @@ void FrontierFinder::removeFrontiersOutsideCurrentBox() {
   }
 
   for (auto iter = dormant_frontiers_.begin(); iter != dormant_frontiers_.end();) {
-    if (!edt_env_->sdf_map_->isInBox(iter->average_)) {
+    if (!edt_env_->sdf_map_->isInBox(iter->average_) || isInStartupIgnoreRegion(iter->average_)) {
       clearFlag(*iter);
       iter = dormant_frontiers_.erase(iter);
     } else {
       ++iter;
     }
   }
+
+  if (removed) reset_cost_matrix_ = true;
 }
 
 void FrontierFinder::updateFrontierCostMatrix() {
@@ -308,6 +324,16 @@ void FrontierFinder::updateFrontierCostMatrix() {
   std::cout << "" << std::endl;
 
   std::cout << "cost mat size remove: " << std::endl;
+  if (reset_cost_matrix_) {
+    for (auto& ftr : frontiers_) {
+      ftr.costs_.clear();
+      ftr.paths_.clear();
+    }
+    first_new_ftr_ = frontiers_.begin();
+    removed_ids_.clear();
+    reset_cost_matrix_ = false;
+    ROS_WARN("Frontier cost matrix reset after dynamic exploration box filtering");
+  }
   if (!removed_ids_.empty()) {
     // Delete path and cost for removed clusters
     for (auto it = frontiers_.begin(); it != first_new_ftr_; ++it) {
@@ -415,6 +441,11 @@ bool FrontierFinder::isFrontierChanged(const Frontier& ft) {
   return false;
 }
 
+bool FrontierFinder::isInStartupIgnoreRegion(const Vector3d& pos) const {
+  if (!startup_ignore_near_frontier_ || startup_ignore_radius_ <= 1e-3) return false;
+  return (pos.head<2>() - startup_ignore_center_.head<2>()).norm() <= startup_ignore_radius_;
+}
+
 void FrontierFinder::computeFrontierInfo(Frontier& ftr) {
   // Compute average position and bounding box of cluster
   ftr.average_.setZero();
@@ -439,6 +470,7 @@ void FrontierFinder::computeFrontiersToVisit() {
   int new_dormant_num = 0;
   // Try find viewpoints for each cluster and categorize them according to viewpoint number
   for (auto& tmp_ftr : tmp_frontiers_) {
+    if (isInStartupIgnoreRegion(tmp_ftr.average_)) continue;
     // Search viewpoints around frontier
     sampleViewpoints(tmp_ftr);
     filterViewpointsInCurrentBox(tmp_ftr);

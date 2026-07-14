@@ -60,6 +60,10 @@ class MultiFloorMission:
         self.after_elevator_sleep = rospy.get_param("~after_elevator_sleep", 1.0)
         self.after_fuel_launch_sleep = rospy.get_param("~after_fuel_launch_sleep", 3.0)
         self.after_trigger_sleep = rospy.get_param("~after_trigger_sleep", 0.5)
+        self.startup_spin = rospy.get_param("~startup_spin", True)
+        self.startup_spin_angle = rospy.get_param("~startup_spin_angle", 2.0 * math.pi)
+        self.startup_spin_speed = rospy.get_param("~startup_spin_speed", 0.45)
+        self.startup_spin_timeout = rospy.get_param("~startup_spin_timeout", 25.0)
 
         self.manage_fuel = rospy.get_param("~manage_fuel", True)
         self.auto_start_first_fuel = rospy.get_param("~auto_start_first_fuel", False)
@@ -204,6 +208,59 @@ class MultiFloorMission:
             rate.sleep()
         return False
 
+    def spin_in_place(self, label="startup scan"):
+        if not self.startup_spin:
+            return True
+        pose = self.get_pose()
+        if pose is None:
+            raise RuntimeError("No odometry for startup spin")
+
+        spin_dir = 1.0 if self.startup_spin_angle >= 0.0 else -1.0
+        target_angle = abs(self.startup_spin_angle)
+        speed = min(abs(self.startup_spin_speed), self.max_angular_speed)
+        if speed <= 1e-3 or target_angle <= 1e-3:
+            return True
+
+        accumulated = 0.0
+        last_yaw = pose[3]
+        start = rospy.Time.now()
+        rate = rospy.Rate(30)
+        rospy.logwarn(
+            "multifloor mission: %s spin %.1f deg at %.3f rad/s",
+            label,
+            spin_dir * target_angle * 180.0 / math.pi,
+            speed,
+        )
+
+        while not rospy.is_shutdown() and accumulated < target_angle:
+            pose = self.get_pose()
+            if pose is None:
+                rate.sleep()
+                continue
+            yaw = pose[3]
+            delta = wrap_pi(yaw - last_yaw)
+            accumulated += abs(delta)
+            last_yaw = yaw
+
+            twist = Twist()
+            twist.angular.z = spin_dir * speed
+            self.cmd_pub.publish(twist)
+
+            if (rospy.Time.now() - start).to_sec() > self.startup_spin_timeout:
+                self.publish_zero()
+                rospy.logerr(
+                    "multifloor mission: timeout during %s, accumulated %.1f / %.1f deg",
+                    label,
+                    accumulated * 180.0 / math.pi,
+                    target_angle * 180.0 / math.pi,
+                )
+                return False
+            rate.sleep()
+
+        self.publish_zero(0.5)
+        rospy.logwarn("multifloor mission: %s done", label)
+        return True
+
     def stop_fuel(self):
         if not self.manage_fuel:
             return
@@ -301,6 +358,8 @@ class MultiFloorMission:
         if not first_floor or self.auto_start_first_fuel:
             self.stop_fuel()
             self.launch_fuel(floor)
+            if not self.spin_in_place("floor %d startup scan" % floor):
+                raise RuntimeError("Failed startup spin on floor %d" % floor)
             self.send_trigger()
         self.wait_fuel_finish()
         self.stop_fuel()
