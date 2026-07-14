@@ -1,6 +1,7 @@
 <launch>
   <arg name="odom_topic" default="/Odometry_gazebo"/>
   <arg name="cmd_vel_topic" default="/cmd_vel"/>
+  <arg name="return_home_start_topic" default="/planning/return_home_start"/>
 
   <arg name="start_floor" default="0"/>
   <arg name="elevator_id" default="elevator_main"/>
@@ -19,7 +20,7 @@
 
   <!-- 进入电梯目标点的相关参数 -->
   <arg name="xy_tolerance" default="0.3"/>
-  <arg name="yaw_tolerance" default="0.2"/>
+  <arg name="yaw_tolerance" default="1.0"/>
   <arg name="max_linear_speed" default="1.2"/>
   <arg name="max_angular_speed" default="1.0"/>
   <arg name="slow_radius" default="0.2"/>
@@ -33,6 +34,7 @@
   <arg name="floor_z_box_low" default="0.25"/>
   <arg name="floor_z_box_high" default="0.35"/>
   <arg name="map_size_z" default="1.6"/>
+  <!-- 原地转圈参数 -->
   <arg name="startup_spin" default="true"/>
   <arg name="startup_spin_angle" default="6.28318530718"/>
   <arg name="startup_spin_speed" default="1.0"/>
@@ -41,6 +43,7 @@
   <node pkg="fuel_dog_adapter" name="fuel_multifloor_mission" type="fuel_multifloor_mission.py" output="screen">
     <param name="odom_topic" value="$(arg odom_topic)"/>
     <param name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
+    <param name="return_home_start_topic" value="$(arg return_home_start_topic)"/>
     <param name="start_floor" value="$(arg start_floor)"/>
     <param name="elevator_id" value="$(arg elevator_id)"/>
     <param name="door_prefix" value="$(arg door_prefix)"/>

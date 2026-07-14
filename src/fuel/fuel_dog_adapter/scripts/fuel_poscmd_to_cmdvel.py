@@ -28,6 +28,7 @@ class FuelPosCmdToCmdVel:
         self.lock = threading.Lock()
         self.last_cmd = None
         self.last_cmd_time = rospy.Time(0)
+        self.seen_planned_cmd = False
         self.last_odom = None
         self.last_odom_time = rospy.Time(0)
         self.last_twist = Twist()
@@ -60,6 +61,7 @@ class FuelPosCmdToCmdVel:
         self.command_timeout = rospy.Duration(rospy.get_param("~command_timeout", 0.5))
         self.odom_timeout = rospy.Duration(rospy.get_param("~odom_timeout", 0.5))
         self.control_rate = rospy.get_param("~control_rate", 30.0)
+        self.publish_zero_before_first_cmd = rospy.get_param("~publish_zero_before_first_cmd", False)
 
         # ------ topics ------
         position_cmd_topic = rospy.get_param("~position_cmd_topic", "/position_cmd")
@@ -85,6 +87,8 @@ class FuelPosCmdToCmdVel:
         with self.lock:
             self.last_cmd = msg
             self.last_cmd_time = rospy.Time.now()
+            if msg.trajectory_id > 0:
+                self.seen_planned_cmd = True
 
     def odom_callback(self, msg: Odometry) -> None:
         with self.lock:
@@ -96,12 +100,15 @@ class FuelPosCmdToCmdVel:
         now = rospy.Time.now()
         with self.lock:
             cmd = self.last_cmd
+            seen_planned_cmd = self.seen_planned_cmd
             odom = self.last_odom
             cmd_age = now - self.last_cmd_time
             odom_age = now - self.last_odom_time
 
         if cmd is None or cmd_age > self.command_timeout:
             rospy.logwarn_throttle(2.0, "fuel_poscmd_to_cmdvel: waiting for fresh /position_cmd")
+            if not seen_planned_cmd and not self.publish_zero_before_first_cmd:
+                return
             self.publish_zero(now)
             return
         if odom is None or odom_age > self.odom_timeout:
@@ -151,6 +158,9 @@ class FuelPosCmdToCmdVel:
         world_speed = math.hypot(world_ax, world_ay)
         yaw_ff = self.yaw_ff_gain * cmd.yaw_dot
         has_planned_traj = cmd.trajectory_id > 0
+
+        if not has_planned_traj and not self.publish_zero_before_first_cmd:
+            return
 
         if self.ignore_unplanned_yaw and not has_planned_traj:
             # traj_server publishes an initial UAV-style command with yaw=0 and

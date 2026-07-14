@@ -63,6 +63,7 @@ void FastExplorationFSM::init(ros::NodeHandle& nh) {
   replan_pub_ = nh.advertise<std_msgs::Empty>("/planning/replan", 10);
   new_pub_ = nh.advertise<std_msgs::Empty>("/planning/new", 10);
   finish_pub_ = nh.advertise<std_msgs::Empty>("/planning/finish", 10);
+  return_home_start_pub_ = nh.advertise<std_msgs::Empty>("/planning/return_home_start", 10);
   bspline_pub_ = nh.advertise<bspline::Bspline>("/planning/bspline", 10);
 }
 
@@ -125,6 +126,7 @@ void FastExplorationFSM::FSMCallback(const ros::TimerEvent& e) {
         if (fp_->return_home_ && fd_->have_home_ &&
             dist_to_home > fp_->return_home_tolerance_) {
           ROS_WARN("Exploration finished, return home.");
+          return_home_start_pub_.publish(std_msgs::Empty());
           transitState(RETURN_HOME, "FSM");
         } else {
           finish_pub_.publish(std_msgs::Empty());

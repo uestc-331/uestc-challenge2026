@@ -52,8 +52,8 @@
 
   <!-- Return-home target. By default, FUEL returns to the pose where exploration was triggered. -->
   <arg name="return_home" default="true"/>
-  <arg name="return_home_tolerance" default="0.25"/>
-  <arg name="return_home_yaw_tolerance" default="0.1"/>
+  <arg name="return_home_tolerance" default="0.3"/>
+  <arg name="return_home_yaw_tolerance" default="0.8"/>
   <arg name="use_fixed_return_home" default="true"/>
   <arg name="return_home_x" default="0.8"/>
   <arg name="return_home_y" default="2.62"/>
@@ -186,6 +186,7 @@
     <param name="command_timeout" value="0.5"/>
     <param name="odom_timeout" value="0.5"/>
     <param name="control_rate" value="30.0"/>
+    <param name="publish_zero_before_first_cmd" value="false"/>
   </node>
 
   <node if="$(arg enable_dynamic_box)" pkg="fuel_dog_adapter" name="dynamic_exploration_box" type="dynamic_exploration_box.py" output="screen">

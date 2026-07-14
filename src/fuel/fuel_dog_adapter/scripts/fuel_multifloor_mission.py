@@ -27,6 +27,7 @@ class MultiFloorMission:
         self.odom_topic = rospy.get_param("~odom_topic", "/Odometry_gazebo")
         self.cmd_vel_topic = rospy.get_param("~cmd_vel_topic", "/cmd_vel")
         self.finish_topic = rospy.get_param("~finish_topic", "/planning/finish")
+        self.return_home_start_topic = rospy.get_param("~return_home_start_topic", "/planning/return_home_start")
         self.trigger_topic = rospy.get_param("~trigger_topic", "/waypoint_generator/waypoints")
 
         self.elevator_id = rospy.get_param("~elevator_id", "elevator_main")
@@ -82,6 +83,10 @@ class MultiFloorMission:
 
         self.odom = None
         self.finish_count = 0
+        self.current_floor = self.start_floor
+        self.return_door_opened = False
+        self.return_door_opening = False
+        self.return_door_event = threading.Event()
         self.fuel_proc = None
         self.lock = threading.Lock()
 
@@ -89,6 +94,7 @@ class MultiFloorMission:
         self.trigger_pub = rospy.Publisher(self.trigger_topic, Path, queue_size=1, latch=True)
         rospy.Subscriber(self.odom_topic, Odometry, self.odom_callback, queue_size=1)
         rospy.Subscriber(self.finish_topic, Empty, self.finish_callback, queue_size=10)
+        rospy.Subscriber(self.return_home_start_topic, Empty, self.return_home_start_callback, queue_size=10)
 
         rospy.loginfo("multifloor mission: start_floor=%d, manage_fuel=%s", self.start_floor, self.manage_fuel)
 
@@ -100,6 +106,25 @@ class MultiFloorMission:
         with self.lock:
             self.finish_count += 1
         rospy.logwarn("multifloor mission: received FUEL finish event")
+
+    def return_home_start_callback(self, _msg):
+        with self.lock:
+            floor = self.current_floor
+            if self.return_door_opened or self.return_door_opening:
+                return
+            self.return_door_opening = True
+            self.return_door_event.clear()
+        rospy.logwarn("multifloor mission: FUEL return-home started, opening elevator door on floor %d", floor)
+        try:
+            self.set_door(floor, True)
+            with self.lock:
+                self.return_door_opened = True
+        except Exception as exc:
+            rospy.logerr("multifloor mission: failed to open door on return-home start: %s", exc)
+        finally:
+            with self.lock:
+                self.return_door_opening = False
+            self.return_door_event.set()
 
     def get_pose(self):
         with self.lock:
@@ -144,6 +169,38 @@ class MultiFloorMission:
             raise RuntimeError("door %s rejected: %s %s" % (door_id, resp.state, resp.message))
         rospy.sleep(self.after_door_sleep)
         return resp
+
+    def ensure_door_open(self, floor):
+        with self.lock:
+            already_open = self.return_door_opened and floor == self.current_floor
+            opening = self.return_door_opening and floor == self.current_floor
+            if not already_open and not opening:
+                self.return_door_opening = True
+                self.return_door_event.clear()
+
+        if already_open:
+            rospy.logwarn("multifloor mission: elevator door on floor %d already opened early", floor)
+            return None
+        if opening:
+            rospy.logwarn("multifloor mission: waiting for early-opened elevator door on floor %d", floor)
+            self.return_door_event.wait(self.service_timeout + self.after_door_sleep + 1.0)
+            return None
+
+        try:
+            resp = self.set_door(floor, True)
+            with self.lock:
+                self.return_door_opened = True
+            return resp
+        finally:
+            with self.lock:
+                self.return_door_opening = False
+            self.return_door_event.set()
+
+    def mark_door_closed(self):
+        with self.lock:
+            self.return_door_opened = False
+            self.return_door_opening = False
+        self.return_door_event.clear()
 
     def call_elevator(self, target_floor):
         service = "/call_elevator"
@@ -354,37 +411,62 @@ class MultiFloorMission:
             return False, current_floor
         return True, int(resp.current_floor if resp.current_floor >= 0 else target)
 
-    def explore_current_floor(self, floor, first_floor=False):
+    def start_current_floor_exploration(self, floor, first_floor=False):
+        with self.lock:
+            self.current_floor = floor
+            self.return_door_opened = False
+            self.return_door_opening = False
+        self.return_door_event.clear()
         if not first_floor or self.auto_start_first_fuel:
             self.stop_fuel()
             self.launch_fuel(floor)
             if not self.spin_in_place("floor %d startup scan" % floor):
                 raise RuntimeError("Failed startup spin on floor %d" % floor)
             self.send_trigger()
+
+    def finish_current_floor_exploration(self):
         self.wait_fuel_finish()
         self.stop_fuel()
+
+    def explore_current_floor(self, floor, first_floor=False):
+        self.start_current_floor_exploration(floor, first_floor)
+        self.finish_current_floor_exploration()
 
     def run(self):
         self.wait_odom()
         current_floor = self.start_floor
+        exploration_started = False
 
         while not rospy.is_shutdown():
-            self.explore_current_floor(current_floor, first_floor=(current_floor == self.start_floor))
+            if not exploration_started:
+                self.start_current_floor_exploration(
+                    current_floor, first_floor=(current_floor == self.start_floor))
+            exploration_started = False
+            self.finish_current_floor_exploration()
 
-            self.set_door(current_floor, True)
+            self.ensure_door_open(current_floor)
             if not self.go_to_pose(self.elevator_inside_x, self.elevator_inside_y,
                                    self.elevator_inside_yaw, "elevator inside"):
                 raise RuntimeError("Failed to enter elevator")
             self.set_door(current_floor, False)
+            self.mark_door_closed()
 
             moved_up, new_floor = self.try_next_floor(current_floor)
             if moved_up:
                 current_floor = new_floor
+                with self.lock:
+                    self.current_floor = current_floor
+                    self.return_door_opened = False
+                    self.return_door_opening = False
+                self.return_door_event.clear()
                 self.set_door(current_floor, True)
                 if not self.go_to_pose(self.floor_exit_x, self.floor_exit_y,
                                        self.floor_exit_yaw, "floor %d elevator exit" % current_floor):
                     raise RuntimeError("Failed to exit elevator on floor %d" % current_floor)
+                self.start_current_floor_exploration(current_floor, first_floor=False)
+                exploration_started = True
                 self.set_door(current_floor, False)
+                self.mark_door_closed()
                 continue
 
             rospy.logwarn("multifloor mission: top floor detected at floor %d, returning to floor 0", current_floor)
@@ -397,6 +479,7 @@ class MultiFloorMission:
                                    self.floor0_final_yaw, "floor 0 final exit"):
                 raise RuntimeError("Failed to exit elevator on floor 0")
             self.set_door(0, False)
+            self.mark_door_closed()
             self.publish_zero()
             rospy.logwarn("multifloor mission: DONE")
             return
