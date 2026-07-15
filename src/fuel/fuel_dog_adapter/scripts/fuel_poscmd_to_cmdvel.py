@@ -119,10 +119,10 @@ class FuelPosCmdToCmdVel:
         # ---- use trajectory-supplied gains when available -----------------
         kp_xy = self.position_kp
         kd_xy = self.position_kd
-        if len(cmd.kx) >= 2 and cmd.kx[0] > 0:
-            kp_xy = cmd.kx[0]
-        if len(cmd.kv) >= 2 and cmd.kv[0] > 0:
-            kd_xy = cmd.kv[0]
+        # if len(cmd.kx) >= 2 and cmd.kx[0] > 0:
+        #     kp_xy = cmd.kx[0]
+        # if len(cmd.kv) >= 2 and cmd.kv[0] > 0:
+        #     kd_xy = cmd.kv[0]
 
         yaw = self.yaw_from_odom(odom)
         odom_vx = odom.twist.twist.linear.x

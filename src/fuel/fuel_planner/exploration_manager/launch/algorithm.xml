@@ -219,13 +219,13 @@
     <param name="astar/z_margin" value="$(arg z_margin)" type="double"/>
 
   <!-- trajectory optimization -->
-    <param name="optimization/ld_smooth" value="20.0" type="double"/>
+    <param name="optimization/ld_smooth" value="8.0" type="double"/>
     <param name="optimization/ld_dist" value="20.0" type="double"/>
     <param name="optimization/ld_feasi" value="2.0" type="double"/>
     <param name="optimization/ld_start" value="100.0" type="double"/>
     <param name="optimization/ld_end" value="0.5" type="double"/>
-    <param name="optimization/ld_guide" value="10.0" type="double"/>
-    <param name="optimization/ld_waypt" value="0.3" type="double"/>
+    <param name="optimization/ld_guide" value="20.0" type="double"/>
+    <param name="optimization/ld_waypt" value="5.0" type="double"/>
     <param name="optimization/ld_view" value="0.0" type="double"/>
     <param name="optimization/ld_time" value="1.0" type="double"/>
     <param name="optimization/dist0" value="0.55" type="double"/>

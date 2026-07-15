@@ -10,6 +10,37 @@
 #include <visualization_msgs/Marker.h>
 
 namespace fast_planner {
+namespace {
+Eigen::Matrix3d stateToCtrlPts(const Eigen::Vector3d& pos, const Eigen::Vector3d& vel,
+                               const Eigen::Vector3d& acc, const double dt) {
+  Eigen::Matrix3d states2pts;
+  states2pts << 1.0, -dt, (1.0 / 3.0) * dt * dt, 1.0, 0.0, -(1.0 / 6.0) * dt * dt, 1.0, dt,
+      (1.0 / 3.0) * dt * dt;
+
+  Eigen::Matrix3d state_xyz;
+  state_xyz.row(0) = pos.transpose();
+  state_xyz.row(1) = vel.transpose();
+  state_xyz.row(2) = acc.transpose();
+  return states2pts * state_xyz;
+}
+
+void hardenCubicBoundary(Eigen::MatrixXd& ctrl_pts, const double dt,
+                         const Eigen::Vector3d& start_pos, const Eigen::Vector3d& start_vel,
+                         const Eigen::Vector3d& start_acc, const Eigen::Vector3d& end_pos,
+                         const Eigen::Vector3d& end_vel, const Eigen::Vector3d& end_acc) {
+  if (ctrl_pts.rows() < 6) return;
+
+  Eigen::Matrix3d start_pts = stateToCtrlPts(start_pos, start_vel, start_acc, dt);
+  ctrl_pts.block<1, 3>(0, 0) = start_pts.row(0);
+  ctrl_pts.block<1, 3>(1, 0) = start_pts.row(1);
+  ctrl_pts.block<1, 3>(2, 0) = start_pts.row(2);
+
+  Eigen::Matrix3d end_pts = stateToCtrlPts(end_pos, end_vel, end_acc, dt);
+  ctrl_pts.block<1, 3>(ctrl_pts.rows() - 3, 0) = end_pts.row(0);
+  ctrl_pts.block<1, 3>(ctrl_pts.rows() - 2, 0) = end_pts.row(1);
+  ctrl_pts.block<1, 3>(ctrl_pts.rows() - 1, 0) = end_pts.row(2);
+}
+}  // namespace
 // SECTION interfaces for setup and query
 
 FastPlannerManager::FastPlannerManager() {
@@ -177,12 +208,14 @@ bool FastPlannerManager::kinodynamicReplan(const Eigen::Vector3d& start_pt,
   // B-spline-based optimization
   int cost_function = BsplineOptimizer::NORMAL_PHASE;
   if (pp_.min_time_) cost_function |= BsplineOptimizer::MINTIME;
+  Eigen::Vector3d zero(0, 0, 0);
   vector<Eigen::Vector3d> start, end;
   init.getBoundaryStates(2, 0, start, end);
   bspline_optimizers_[0]->setBoundaryStates(start, end);
   if (time_lb > 0) bspline_optimizers_[0]->setTimeLowerBound(time_lb);
 
   bspline_optimizers_[0]->optimize(ctrl_pts, ts, cost_function, 1, 1);
+  hardenCubicBoundary(ctrl_pts, ts, start_pt, start_vel, start_acc, end_pt, end_vel, zero);
   local_data_.position_traj_.setUniformBspline(ctrl_pts, pp_.bspline_degree_, ts);
 
   vector<Eigen::Vector3d> start2, end2;
@@ -311,6 +344,7 @@ void FastPlannerManager::planExploreTraj(const vector<Eigen::Vector3d>& tour,
   if (time_lb > 0) bspline_optimizers_[0]->setTimeLowerBound(time_lb);
 
   bspline_optimizers_[0]->optimize(ctrl_pts, dt, cost_func, 1, 1);
+  hardenCubicBoundary(ctrl_pts, dt, tour.front(), cur_vel, cur_acc, tour.back(), zero, zero);
   local_data_.position_traj_.setUniformBspline(ctrl_pts, pp_.bspline_degree_, dt);
 
   updateTrajInfo();

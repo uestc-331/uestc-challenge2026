@@ -1,10 +1,1 @@
-[ERROR] [1784030072.960490, 179.822000]: Error processing request: ROS shutdown request
-['Traceback (most recent call last):\n', '  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/impl/tcpros_service.py", line 633, in _handle_request\n    response = convert_return_to_response(self.handler(request), self.response_class)\n', '  File "/home/uestc/tzb/uestc-challenge2026/src/building_generator_classic/./building_generator_classic/control_server.py", line 50, in <lambda>\n    lambda request: _handle_set_door_state(runtime, request, SetDoorStateResponse, set_model_state, set_link_state),\n', '  File "/home/uestc/tzb/uestc-challenge2026/src/building_generator_classic/./building_generator_classic/control_server.py", line 111, in _handle_set_door_state\n    _animate_panel_poses(\n', '  File "/home/uestc/tzb/uestc-challenge2026/src/building_generator_classic/./building_generator_classic/control_server.py", line 188, in _animate_panel_poses\n    rospy.sleep(sleep_time)\n', '  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 165, in sleep\n    raise rospy.exceptions.ROSInterruptException("ROS shutdown request")\n', 'rospy.exceptions.ROSInterruptException: ROS shutdown request\n']
-[INFO] [1784029195.874821, 0.264000]: building_generator_classic_control ready
-[INFO] [1784029451.663513, 52.897000]: Animating dynamic_elevator_floor_0 door panels over 60.0 seconds
-[INFO] [1784029579.684465, 76.022000]: Animating dynamic_elevator_floor_0 door panels over 60.0 seconds
-[INFO] [1784029647.057454, 86.269000]: Animating dynamic_elevator_floor_1 door panels over 60.0 seconds
-[INFO] [1784029784.945901, 117.061000]: Animating dynamic_elevator_floor_1 door panels over 60.0 seconds
-[INFO] [1784029853.512727, 132.849000]: Animating dynamic_elevator_floor_1 door panels over 60.0 seconds
-[INFO] [1784029973.034539, 159.183000]: Animating dynamic_elevator_floor_1 door panels over 60.0 seconds
-[INFO] [1784030039.415537, 172.888000]: Animating dynamic_elevator_floor_2 door panels over 60.0 seconds
+[INFO] [1784106133.632850, 0.000000]: building_generator_classic_control ready

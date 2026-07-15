@@ -283,15 +283,15 @@ bool FastPlannerManager::localExplore(Eigen::Vector3d start, Eigen::Vector3d sta
 
   std::cout << "Set boundary value" << std::endl;
 
-  // state_xyz.setZero();    // set end value
-  // state_xyz.row(0)    = gi;
-  // p_tmp               = states2pts * state_xyz;
-  // Eigen::Vector3d p_2 = p_tmp.row(0);  // last 3 control pts
-  // Eigen::Vector3d p_1 = p_tmp.row(1);
-  // Eigen::Vector3d p_0 = p_tmp.row(2);
-  // pts.push_back(p_0);
-  // pts[pts.size() - 2] = p_1;
-  // pts[pts.size() - 3] = p_2;
+  state_xyz.setZero();  // set end value
+  state_xyz.row(0) = gi;
+  p_tmp = states2pts * state_xyz;
+  Eigen::Vector3d p_2 = p_tmp.row(0);  // last 3 control pts
+  Eigen::Vector3d p_1 = p_tmp.row(1);
+  Eigen::Vector3d p_0 = p_tmp.row(2);
+  pts.push_back(p_0);
+  pts[pts.size() - 2] = p_1;
+  pts[pts.size() - 3] = p_2;
 
   // Optimize
   Eigen::MatrixXd ctrl_pts(pts.size(), 3);

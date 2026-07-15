@@ -53,7 +53,7 @@
   <!-- Return-home target. By default, FUEL returns to the pose where exploration was triggered. -->
   <arg name="return_home" default="true"/>
   <arg name="return_home_tolerance" default="0.3"/>
-  <arg name="return_home_yaw_tolerance" default="0.8"/>
+  <arg name="return_home_yaw_tolerance" default="0.6"/>
   <arg name="use_fixed_return_home" default="true"/>
   <arg name="return_home_x" default="0.8"/>
   <arg name="return_home_y" default="2.62"/>
@@ -161,12 +161,12 @@
     <param name="odom_topic" value="$(arg odom_topic)"/>
     <param name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
     <!-- PD gains (fallbacks; overridden by trajectory kx/kv when available) -->
-    <param name="position_kp" value="5.7"/>
+    <param name="position_kp" value="6.0"/>
     <param name="position_kd" value="1.5"/>
-    <param name="yaw_kp" value="2.8"/>
+    <param name="yaw_kp" value="1.5"/>
     <!-- feedforward gains -->
-    <param name="velocity_ff_gain" value="1.0"/>
-    <param name="accel_ff_gain" value="0.2"/>
+    <param name="velocity_ff_gain" value="0.6"/>
+    <param name="accel_ff_gain" value="0.1"/>
     <param name="yaw_ff_gain" value="0.0"/>
     <!-- look-ahead for corner anticipation -->
     <param name="lookahead_time" value="0.1"/>
