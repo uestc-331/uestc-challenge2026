@@ -49,6 +49,11 @@ class FuelPosCmdToCmdVel:
         self.disable_lateral = rospy.get_param("~disable_lateral", True)
         self.ignore_unplanned_yaw = rospy.get_param("~ignore_unplanned_yaw", True)
         self.min_heading_speed = rospy.get_param("~min_heading_speed", 0.05)
+        self.rotate_first = rospy.get_param("~rotate_first", False)
+        self.rotate_first_enter_yaw = rospy.get_param("~rotate_first_enter_yaw", 0.785)
+        self.rotate_first_exit_yaw = rospy.get_param("~rotate_first_exit_yaw", 0.262)
+        self.rotate_first_min_dist = rospy.get_param("~rotate_first_min_dist", 0.4)
+        self.rotate_first_active = False
 
         # ------ limits ------
         self.max_linear_speed = rospy.get_param("~max_linear_speed", 0.6)
@@ -175,10 +180,40 @@ class FuelPosCmdToCmdVel:
             # use trajectory yaw directly
             target_yaw = cmd.yaw
 
+        goal_dx = target_x - odom.pose.pose.position.x
+        goal_dy = target_y - odom.pose.pose.position.y
+        goal_dist = math.hypot(goal_dx, goal_dy)
+        goal_yaw_error = 0.0
+        if goal_dist > self.rotate_first_min_dist:
+            goal_heading = math.atan2(goal_dy, goal_dx)
+            goal_yaw_error = wrap_pi(goal_heading - yaw)
+            if (
+                self.rotate_first
+                and has_planned_traj
+                and not self.rotate_first_active
+                and abs(goal_yaw_error) > self.rotate_first_enter_yaw
+            ):
+                self.rotate_first_active = True
+                rospy.logwarn_throttle(
+                    1.0,
+                    "fuel_poscmd_to_cmdvel: rotate-first active, yaw_error=%.2f",
+                    goal_yaw_error,
+                )
+
+        if self.rotate_first_active:
+            if goal_dist <= self.rotate_first_min_dist or abs(goal_yaw_error) < self.rotate_first_exit_yaw:
+                self.rotate_first_active = False
+            else:
+                target_yaw = math.atan2(goal_dy, goal_dx)
+                yaw_ff = 0.0
+
         yaw_error = wrap_pi(target_yaw - yaw)
         wz = yaw_ff + self.yaw_kp * yaw_error
 
         # ---- motion constraints -------------------------------------------
+        if self.rotate_first_active:
+            body_vx = 0.0
+            body_vy = 0.0
         if self.disable_lateral:
             body_vy = 0.0
         if self.forward_only:

@@ -108,9 +108,9 @@
     <param name="map_ros/frame_id"      value="world"/>
 
     <!-- Fsm -->
-    <param name="fsm/thresh_replan1" value="0.5" type="double"/>
-    <param name="fsm/thresh_replan2" value="0.5" type="double"/>
-    <param name="fsm/thresh_replan3" value="1.5" type="double"/>
+    <param name="fsm/thresh_replan1" value="0.3" type="double"/>
+    <param name="fsm/thresh_replan2" value="1.5" type="double"/>
+    <param name="fsm/thresh_replan3" value="2.0" type="double"/>
     <param name="fsm/return_home" value="$(arg return_home)" type="bool"/>
     <param name="fsm/return_home_tolerance" value="$(arg return_home_tolerance)" type="double"/>
     <param name="fsm/return_home_yaw_tolerance" value="$(arg return_home_yaw_tolerance)" type="double"/>
@@ -120,9 +120,6 @@
     <param name="fsm/return_home_z" value="$(arg return_home_z)" type="double"/>
     <param name="fsm/return_home_yaw" value="$(arg return_home_yaw)" type="double"/>
 
-    <!-- <param name="fsm/thresh_replan1" value="0.00001" type="double"/> -->
-    <!-- <param name="fsm/thresh_replan2" value="100.0" type="double"/> -->
-    <!-- <param name="fsm/thresh_replan3" value="0.1" type="double"/> -->
     <param name="fsm/replan_time" value="0.200" type="double"/>
 
     <!-- Exploration manager -->
@@ -163,9 +160,9 @@
     <param name="frontier/startup_ignore_z" value="$(arg frontier_startup_ignore_z)" type="double"/>;
 
     <!-- Perception utils -->
-    <param name="perception_utils/top_angle" value="0.56125" type="double"/>;
-    <param name="perception_utils/left_angle" value="0.69222" type="double"/>;
-    <param name="perception_utils/right_angle" value="0.68901" type="double"/>;
+    <param name="perception_utils/top_angle" value="0.729388" type="double"/>;
+    <param name="perception_utils/left_angle" value="0.872665" type="double"/>;
+    <param name="perception_utils/right_angle" value="0.872665" type="double"/>;
     <param name="perception_utils/max_dist" value="$(arg perception_max_dist)" type="double"/>;
     <param name="perception_utils/vis_dist" value="$(arg perception_vis_dist)" type="double"/>;
 

@@ -7,7 +7,7 @@
   <arg name="cmd_vel_topic" default="/cmd_vel"/>
 
   <arg name="map_size_x" default="50.0"/>
-  <arg name="map_size_y" default="50.0"/>
+  <arg name="map_size_y" default="100.0"/>
   <arg name="map_size_z" default="4.0"/>
   <arg name="ground_height" default="0.0"/>
 
@@ -19,12 +19,14 @@
   <arg name="box_max_z" default="0.65"/>
 
   <arg name="enable_dynamic_box" default="true"/>
-  <arg name="dynamic_box_expand_y" default="9.2"/>
-  <arg name="dynamic_box_shrink_y" default="9.0"/>
+  <arg name="dynamic_box_expand_y" default="9.0"/>
+  <arg name="dynamic_box_shrink_y" default="8.8"/>
   <arg name="dynamic_box_gate_min_x" default="-0.9"/>
   <arg name="dynamic_box_gate_max_x" default="0.9"/>
   <arg name="dynamic_box_min_x_after" default="-25.0"/>
   <arg name="dynamic_box_max_x_after" default="25.0"/>
+  <arg name="dynamic_box_min_y_after" default="7.8"/>
+  <arg name="dynamic_box_max_y_after" default="$(arg box_max_y)"/>
 
   <arg name="init_x" default="0.0"/>
   <arg name="init_y" default="-2.2"/>
@@ -36,11 +38,11 @@
   <arg name="sensor_offset_y" default="0.0"/>
   <arg name="sensor_offset_z" default="0.043"/>
 
-  <!-- 640x480, 60 deg HFOV fallback. Override from /real_sense/depth/camera_info if needed. -->
+  <!-- 640x480, 100 deg HFOV fallback. Override from /real_sense/depth/camera_info if needed. -->
   <arg name="cx" default="320.0"/>
   <arg name="cy" default="240.0"/>
-  <arg name="fx" default="554.256"/>
-  <arg name="fy" default="554.256"/>
+  <arg name="fx" default="268.512"/>
+  <arg name="fy" default="268.512"/>
 
   <arg name="max_vel" default="1.3"/>
   <arg name="max_acc" default="1.0"/>
@@ -70,8 +72,8 @@
   <arg name="frontier_min_visib_num" default="3"/>
   <arg name="frontier_min_candidate_dist" default="0.45"/>
   <arg name="frontier_min_candidate_clearance" default="0.12"/>
-  <arg name="frontier_candidate_rmin" default="0.8"/>
-  <arg name="frontier_candidate_rmax" default="1.8"/>
+  <arg name="frontier_candidate_rmin" default="0.4"/>
+  <arg name="frontier_candidate_rmax" default="1.0"/>
   <arg name="frontier_startup_ignore_near" default="true"/>
   <arg name="frontier_startup_ignore_radius" default="0.5"/>
 
@@ -149,9 +151,9 @@
     <param name="traj_server/init_y" value="$(arg init_y)" type="double"/>
     <param name="traj_server/init_z" value="$(arg init_z)" type="double"/>
 
-    <param name="perception_utils/top_angle" value="0.523599" type="double"/>
-    <param name="perception_utils/left_angle" value="0.523599" type="double"/>
-    <param name="perception_utils/right_angle" value="0.523599" type="double"/>
+    <param name="perception_utils/top_angle" value="0.729388" type="double"/>
+    <param name="perception_utils/left_angle" value="0.872665" type="double"/>
+    <param name="perception_utils/right_angle" value="0.872665" type="double"/>
     <param name="perception_utils/max_dist" value="$(arg perception_max_dist)" type="double"/>
     <param name="perception_utils/vis_dist" value="$(arg perception_vis_dist)" type="double"/>
   </node>
@@ -178,10 +180,16 @@
     <param name="angular_acc_limit" value="2.0"/>
     <!-- behaviour flags -->
     <param name="align_yaw_to_velocity" value="true"/>
-    <param name="forward_only" value="false"/>
+    <param name="forward_only" value="true"/>
     <param name="disable_lateral" value="true"/>
     <param name="ignore_unplanned_yaw" value="true"/>
     <param name="min_heading_speed" value="0.03"/>
+    <!-- 当目标点方向和当前 yaw 偏差超过rotate_first_enter_yaw时，先把线速度置 0，只发布角速度原地转；
+    转到偏差小于rotate_first_exit_yaw后，再恢复正常跟踪 -->
+    <param name="rotate_first" value="false"/>
+    <param name="rotate_first_enter_yaw" value="0.523"/>
+    <param name="rotate_first_exit_yaw" value="0.262"/>
+    <param name="rotate_first_min_dist" value="0.1"/>
     <!-- timing -->
     <param name="command_timeout" value="0.5"/>
     <param name="odom_timeout" value="0.5"/>
@@ -197,8 +205,13 @@
     <param name="gate_max_x" value="$(arg dynamic_box_gate_max_x)"/>
     <param name="box_min_x_before" value="$(arg box_min_x)"/>
     <param name="box_max_x_before" value="$(arg box_max_x)"/>
+    <param name="box_min_y_before" value="$(arg box_min_y)"/>
+    <param name="box_max_y_before" value="$(arg box_max_y)"/>
     <param name="box_min_x_after" value="$(arg dynamic_box_min_x_after)"/>
     <param name="box_max_x_after" value="$(arg dynamic_box_max_x_after)"/>
+    <param name="box_min_y_after" value="$(arg dynamic_box_min_y_after)"/>
+    <param name="box_max_y_after" value="$(arg dynamic_box_max_y_after)"/>
     <param name="target_namespace" value="/exploration_node"/>
+    <param name="return_home_start_topic" value="/planning/return_home_start"/>
   </node>
 </launch>

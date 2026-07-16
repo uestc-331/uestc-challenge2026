@@ -30,8 +30,8 @@
     <param name="pose_topic" value="/fuel_dog_adapter/sensor_pose"/>
     <param name="marker_topic" value="/fuel_dog_adapter/sensor_fov_marker"/>
     <param name="frame_id" value="world"/>
-    <param name="fx" value="554.256"/>
-    <param name="fy" value="554.256"/>
+    <param name="fx" value="268.512"/>
+    <param name="fy" value="268.512"/>
     <param name="cx" value="320.0"/>
     <param name="cy" value="240.0"/>
     <param name="width" value="640.0"/>

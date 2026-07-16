@@ -7,7 +7,6 @@ elevators:
     y_max: 3.95
   served_floors:
   - 0
-  - 1
   current_floor: 0
   car_size:
   - 1.8999999999999995
@@ -21,13 +20,6 @@ elevators:
     - 0.0
     - 0.0
     - 3.141592653589793
-    '1':
-    - 1.6500000000000001
-    - 2.6
-    - 3.8
-    - 0.0
-    - 0.0
-    - 3.141592653589793
   model_name: dynamic_elevator_main
   floor_poses:
     '0':
@@ -37,11 +29,4 @@ elevators:
     - 0.0
     - 0.0
     - -1.5707963267948966
-    '1':
-    - 2.7600000000000002
-    - 2.6
-    - 3.63
-    - 0.0
-    - 0.0
-    - -1.5707963267948966
-signature: f62750adfe921e4a
+signature: af0ea8300ed1836f
