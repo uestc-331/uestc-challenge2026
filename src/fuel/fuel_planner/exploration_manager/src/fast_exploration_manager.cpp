@@ -58,6 +58,13 @@ void FastExplorationManager::initialize(ros::NodeHandle& nh) {
   nh.param("exploration/yd", ViewNode::yd_, -1.0);
   nh.param("exploration/ydd", ViewNode::ydd_, -1.0);
   nh.param("exploration/w_dir", ViewNode::w_dir_, -1.0);
+  nh.param("exploration/prefer_left_viewpoints", ViewNode::prefer_left_viewpoints_, false);
+  nh.param("exploration/left_preference_x_threshold", ViewNode::left_preference_x_threshold_, 0.0);
+  nh.param("exploration/right_viewpoint_cost_penalty", ViewNode::right_viewpoint_cost_penalty_, 0.0);
+  if (ViewNode::prefer_left_viewpoints_) {
+    ROS_WARN("Prefer-left viewpoints enabled: add %.3f cost when target viewpoint x > %.3f",
+             ViewNode::right_viewpoint_cost_penalty_, ViewNode::left_preference_x_threshold_);
+  }
 
   ViewNode::astar_.reset(new Astar);
   ViewNode::astar_->init(nh, edt_environment_);

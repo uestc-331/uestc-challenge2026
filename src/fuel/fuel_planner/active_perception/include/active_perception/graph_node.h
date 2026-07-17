@@ -77,7 +77,9 @@ public:
   double yaw_, yaw_dot_;
 
   // Parameters shared among nodes
+  static bool prefer_left_viewpoints_;
   static double vm_, am_, yd_, ydd_, w_dir_;
+  static double left_preference_x_threshold_, right_viewpoint_cost_penalty_;
   static shared_ptr<Astar> astar_;
   static shared_ptr<RayCaster> caster_;
   static shared_ptr<SDFMap> map_;

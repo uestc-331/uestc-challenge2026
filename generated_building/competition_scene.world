@@ -4256,13 +4256,13 @@
       </link>
       
       
-      <link name="floor_0_room_1_desk">
+      <link name="floor_0_room_1_sofa_a">
         
         
-        <pose>3.6000 14.4150 0.4500 0.0000 0.0000 0.0000</pose>
+        <pose>3.6000 10.6383 0.4500 0.0000 0.0000 0.0000</pose>
         
         
-        <collision name="floor_0_room_1_desk_collision">
+        <collision name="floor_0_room_1_sofa_a_collision">
           
           
           <geometry>
@@ -4271,7 +4271,7 @@
             <box>
               
               
-              <size>1.5000 0.7000 0.7500</size>
+              <size>1.8000 0.8000 0.8000</size>
               
             
             </box>
@@ -4283,7 +4283,7 @@
         </collision>
         
         
-        <visual name="floor_0_room_1_desk_visual">
+        <visual name="floor_0_room_1_sofa_a_visual">
           
           
           <geometry>
@@ -4292,7 +4292,7 @@
             <box>
               
               
-              <size>1.5000 0.7000 0.7500</size>
+              <size>1.8000 0.8000 0.8000</size>
               
             
             </box>
@@ -4304,10 +4304,10 @@
           <material>
             
             
-            <ambient>0.54 0.43 0.34 1</ambient>
+            <ambient>0.24 0.36 0.54 1</ambient>
             
             
-            <diffuse>0.54 0.43 0.34 1</diffuse>
+            <diffuse>0.24 0.36 0.54 1</diffuse>
             
           
           </material>
@@ -4322,13 +4322,13 @@
       </link>
       
       
-      <link name="floor_0_room_1_chair">
+      <link name="floor_0_room_1_sofa_b">
         
         
-        <pose>3.6000 13.5150 0.2800 0.0000 0.0000 0.0000</pose>
+        <pose>7.0000 10.6383 0.4500 0.0000 0.0000 3.1400</pose>
         
         
-        <collision name="floor_0_room_1_chair_collision">
+        <collision name="floor_0_room_1_sofa_b_collision">
           
           
           <geometry>
@@ -4337,7 +4337,7 @@
             <box>
               
               
-              <size>0.5500 0.5500 0.5500</size>
+              <size>1.8000 0.8000 0.8000</size>
               
             
             </box>
@@ -4349,7 +4349,7 @@
         </collision>
         
         
-        <visual name="floor_0_room_1_chair_visual">
+        <visual name="floor_0_room_1_sofa_b_visual">
           
           
           <geometry>
@@ -4358,7 +4358,7 @@
             <box>
               
               
-              <size>0.5500 0.5500 0.5500</size>
+              <size>1.8000 0.8000 0.8000</size>
               
             
             </box>
@@ -4370,10 +4370,10 @@
           <material>
             
             
-            <ambient>0.30 0.30 0.34 1</ambient>
+            <ambient>0.24 0.36 0.54 1</ambient>
             
             
-            <diffuse>0.30 0.30 0.34 1</diffuse>
+            <diffuse>0.24 0.36 0.54 1</diffuse>
             
           
           </material>
@@ -4388,13 +4388,13 @@
       </link>
       
       
-      <link name="floor_0_room_1_cabinet">
+      <link name="floor_0_room_1_coffee_table">
         
         
-        <pose>7.0000 10.6383 0.9000 0.0000 0.0000 0.0000</pose>
+        <pose>5.3000 12.5267 0.2500 0.0000 0.0000 0.0000</pose>
         
         
-        <collision name="floor_0_room_1_cabinet_collision">
+        <collision name="floor_0_room_1_coffee_table_collision">
           
           
           <geometry>
@@ -4403,7 +4403,7 @@
             <box>
               
               
-              <size>0.6000 1.0000 1.8000</size>
+              <size>0.8000 0.6000 0.4000</size>
               
             
             </box>
@@ -4415,7 +4415,7 @@
         </collision>
         
         
-        <visual name="floor_0_room_1_cabinet_visual">
+        <visual name="floor_0_room_1_coffee_table_visual">
           
           
           <geometry>
@@ -4424,7 +4424,7 @@
             <box>
               
               
-              <size>0.6000 1.0000 1.8000</size>
+              <size>0.8000 0.6000 0.4000</size>
               
             
             </box>
@@ -4436,10 +4436,10 @@
           <material>
             
             
-            <ambient>0.72 0.72 0.74 1</ambient>
+            <ambient>0.60 0.48 0.34 1</ambient>
             
             
-            <diffuse>0.72 0.72 0.74 1</diffuse>
+            <diffuse>0.60 0.48 0.34 1</diffuse>
             
           
           </material>
@@ -4454,13 +4454,13 @@
       </link>
       
       
-      <link name="floor_0_room_1_side_table">
+      <link name="floor_0_room_1_bookshelf">
         
         
-        <pose>7.0000 14.4150 0.3200 0.0000 0.0000 0.0000</pose>
+        <pose>7.0000 14.4150 0.8500 0.0000 0.0000 0.0000</pose>
         
         
-        <collision name="floor_0_room_1_side_table_collision">
+        <collision name="floor_0_room_1_bookshelf_collision">
           
           
           <geometry>
@@ -4469,7 +4469,7 @@
             <box>
               
               
-              <size>0.7000 0.7000 0.4500</size>
+              <size>0.4500 1.2000 1.7000</size>
               
             
             </box>
@@ -4481,7 +4481,7 @@
         </collision>
         
         
-        <visual name="floor_0_room_1_side_table_visual">
+        <visual name="floor_0_room_1_bookshelf_visual">
           
           
           <geometry>
@@ -4490,7 +4490,7 @@
             <box>
               
               
-              <size>0.7000 0.7000 0.4500</size>
+              <size>0.4500 1.2000 1.7000</size>
               
             
             </box>
@@ -4502,10 +4502,10 @@
           <material>
             
             
-            <ambient>0.52 0.42 0.33 1</ambient>
+            <ambient>0.50 0.40 0.30 1</ambient>
             
             
-            <diffuse>0.52 0.42 0.33 1</diffuse>
+            <diffuse>0.50 0.40 0.30 1</diffuse>
             
           
           </material>
@@ -4523,7 +4523,7 @@
       <link name="floor_0_room_1_planter">
         
         
-        <pose>5.3000 10.6383 0.4500 0.0000 0.0000 0.0000</pose>
+        <pose>3.6000 14.4150 0.4500 0.0000 0.0000 0.0000</pose>
         
         
         <collision name="floor_0_room_1_planter_collision">
@@ -4586,13 +4586,13 @@
       </link>
       
       
-      <link name="floor_0_room_2_sofa_a">
+      <link name="floor_0_room_2_desk">
         
         
-        <pose>-7.0000 19.9917 0.4500 0.0000 0.0000 0.0000</pose>
+        <pose>-7.0000 23.7683 0.4500 0.0000 0.0000 0.0000</pose>
         
         
-        <collision name="floor_0_room_2_sofa_a_collision">
+        <collision name="floor_0_room_2_desk_collision">
           
           
           <geometry>
@@ -4601,7 +4601,7 @@
             <box>
               
               
-              <size>1.8000 0.8000 0.8000</size>
+              <size>1.5000 0.7000 0.7500</size>
               
             
             </box>
@@ -4613,7 +4613,7 @@
         </collision>
         
         
-        <visual name="floor_0_room_2_sofa_a_visual">
+        <visual name="floor_0_room_2_desk_visual">
           
           
           <geometry>
@@ -4622,7 +4622,7 @@
             <box>
               
               
-              <size>1.8000 0.8000 0.8000</size>
+              <size>1.5000 0.7000 0.7500</size>
               
             
             </box>
@@ -4634,10 +4634,10 @@
           <material>
             
             
-            <ambient>0.24 0.36 0.54 1</ambient>
+            <ambient>0.54 0.43 0.34 1</ambient>
             
             
-            <diffuse>0.24 0.36 0.54 1</diffuse>
+            <diffuse>0.54 0.43 0.34 1</diffuse>
             
           
           </material>
@@ -4652,13 +4652,13 @@
       </link>
       
       
-      <link name="floor_0_room_2_sofa_b">
+      <link name="floor_0_room_2_chair">
         
         
-        <pose>-3.6000 19.9917 0.4500 0.0000 0.0000 3.1400</pose>
+        <pose>-7.0000 22.8683 0.2800 0.0000 0.0000 0.0000</pose>
         
         
-        <collision name="floor_0_room_2_sofa_b_collision">
+        <collision name="floor_0_room_2_chair_collision">
           
           
           <geometry>
@@ -4667,7 +4667,7 @@
             <box>
               
               
-              <size>1.8000 0.8000 0.8000</size>
+              <size>0.5500 0.5500 0.5500</size>
               
             
             </box>
@@ -4679,7 +4679,7 @@
         </collision>
         
         
-        <visual name="floor_0_room_2_sofa_b_visual">
+        <visual name="floor_0_room_2_chair_visual">
           
           
           <geometry>
@@ -4688,7 +4688,7 @@
             <box>
               
               
-              <size>1.8000 0.8000 0.8000</size>
+              <size>0.5500 0.5500 0.5500</size>
               
             
             </box>
@@ -4700,10 +4700,10 @@
           <material>
             
             
-            <ambient>0.24 0.36 0.54 1</ambient>
+            <ambient>0.30 0.30 0.34 1</ambient>
             
             
-            <diffuse>0.24 0.36 0.54 1</diffuse>
+            <diffuse>0.30 0.30 0.34 1</diffuse>
             
           
           </material>
@@ -4718,13 +4718,13 @@
       </link>
       
       
-      <link name="floor_0_room_2_coffee_table">
+      <link name="floor_0_room_2_cabinet">
         
         
-        <pose>-5.3000 21.8800 0.2500 0.0000 0.0000 0.0000</pose>
+        <pose>-3.6000 19.9917 0.9000 0.0000 0.0000 0.0000</pose>
         
         
-        <collision name="floor_0_room_2_coffee_table_collision">
+        <collision name="floor_0_room_2_cabinet_collision">
           
           
           <geometry>
@@ -4733,7 +4733,7 @@
             <box>
               
               
-              <size>0.8000 0.6000 0.4000</size>
+              <size>0.6000 1.0000 1.8000</size>
               
             
             </box>
@@ -4745,7 +4745,7 @@
         </collision>
         
         
-        <visual name="floor_0_room_2_coffee_table_visual">
+        <visual name="floor_0_room_2_cabinet_visual">
           
           
           <geometry>
@@ -4754,7 +4754,7 @@
             <box>
               
               
-              <size>0.8000 0.6000 0.4000</size>
+              <size>0.6000 1.0000 1.8000</size>
               
             
             </box>
@@ -4766,10 +4766,10 @@
           <material>
             
             
-            <ambient>0.60 0.48 0.34 1</ambient>
+            <ambient>0.72 0.72 0.74 1</ambient>
             
             
-            <diffuse>0.60 0.48 0.34 1</diffuse>
+            <diffuse>0.72 0.72 0.74 1</diffuse>
             
           
           </material>
@@ -4784,13 +4784,13 @@
       </link>
       
       
-      <link name="floor_0_room_2_bookshelf">
+      <link name="floor_0_room_2_side_table">
         
         
-        <pose>-3.6000 23.7683 0.8500 0.0000 0.0000 0.0000</pose>
+        <pose>-3.6000 23.7683 0.3200 0.0000 0.0000 0.0000</pose>
         
         
-        <collision name="floor_0_room_2_bookshelf_collision">
+        <collision name="floor_0_room_2_side_table_collision">
           
           
           <geometry>
@@ -4799,7 +4799,7 @@
             <box>
               
               
-              <size>0.4500 1.2000 1.7000</size>
+              <size>0.7000 0.7000 0.4500</size>
               
             
             </box>
@@ -4811,7 +4811,7 @@
         </collision>
         
         
-        <visual name="floor_0_room_2_bookshelf_visual">
+        <visual name="floor_0_room_2_side_table_visual">
           
           
           <geometry>
@@ -4820,7 +4820,7 @@
             <box>
               
               
-              <size>0.4500 1.2000 1.7000</size>
+              <size>0.7000 0.7000 0.4500</size>
               
             
             </box>
@@ -4832,10 +4832,10 @@
           <material>
             
             
-            <ambient>0.50 0.40 0.30 1</ambient>
+            <ambient>0.52 0.42 0.33 1</ambient>
             
             
-            <diffuse>0.50 0.40 0.30 1</diffuse>
+            <diffuse>0.52 0.42 0.33 1</diffuse>
             
           
           </material>
@@ -4853,7 +4853,7 @@
       <link name="floor_0_room_2_planter">
         
         
-        <pose>-7.0000 23.7683 0.4500 0.0000 0.0000 0.0000</pose>
+        <pose>-5.3000 19.9917 0.4500 0.0000 0.0000 0.0000</pose>
         
         
         <collision name="floor_0_room_2_planter_collision">
@@ -6734,9 +6734,57 @@
     </model>
     
   
+    <model name="danger_red_sphere_00">
+      <static>true</static>
+      <pose>-3.928789 16.077359 0.150000 0.000000 0.000000 0.000000</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <sphere>
+              <radius>0.150</radius>
+            </sphere>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <sphere>
+              <radius>0.150</radius>
+            </sphere>
+          </geometry>
+          <material>
+            <ambient>1.0 0.0 0.0 1.0</ambient>
+            <diffuse>1.0 0.0 0.0 1.0</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="danger_red_sphere_01">
+      <static>true</static>
+      <pose>6.542806 11.915193 0.150000 0.000000 0.000000 0.000000</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <sphere>
+              <radius>0.150</radius>
+            </sphere>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <sphere>
+              <radius>0.150</radius>
+            </sphere>
+          </geometry>
+          <material>
+            <ambient>1.0 0.0 0.0 1.0</ambient>
+            <diffuse>1.0 0.0 0.0 1.0</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
     <model name="distractor_red_box_00">
       <static>true</static>
-      <pose>-5.799846 12.070120 0.150000 0.000000 0.000000 0.000000</pose>
+      <pose>3.895409 33.916802 0.150000 0.000000 0.000000 0.000000</pose>
       <link name="link">
         <collision name="collision">
           <geometry>
@@ -6760,7 +6808,7 @@
     </model>
     <model name="distractor_red_box_01">
       <static>true</static>
-      <pose>-3.313036 18.633688 0.150000 0.000000 0.000000 0.000000</pose>
+      <pose>6.324452 34.453421 0.150000 0.000000 0.000000 0.000000</pose>
       <link name="link">
         <collision name="collision">
           <geometry>
@@ -6774,30 +6822,6 @@
             <box>
               <size>0.300000 0.300000 0.300000</size>
             </box>
-          </geometry>
-          <material>
-            <ambient>1.0 0.0 0.0 1.0</ambient>
-            <diffuse>1.0 0.0 0.0 1.0</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-    <model name="danger_red_sphere_00">
-      <static>true</static>
-      <pose>5.828462 8.687036 0.150000 0.000000 0.000000 0.000000</pose>
-      <link name="link">
-        <collision name="collision">
-          <geometry>
-            <sphere>
-              <radius>0.150</radius>
-            </sphere>
-          </geometry>
-        </collision>
-        <visual name="visual">
-          <geometry>
-            <sphere>
-              <radius>0.150</radius>
-            </sphere>
           </geometry>
           <material>
             <ambient>1.0 0.0 0.0 1.0</ambient>
@@ -6808,7 +6832,7 @@
     </model>
     <model name="distractor_red_box_02">
       <static>true</static>
-      <pose>4.553897 22.819672 0.150000 0.000000 0.000000 0.000000</pose>
+      <pose>-6.162360 11.544662 0.150000 0.000000 0.000000 0.000000</pose>
       <link name="link">
         <collision name="collision">
           <geometry>
@@ -6830,22 +6854,22 @@
         </visual>
       </link>
     </model>
-    <model name="danger_red_sphere_01">
+    <model name="distractor_red_box_03">
       <static>true</static>
-      <pose>-4.138556 22.317441 0.150000 0.000000 0.000000 0.000000</pose>
+      <pose>-7.382047 21.328374 0.150000 0.000000 0.000000 0.000000</pose>
       <link name="link">
         <collision name="collision">
           <geometry>
-            <sphere>
-              <radius>0.150</radius>
-            </sphere>
+            <box>
+              <size>0.300000 0.300000 0.300000</size>
+            </box>
           </geometry>
         </collision>
         <visual name="visual">
           <geometry>
-            <sphere>
-              <radius>0.150</radius>
-            </sphere>
+            <box>
+              <size>0.300000 0.300000 0.300000</size>
+            </box>
           </geometry>
           <material>
             <ambient>1.0 0.0 0.0 1.0</ambient>
@@ -6856,7 +6880,7 @@
     </model>
     <model name="danger_red_sphere_02">
       <static>true</static>
-      <pose>-5.194418 25.363706 0.150000 0.000000 0.000000 0.000000</pose>
+      <pose>3.010485 9.370492 0.150000 0.000000 0.000000 0.000000</pose>
       <link name="link">
         <collision name="collision">
           <geometry>
@@ -6878,9 +6902,9 @@
         </visual>
       </link>
     </model>
-    <model name="distractor_green_sphere_03">
+    <model name="distractor_green_sphere_04">
       <static>true</static>
-      <pose>5.643588 14.537222 0.150000 0.000000 0.000000 0.000000</pose>
+      <pose>-7.550990 30.151559 0.150000 0.000000 0.000000 0.000000</pose>
       <link name="link">
         <collision name="collision">
           <geometry>
@@ -6902,22 +6926,22 @@
         </visual>
       </link>
     </model>
-    <model name="danger_red_sphere_03">
+    <model name="distractor_red_box_05">
       <static>true</static>
-      <pose>5.221468 9.101724 0.150000 0.000000 0.000000 0.000000</pose>
+      <pose>3.030048 28.071342 0.150000 0.000000 0.000000 0.000000</pose>
       <link name="link">
         <collision name="collision">
           <geometry>
-            <sphere>
-              <radius>0.150</radius>
-            </sphere>
+            <box>
+              <size>0.300000 0.300000 0.300000</size>
+            </box>
           </geometry>
         </collision>
         <visual name="visual">
           <geometry>
-            <sphere>
-              <radius>0.150</radius>
-            </sphere>
+            <box>
+              <size>0.300000 0.300000 0.300000</size>
+            </box>
           </geometry>
           <material>
             <ambient>1.0 0.0 0.0 1.0</ambient>

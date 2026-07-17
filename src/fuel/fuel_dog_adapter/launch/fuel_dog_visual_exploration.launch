@@ -15,7 +15,7 @@
   <arg name="box_min_y" default="-2.5"/>
   <arg name="box_min_z" default="0.05"/>
   <arg name="box_max_x" default="1.6"/>
-  <arg name="box_max_y" default="20.0"/>
+  <arg name="box_max_y" default="50.0"/>
   <arg name="box_max_z" default="0.65"/>
 
   <arg name="enable_dynamic_box" default="true"/>
@@ -51,6 +51,9 @@
   <arg name="yaw_seg_num" default="24"/>
   <arg name="perception_max_dist" default="5.0"/>
   <arg name="perception_vis_dist" default="2.0"/>
+  <arg name="prefer_left_viewpoints" default="true"/>
+  <arg name="left_preference_x_threshold" default="0.0"/>
+  <arg name="right_viewpoint_cost_penalty" default="0.8"/>
 
   <!-- Return-home target. By default, FUEL returns to the pose where exploration was triggered. -->
   <arg name="return_home" default="true"/>
@@ -132,6 +135,9 @@
     <arg name="yaw_seg_num" value="$(arg yaw_seg_num)"/>
     <arg name="perception_max_dist" value="$(arg perception_max_dist)"/>
     <arg name="perception_vis_dist" value="$(arg perception_vis_dist)"/>
+    <arg name="prefer_left_viewpoints" value="$(arg prefer_left_viewpoints)"/>
+    <arg name="left_preference_x_threshold" value="$(arg left_preference_x_threshold)"/>
+    <arg name="right_viewpoint_cost_penalty" value="$(arg right_viewpoint_cost_penalty)"/>
     <arg name="return_home" value="$(arg return_home)"/>
     <arg name="return_home_tolerance" value="$(arg return_home_tolerance)"/>
     <arg name="return_home_yaw_tolerance" value="$(arg return_home_yaw_tolerance)"/>

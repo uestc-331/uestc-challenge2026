@@ -1,6 +1,6 @@
 {
   "schema": "competition_danger_truth_v1",
-  "seed": 1293847100,
+  "seed": 953331788,
   "building": {
     "model_name": "generated_building",
     "floor_count": 1,
@@ -22,11 +22,26 @@
   },
   "danger_sources": [
     {
-      "id": 2,
+      "id": 0,
       "model_name": "danger_red_sphere_00",
       "position": [
-        5.828,
-        8.687,
+        -3.929,
+        16.077,
+        0.15
+      ],
+      "floor_index": 0,
+      "room_id": "floor_0_room_0",
+      "color": "red",
+      "shape": "sphere",
+      "is_danger": true,
+      "radius": 0.15
+    },
+    {
+      "id": 1,
+      "model_name": "danger_red_sphere_01",
+      "position": [
+        6.543,
+        11.915,
         0.15
       ],
       "floor_index": 0,
@@ -37,41 +52,11 @@
       "radius": 0.15
     },
     {
-      "id": 4,
-      "model_name": "danger_red_sphere_01",
-      "position": [
-        -4.139,
-        22.317,
-        0.15
-      ],
-      "floor_index": 0,
-      "room_id": "floor_0_room_2",
-      "color": "red",
-      "shape": "sphere",
-      "is_danger": true,
-      "radius": 0.15
-    },
-    {
-      "id": 5,
+      "id": 6,
       "model_name": "danger_red_sphere_02",
       "position": [
-        -5.194,
-        25.364,
-        0.15
-      ],
-      "floor_index": 0,
-      "room_id": "floor_0_room_2",
-      "color": "red",
-      "shape": "sphere",
-      "is_danger": true,
-      "radius": 0.15
-    },
-    {
-      "id": 7,
-      "model_name": "danger_red_sphere_03",
-      "position": [
-        5.221,
-        9.102,
+        3.01,
+        9.37,
         0.15
       ],
       "floor_index": 0,
@@ -84,11 +69,49 @@
   ],
   "distraction_sources": [
     {
-      "id": 0,
+      "id": 2,
       "model_name": "distractor_red_box_00",
       "position": [
-        -5.8,
-        12.07,
+        3.895,
+        33.917,
+        0.15
+      ],
+      "floor_index": 0,
+      "room_id": "floor_0_room_5",
+      "color": "red",
+      "shape": "box",
+      "is_danger": false,
+      "size": [
+        0.3,
+        0.3,
+        0.3
+      ]
+    },
+    {
+      "id": 3,
+      "model_name": "distractor_red_box_01",
+      "position": [
+        6.324,
+        34.453,
+        0.15
+      ],
+      "floor_index": 0,
+      "room_id": "floor_0_room_5",
+      "color": "red",
+      "shape": "box",
+      "is_danger": false,
+      "size": [
+        0.3,
+        0.3,
+        0.3
+      ]
+    },
+    {
+      "id": 4,
+      "model_name": "distractor_red_box_02",
+      "position": [
+        -6.162,
+        11.545,
         0.15
       ],
       "floor_index": 0,
@@ -103,11 +126,11 @@
       ]
     },
     {
-      "id": 1,
-      "model_name": "distractor_red_box_01",
+      "id": 5,
+      "model_name": "distractor_red_box_03",
       "position": [
-        -3.313,
-        18.634,
+        -7.382,
+        21.328,
         0.15
       ],
       "floor_index": 0,
@@ -122,15 +145,30 @@
       ]
     },
     {
-      "id": 3,
-      "model_name": "distractor_red_box_02",
+      "id": 7,
+      "model_name": "distractor_green_sphere_04",
       "position": [
-        4.554,
-        22.82,
+        -7.551,
+        30.152,
         0.15
       ],
       "floor_index": 0,
-      "room_id": "floor_0_room_3",
+      "room_id": "floor_0_room_4",
+      "color": "green",
+      "shape": "sphere",
+      "is_danger": false,
+      "radius": 0.15
+    },
+    {
+      "id": 8,
+      "model_name": "distractor_red_box_05",
+      "position": [
+        3.03,
+        28.071,
+        0.15
+      ],
+      "floor_index": 0,
+      "room_id": "floor_0_room_5",
       "color": "red",
       "shape": "box",
       "is_danger": false,
@@ -139,21 +177,6 @@
         0.3,
         0.3
       ]
-    },
-    {
-      "id": 6,
-      "model_name": "distractor_green_sphere_03",
-      "position": [
-        5.644,
-        14.537,
-        0.15
-      ],
-      "floor_index": 0,
-      "room_id": "floor_0_room_1",
-      "color": "green",
-      "shape": "sphere",
-      "is_danger": false,
-      "radius": 0.15
     }
   ]
 }

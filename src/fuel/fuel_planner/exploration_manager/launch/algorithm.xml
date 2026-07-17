@@ -52,6 +52,9 @@
   <arg name="return_home_y" default="0.0"/>
   <arg name="return_home_z" default="0.3"/>
   <arg name="return_home_yaw" default="0.0"/>
+  <arg name="prefer_left_viewpoints" default="false"/>
+  <arg name="left_preference_x_threshold" default="0.0"/>
+  <arg name="right_viewpoint_cost_penalty" default="0.8"/>
 
   <!-- main node -->
   <node pkg="exploration_manager" name="exploration_node" type="exploration_node" output="screen">
@@ -135,6 +138,9 @@
     <param name="exploration/ydd" value="$(eval 90 * 3.1415926 / 180.0)" type="double"/>
     <!-- 当前速度方向权重 -->
     <param name="exploration/w_dir" value="1.5" type="double"/>
+    <param name="exploration/prefer_left_viewpoints" value="$(arg prefer_left_viewpoints)" type="bool"/>
+    <param name="exploration/left_preference_x_threshold" value="$(arg left_preference_x_threshold)" type="double"/>
+    <param name="exploration/right_viewpoint_cost_penalty" value="$(arg right_viewpoint_cost_penalty)" type="double"/>
     <!--  -->
     <param name="exploration/tsp_dir" value="$(find lkh_tsp_solver)/resource" type="string"/>
     <param name="exploration/relax_time" value="1.0" type="double"/>

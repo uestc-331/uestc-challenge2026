@@ -10,6 +10,9 @@ double ViewNode::am_;
 double ViewNode::yd_;
 double ViewNode::ydd_;
 double ViewNode::w_dir_;
+bool ViewNode::prefer_left_viewpoints_;
+double ViewNode::left_preference_x_threshold_;
+double ViewNode::right_viewpoint_cost_penalty_;
 shared_ptr<Astar> ViewNode::astar_;
 shared_ptr<RayCaster> ViewNode::caster_;
 shared_ptr<SDFMap> ViewNode::map_;
@@ -81,7 +84,10 @@ double ViewNode::computeCost(const Vector3d& p1, const Vector3d& p2, const doubl
   double diff = fabs(y2 - y1);
   diff = min(diff, 2 * M_PI - diff);
   double yaw_cost = diff / yd_;
-  return max(pos_cost, yaw_cost);
+  double cost = max(pos_cost, yaw_cost);
+  if (prefer_left_viewpoints_ && p2[0] > left_preference_x_threshold_)
+    cost += right_viewpoint_cost_penalty_;
+  return cost;
 
   // // Consider yaw rate change
   // if (fabs(yd1) > 1e-3)
