@@ -7,6 +7,27 @@
   <arg name="elevator_id" default="elevator_main"/>
   <arg name="door_prefix" default="elevator_floor_"/>
 
+  <!-- YOLO danger detection sidecar. It does not publish /cmd_vel. -->
+  <arg name="enable_danger_detector" default="true"/>
+  <arg name="danger_model" default="/home/uestc/tzb/uestc-challenge2026-vision/yolov10s_route/weights/best.pt"/>
+  <arg name="danger_yolo_python" default="$(optenv YOLO_PYTHON python3)"/>
+  <arg name="danger_device" default="cpu"/>
+  <arg name="danger_conf" default="0.25"/>
+  <arg name="danger_imgsz" default="960"/>
+  <arg name="danger_rgb_topic" default="/real_sense/rgb/image_raw"/>
+  <arg name="danger_depth_topic" default="/real_sense/depth/image_raw"/>
+  <arg name="danger_camera_info_topic" default="/real_sense/rgb/camera_info"/>
+  <arg name="danger_model_states_topic" default="/gazebo/model_states"/>
+  <arg name="danger_robot_model_name" default="a1_gazebo"/>
+  <arg name="danger_world_frame" default="world"/>
+  <arg name="danger_output_dir" default="/home/uestc/tzb/uestc-challenge2026/outputs/yolo_vision_only"/>
+  <arg name="danger_detected_file" default="/home/uestc/tzb/uestc-challenge2026/results/detected_danger.json"/>
+  <arg name="danger_inference_fps" default="5.0"/>
+  <arg name="danger_cluster_radius" default="0.35"/>
+  <arg name="danger_min_cluster_observations" default="5"/>
+  <arg name="danger_min_strong_observations" default="2"/>
+  <arg name="danger_write_period_s" default="2.0"/>
+
   <!-- Tune these to the generated building. They are world-frame x/y/yaw targets. -->
   <arg name="elevator_inside_x" default="2.7"/>
   <arg name="elevator_inside_y" default="2.62"/>
@@ -73,5 +94,26 @@
     <param name="startup_spin_angle" value="$(arg startup_spin_angle)"/>
     <param name="startup_spin_speed" value="$(arg startup_spin_speed)"/>
     <param name="startup_spin_timeout" value="$(arg startup_spin_timeout)"/>
+  </node>
+
+  <node if="$(arg enable_danger_detector)" pkg="danger_detector" name="danger_detector" type="yolo_vision_only_node.py" output="screen">
+    <param name="model" value="$(arg danger_model)"/>
+    <param name="yolo_python" value="$(arg danger_yolo_python)"/>
+    <param name="device" value="$(arg danger_device)"/>
+    <param name="conf" value="$(arg danger_conf)"/>
+    <param name="imgsz" value="$(arg danger_imgsz)"/>
+    <param name="rgb_topic" value="$(arg danger_rgb_topic)"/>
+    <param name="depth_topic" value="$(arg danger_depth_topic)"/>
+    <param name="camera_info_topic" value="$(arg danger_camera_info_topic)"/>
+    <param name="model_states_topic" value="$(arg danger_model_states_topic)"/>
+    <param name="robot_model_name" value="$(arg danger_robot_model_name)"/>
+    <param name="world_frame" value="$(arg danger_world_frame)"/>
+    <param name="output_dir" value="$(arg danger_output_dir)"/>
+    <param name="detected_file" value="$(arg danger_detected_file)"/>
+    <param name="inference_fps" value="$(arg danger_inference_fps)"/>
+    <param name="cluster_radius" value="$(arg danger_cluster_radius)"/>
+    <param name="min_cluster_observations" value="$(arg danger_min_cluster_observations)"/>
+    <param name="min_strong_observations" value="$(arg danger_min_strong_observations)"/>
+    <param name="write_period_s" value="$(arg danger_write_period_s)"/>
   </node>
 </launch>

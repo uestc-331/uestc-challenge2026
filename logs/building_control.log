@@ -1,9 +1,5 @@
-[INFO] [1784527952.125433, 0.000000]: building_generator_classic_control ready
-[INFO] [1784530063.425109, 457.833000]: Animating dynamic_elevator_floor_0 door panels over 60.0 seconds
-[INFO] [1784530217.851296, 491.141000]: Animating dynamic_elevator_floor_0 door panels over 60.0 seconds
-[INFO] [1784530286.488099, 501.212000]: Animating dynamic_elevator_floor_1 door panels over 60.0 seconds
-[INFO] [1784530423.886289, 532.791000]: Animating dynamic_elevator_floor_1 door panels over 60.0 seconds
-[INFO] [1784531789.872584, 899.574000]: Animating dynamic_elevator_floor_1 door panels over 60.0 seconds
-[INFO] [1784531913.918439, 930.582000]: Animating dynamic_elevator_floor_1 door panels over 60.0 seconds
-[INFO] [1784531986.287410, 946.463000]: Animating dynamic_elevator_floor_0 door panels over 60.0 seconds
-[INFO] [1784532085.212806, 961.894000]: Animating dynamic_elevator_floor_0 door panels over 60.0 seconds
+[INFO] [1784551373.325289, 0.529000]: building_generator_classic_control ready
+[INFO] [1784552577.361929, 484.722000]: Animating dynamic_elevator_floor_0 door panels over 60.0 seconds
+[INFO] [1784552697.217749, 528.125000]: Animating dynamic_elevator_floor_0 door panels over 60.0 seconds
+[INFO] [1784552766.648295, 547.769000]: Animating dynamic_elevator_floor_0 door panels over 60.0 seconds
+[INFO] [1784552845.018061, 570.513000]: Animating dynamic_elevator_floor_0 door panels over 60.0 seconds
