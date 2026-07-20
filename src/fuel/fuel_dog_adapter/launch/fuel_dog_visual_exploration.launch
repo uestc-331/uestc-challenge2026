@@ -5,6 +5,8 @@
   <arg name="cloud_topic" default="/unused_cloud"/>
   <arg name="sensor_pose_topic" default="/fuel_dog_adapter/sensor_pose"/>
   <arg name="cmd_vel_topic" default="/cmd_vel"/>
+  <arg name="enable_velocity_monitor" default="false"/>
+  <arg name="velocity_monitor_rate" default="5.0"/>
 
   <arg name="map_size_x" default="50.0"/>
   <arg name="map_size_y" default="100.0"/>
@@ -51,9 +53,11 @@
   <arg name="yaw_seg_num" default="24"/>
   <arg name="perception_max_dist" default="5.0"/>
   <arg name="perception_vis_dist" default="2.0"/>
+
+  <!-- 优先左侧 -->
   <arg name="prefer_left_viewpoints" default="true"/>
   <arg name="left_preference_x_threshold" default="0.0"/>
-  <arg name="right_viewpoint_cost_penalty" default="0.8"/>
+  <arg name="right_viewpoint_cost_penalty" default="1.5"/>
 
   <!-- Return-home target. By default, FUEL returns to the pose where exploration was triggered. -->
   <arg name="return_home" default="true"/>
@@ -171,7 +175,7 @@
     <!-- PD gains (fallbacks; overridden by trajectory kx/kv when available) -->
     <param name="position_kp" value="6.0"/>
     <param name="position_kd" value="1.5"/>
-    <param name="yaw_kp" value="1.5"/>
+    <param name="yaw_kp" value="1.8"/>
     <!-- feedforward gains -->
     <param name="velocity_ff_gain" value="0.6"/>
     <param name="accel_ff_gain" value="0.1"/>
@@ -219,5 +223,12 @@
     <param name="box_max_y_after" value="$(arg dynamic_box_max_y_after)"/>
     <param name="target_namespace" value="/exploration_node"/>
     <param name="return_home_start_topic" value="/planning/return_home_start"/>
+  </node>
+
+  <node if="$(arg enable_velocity_monitor)" pkg="fuel_dog_adapter" name="dog_velocity_monitor" type="dog_velocity_monitor.py" output="screen">
+    <param name="odom_topic" value="$(arg odom_topic)"/>
+    <param name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
+    <param name="print_rate" value="$(arg velocity_monitor_rate)"/>
+    <param name="print_cmd_vel" value="true"/>
   </node>
 </launch>

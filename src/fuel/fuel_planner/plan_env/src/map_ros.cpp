@@ -28,6 +28,12 @@ void MapROS::init() {
   node_.param("map_ros/depth_filter_margin", depth_filter_margin_, -1);
   node_.param("map_ros/k_depth_scaling_factor", k_depth_scaling_factor_, -1.0);
   node_.param("map_ros/skip_pixel", skip_pixel_, -1);
+  node_.param("map_ros/enable_depth_edge_filter", enable_depth_edge_filter_, false);
+  node_.param("map_ros/depth_edge_threshold", depth_edge_threshold_, 0.25);
+  node_.param("map_ros/enable_depth_support_filter", enable_depth_support_filter_, false);
+  node_.param("map_ros/depth_support_radius", depth_support_radius_, 1);
+  node_.param("map_ros/depth_support_min_count", depth_support_min_count_, 4);
+  node_.param("map_ros/depth_support_threshold", depth_support_threshold_, 0.15);
 
   node_.param("map_ros/esdf_slice_height", esdf_slice_height_, -0.1);
   node_.param("map_ros/visualization_truncate_height", visualization_truncate_height_, -0.1);
@@ -36,6 +42,13 @@ void MapROS::init() {
   node_.param("map_ros/show_esdf_time", show_esdf_time_, false);
   node_.param("map_ros/show_all_map", show_all_map_, false);
   node_.param("map_ros/frame_id", frame_id_, string("world"));
+  if (enable_depth_edge_filter_) {
+    ROS_WARN("Depth edge filter enabled: threshold %.3f m", depth_edge_threshold_);
+  }
+  if (enable_depth_support_filter_) {
+    ROS_WARN("Depth support filter enabled: radius %d, min count %d, threshold %.3f m",
+             depth_support_radius_, depth_support_min_count_, depth_support_threshold_);
+  }
 
   proj_points_.resize(640 * 480 / (skip_pixel_ * skip_pixel_));
   point_cloud_.points.resize(640 * 480 / (skip_pixel_ * skip_pixel_));
@@ -178,7 +191,6 @@ void MapROS::cloudPoseCallback(const sensor_msgs::PointCloud2ConstPtr& msg,
 void MapROS::proessDepthImage() {
   proj_points_cnt = 0;
 
-  uint16_t* row_ptr;
   int cols = depth_image_->cols;
   int rows = depth_image_->rows;
   double depth;
@@ -187,20 +199,24 @@ void MapROS::proessDepthImage() {
   const double inv_factor = 1.0 / k_depth_scaling_factor_;
 
   for (int v = depth_filter_margin_; v < rows - depth_filter_margin_; v += skip_pixel_) {
-    row_ptr = depth_image_->ptr<uint16_t>(v) + depth_filter_margin_;
+    uint16_t* row_ptr = depth_image_->ptr<uint16_t>(v) + depth_filter_margin_;
     for (int u = depth_filter_margin_; u < cols - depth_filter_margin_; u += skip_pixel_) {
-      depth = (*row_ptr) * inv_factor;
+      const uint16_t raw_depth = *row_ptr;
+      depth = raw_depth * inv_factor;
       row_ptr = row_ptr + skip_pixel_;
 
       // // filter depth
       // if (depth > 0.01)
       //   depth += rand_noise_(eng_);
 
-      // TODO: simplify the logic here
-      if (*row_ptr == 0 || depth > depth_filter_maxdist_)
+      if (raw_depth == 0 || depth > depth_filter_maxdist_)
         depth = depth_filter_maxdist_;
       else if (depth < depth_filter_mindist_)
         continue;
+      else {
+        if (enable_depth_edge_filter_ && isDepthEdge(u, v, depth)) continue;
+        if (enable_depth_support_filter_ && !hasDepthSupport(u, v, depth)) continue;
+      }
 
       pt_cur(0) = (u - cx_) * depth / fx_;
       pt_cur(1) = (v - cy_) * depth / fy_;
@@ -214,6 +230,48 @@ void MapROS::proessDepthImage() {
   }
 
   publishDepth();
+}
+
+bool MapROS::readDepth(int u, int v, double& depth) const {
+  if (u < 0 || v < 0 || u >= depth_image_->cols || v >= depth_image_->rows) return false;
+
+  const uint16_t raw_depth = depth_image_->ptr<uint16_t>(v)[u];
+  if (raw_depth == 0) return false;
+
+  depth = double(raw_depth) / k_depth_scaling_factor_;
+  if (depth < depth_filter_mindist_ || depth > depth_filter_maxdist_) return false;
+  return true;
+}
+
+bool MapROS::isDepthEdge(int u, int v, double depth) const {
+  if (depth_edge_threshold_ <= 0.0) return false;
+
+  const int offsets[8][2] = {
+      { -1, -1 }, { 0, -1 }, { 1, -1 }, { -1, 0 },
+      { 1, 0 },   { -1, 1 }, { 0, 1 },  { 1, 1 },
+  };
+  for (const auto& offset : offsets) {
+    double nbr_depth;
+    if (!readDepth(u + offset[0], v + offset[1], nbr_depth)) continue;
+    if (depth - nbr_depth > depth_edge_threshold_) return true;
+  }
+  return false;
+}
+
+bool MapROS::hasDepthSupport(int u, int v, double depth) const {
+  if (depth_support_radius_ <= 0 || depth_support_min_count_ <= 0) return true;
+
+  int support_count = 0;
+  for (int dv = -depth_support_radius_; dv <= depth_support_radius_; ++dv) {
+    for (int du = -depth_support_radius_; du <= depth_support_radius_; ++du) {
+      if (du == 0 && dv == 0) continue;
+
+      double nbr_depth;
+      if (!readDepth(u + du, v + dv, nbr_depth)) continue;
+      if (std::fabs(nbr_depth - depth) <= depth_support_threshold_) ++support_count;
+    }
+  }
+  return support_count >= depth_support_min_count_;
 }
 
 void MapROS::publishMapAll() {

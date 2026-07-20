@@ -46,6 +46,9 @@ private:
   void publishDepth();
 
   void proessDepthImage();
+  bool readDepth(int u, int v, double& depth) const;
+  bool isDepthEdge(int u, int v, double depth) const;
+  bool hasDepthSupport(int u, int v, double depth) const;
 
   SDFMap* map_;
   // may use ExactTime?
@@ -71,9 +74,12 @@ private:
   // params, depth projection
   double cx_, cy_, fx_, fy_;
   double depth_filter_maxdist_, depth_filter_mindist_;
+  double depth_edge_threshold_, depth_support_threshold_;
   int depth_filter_margin_;
+  int depth_support_radius_, depth_support_min_count_;
   double k_depth_scaling_factor_;
   int skip_pixel_;
+  bool enable_depth_edge_filter_, enable_depth_support_filter_;
   string frame_id_;
   // msg publication
   double esdf_slice_height_;
