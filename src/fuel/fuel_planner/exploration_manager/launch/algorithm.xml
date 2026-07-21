@@ -119,9 +119,16 @@
     <param name="map_ros/frame_id"      value="world"/>
 
     <!-- Fsm -->
+    <!-- 重规划 -->
+    <!-- 当前 B 样条轨迹快执行完了，剩余时间小于这个值，就重规划 -->
     <param name="fsm/thresh_replan1" value="0.3" type="double"/>
-    <param name="fsm/thresh_replan2" value="1.5" type="double"/>
-    <param name="fsm/thresh_replan3" value="2.0" type="double"/>
+    <!-- 当前轨迹执行超过 thresh_replan2 秒之后，如果目标 frontier 已经被覆盖，就重规划 -->
+    <param name="fsm/thresh_replan2" value="3.5" type="double"/>
+    <!-- 当前轨迹执行超过这个时间后，强制周期性重规划 -->
+    <param name="fsm/thresh_replan3" value="5.0" type="double"/>
+    <!-- 新轨迹的开始时间至少延后 replan_time 秒。也就是给规划、发布、traj_server 接收留一个缓冲 -->
+    <param name="fsm/replan_time" value="0.200" type="double"/>
+
     <param name="fsm/return_home" value="$(arg return_home)" type="bool"/>
     <param name="fsm/return_home_tolerance" value="$(arg return_home_tolerance)" type="double"/>
     <param name="fsm/return_home_yaw_tolerance" value="$(arg return_home_yaw_tolerance)" type="double"/>
@@ -130,8 +137,6 @@
     <param name="fsm/return_home_y" value="$(arg return_home_y)" type="double"/>
     <param name="fsm/return_home_z" value="$(arg return_home_z)" type="double"/>
     <param name="fsm/return_home_yaw" value="$(arg return_home_yaw)" type="double"/>
-
-    <param name="fsm/replan_time" value="0.200" type="double"/>
 
     <!-- Exploration manager -->
 
