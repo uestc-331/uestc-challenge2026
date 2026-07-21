@@ -12,6 +12,7 @@
   <arg name="map_size_y" default="100.0"/>
   <arg name="map_size_z" default="4.0"/>
   <arg name="ground_height" default="0.0"/>
+  <arg name="obstacles_inflation_z" default="0.3"/>
 
   <arg name="box_min_x" default="-1.6"/>
   <arg name="box_min_y" default="-2.5"/>
@@ -106,6 +107,7 @@
     <arg name="box_max_x" value="$(arg box_max_x)"/>
     <arg name="box_max_y" value="$(arg box_max_y)"/>
     <arg name="box_max_z" value="$(arg box_max_z)"/>
+    <arg name="obstacles_inflation_z" value="$(arg obstacles_inflation_z)"/>
     <arg name="enable_dynamic_box" value="$(arg enable_dynamic_box)"/>
 
     <arg name="odometry_topic" value="$(arg odom_topic)"/>

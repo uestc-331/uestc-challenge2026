@@ -67,7 +67,7 @@ public:
 private:
   void clearAndInflateLocalMap();
   void dynamicBoxCallback(const ros::TimerEvent& e);
-  void inflatePoint(const Eigen::Vector3i& pt, int step, vector<Eigen::Vector3i>& pts);
+  void inflatePoint(const Eigen::Vector3i& pt, int step_xy, int step_z, vector<Eigen::Vector3i>& pts);
   void setCacheOccupancy(const int& adr, const int& occ);
   Eigen::Vector3d closetPointInMap(const Eigen::Vector3d& pt, const Eigen::Vector3d& camera_pt);
   template <typename F_get_val, typename F_set_val>
@@ -93,7 +93,7 @@ struct MapParam {
   Eigen::Vector3d map_min_boundary_, map_max_boundary_;
   Eigen::Vector3i map_voxel_num_;
   double resolution_, resolution_inv_;
-  double obstacles_inflation_;
+  double obstacles_inflation_, obstacles_inflation_z_;
   double virtual_ceil_height_, ground_height_;
   Eigen::Vector3i box_min_, box_max_;
   Eigen::Vector3d box_mind_, box_maxd_;
@@ -240,7 +240,8 @@ inline double SDFMap::getDistance(const Eigen::Vector3d& pos) {
   return getDistance(id);
 }
 
-inline void SDFMap::inflatePoint(const Eigen::Vector3i& pt, int step, vector<Eigen::Vector3i>& pts) {
+inline void SDFMap::inflatePoint(const Eigen::Vector3i& pt, int step_xy, int step_z,
+                                 vector<Eigen::Vector3i>& pts) {
   int num = 0;
 
   /* ---------- + shape inflate ---------- */
@@ -261,10 +262,11 @@ inline void SDFMap::inflatePoint(const Eigen::Vector3i& pt, int step, vector<Eig
   //   pts[num++] = Eigen::Vector3i(pt(0), pt(1), pt(2) + z);
   // }
 
-  /* ---------- XY only inflate, no Z ---------- */
-  for (int x = -step; x <= step; ++x)
-    for (int y = -step; y <= step; ++y) {
-      pts[num++] = Eigen::Vector3i(pt(0) + x, pt(1) + y, pt(2));
+  /* ---------- XY inflate with optional Z inflation ---------- */
+  for (int x = -step_xy; x <= step_xy; ++x)
+    for (int y = -step_xy; y <= step_xy; ++y)
+      for (int z = -step_z; z <= step_z; ++z) {
+        pts[num++] = Eigen::Vector3i(pt(0) + x, pt(1) + y, pt(2) + z);
     }
 }
 }
