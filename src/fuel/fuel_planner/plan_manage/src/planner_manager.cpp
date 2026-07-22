@@ -53,6 +53,13 @@ FastPlannerManager::~FastPlannerManager() {
 void FastPlannerManager::initPlanModules(ros::NodeHandle& nh) {
   /* read algorithm parameters */
 
+  current_start_velocity_debug_pub_ =
+      nh.advertise<geometry_msgs::TwistStamped>(
+          "/planning/debug/current_start_velocity", 1, true);
+  bspline_start_velocity_debug_pub_ =
+      nh.advertise<geometry_msgs::TwistStamped>(
+          "/planning/debug/bspline_start_velocity", 1, true);
+
   nh.param("manager/max_vel", pp_.max_vel_, -1.0);
   nh.param("manager/max_acc", pp_.max_acc_, -1.0);
   nh.param("manager/max_jerk", pp_.max_jerk_, -1.0);
@@ -346,6 +353,22 @@ void FastPlannerManager::planExploreTraj(const vector<Eigen::Vector3d>& tour,
   bspline_optimizers_[0]->optimize(ctrl_pts, dt, cost_func, 1, 1);
   hardenCubicBoundary(ctrl_pts, dt, tour.front(), cur_vel, cur_acc, tour.back(), zero, zero);
   local_data_.position_traj_.setUniformBspline(ctrl_pts, pp_.bspline_degree_, dt);
+
+  Eigen::Vector3d bspline_start_vel =
+      local_data_.position_traj_.getDerivative().evaluateDeBoorT(0.0);
+  geometry_msgs::TwistStamped current_velocity_msg;
+  current_velocity_msg.header.stamp = ros::Time::now();
+  current_velocity_msg.header.frame_id = "world";
+  current_velocity_msg.twist.linear.x = cur_vel.x();
+  current_velocity_msg.twist.linear.y = cur_vel.y();
+  current_velocity_msg.twist.linear.z = cur_vel.z();
+  current_start_velocity_debug_pub_.publish(current_velocity_msg);
+
+  geometry_msgs::TwistStamped bspline_velocity_msg = current_velocity_msg;
+  bspline_velocity_msg.twist.linear.x = bspline_start_vel.x();
+  bspline_velocity_msg.twist.linear.y = bspline_start_vel.y();
+  bspline_velocity_msg.twist.linear.z = bspline_start_vel.z();
+  bspline_start_velocity_debug_pub_.publish(bspline_velocity_msg);
 
   updateTrajInfo();
 }

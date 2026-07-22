@@ -21,5 +21,6 @@ catkin_install_python(PROGRAMS
   scripts/odom_to_sensor_pose.py
   scripts/dynamic_exploration_box.py
   scripts/fuel_multifloor_mission.py
+  scripts/bspline_start_velocity_monitor.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

@@ -15,6 +15,7 @@
 
 #include <plan_manage/plan_container.hpp>
 
+#include <geometry_msgs/TwistStamped.h>
 #include <ros/ros.h>
 
 namespace fast_planner {
@@ -60,6 +61,8 @@ private:
 
   unique_ptr<KinodynamicAstar> kino_path_finder_;
   vector<BsplineOptimizer::Ptr> bspline_optimizers_;
+  ros::Publisher current_start_velocity_debug_pub_;
+  ros::Publisher bspline_start_velocity_debug_pub_;
 
   void updateTrajInfo();
 
