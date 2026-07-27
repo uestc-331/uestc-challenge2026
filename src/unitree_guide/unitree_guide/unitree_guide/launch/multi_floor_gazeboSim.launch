@@ -63,9 +63,9 @@
         <arg name="rname" value="$(arg rname)"/>
     </include>
 
-    <node pkg="unitree_guide" type="pointcloud2livox.py" name="pointcloud2livox" output="screen">
+    <!-- <node pkg="unitree_guide" type="pointcloud2livox.py" name="pointcloud2livox" output="screen">
         <param name="laser_blind" value="0.5" />
         <param name="min_angle" value="-7"/>
         <param name="max_angle" value="55"/>
-    </node>
+    </node> -->
 </launch>

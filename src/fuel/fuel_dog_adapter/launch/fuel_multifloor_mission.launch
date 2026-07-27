@@ -23,8 +23,8 @@
   <arg name="danger_output_dir" default="/home/uestc/tzb/uestc-challenge2026/outputs/yolo_vision_only"/>
   <arg name="danger_detected_file" default="/home/uestc/tzb/uestc-challenge2026/results/detected_danger.json"/>
   <arg name="danger_inference_fps" default="5.0"/> 
-  <arg name="danger_cluster_radius" default="0.70"/>
-  <arg name="danger_duplicate_merge_radius" default="0.70"/>
+  <arg name="danger_cluster_radius" default="0.35"/>
+  <arg name="danger_duplicate_merge_radius" default="0.35"/>
   <arg name="danger_min_cluster_observations" default="5"/>
   <arg name="danger_min_strong_observations" default="2"/>
   <arg name="danger_write_period_s" default="2.0"/>

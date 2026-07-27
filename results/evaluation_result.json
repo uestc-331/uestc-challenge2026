@@ -1,17 +1,17 @@
 {
   "metrics": {
     "truth_count": 15,
-    "detected_count": 15,
-    "correct": 15,
-    "missed": 0,
+    "detected_count": 13,
+    "correct": 13,
+    "missed": 2,
     "false_alarms": 0,
-    "exploration_time": 358.805,
+    "exploration_time": 331.588,
     "threshold_used": 1.0
   },
   "scores": {
     "exploration_time_score": 15.0,
-    "recognition_probability_score": 14.0,
+    "recognition_probability_score": 12.13,
     "false_alarm_rate_score": 8.0,
-    "technical_objective_total": 37.0
+    "technical_objective_total": 35.13
   }
 }
