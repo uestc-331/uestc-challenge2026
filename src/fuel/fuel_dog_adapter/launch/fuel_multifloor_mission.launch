@@ -39,6 +39,11 @@
   <arg name="floor0_final_x" default="$(arg floor_exit_x)"/>
   <arg name="floor0_final_y" default="$(arg floor_exit_y)"/>
   <arg name="floor0_final_yaw" default="$(arg floor_exit_yaw)"/>
+  <!-- 全部楼层探索完成并回到 0 楼后，最终返回机器人出生点。 -->
+  <arg name="go_final_home" default="true"/>
+  <arg name="final_home_x" default="0.0"/>
+  <arg name="final_home_y" default="-2.2"/>
+  <arg name="final_home_yaw" default="1.5708"/>
 
   <!-- 进入电梯目标点的相关参数 -->
   <arg name="xy_tolerance" default="0.3"/>
@@ -78,6 +83,10 @@
     <param name="floor0_final_x" value="$(arg floor0_final_x)"/>
     <param name="floor0_final_y" value="$(arg floor0_final_y)"/>
     <param name="floor0_final_yaw" value="$(arg floor0_final_yaw)"/>
+    <param name="go_final_home" value="$(arg go_final_home)"/>
+    <param name="final_home_x" value="$(arg final_home_x)"/>
+    <param name="final_home_y" value="$(arg final_home_y)"/>
+    <param name="final_home_yaw" value="$(arg final_home_yaw)"/>
     <param name="xy_tolerance" value="$(arg xy_tolerance)"/>
     <param name="yaw_tolerance" value="$(arg yaw_tolerance)"/>
     <param name="max_linear_speed" value="$(arg max_linear_speed)"/>

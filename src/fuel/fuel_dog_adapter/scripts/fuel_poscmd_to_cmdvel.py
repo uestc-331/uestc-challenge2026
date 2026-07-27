@@ -25,6 +25,8 @@ def wrap_pi(angle: float) -> float:
 
 class FuelPosCmdToCmdVel:
     def __init__(self) -> None:
+        # FUEL/traj_server 输出的是无人机风格的 PositionCommand。
+        # 四足狗控制端吃的是 /cmd_vel，因此这里是“规划语义 -> 地面速度控制”的核心适配层。
         self.lock = threading.Lock()
         self.last_cmd = None
         self.last_cmd_time = rospy.Time(0)
@@ -34,7 +36,9 @@ class FuelPosCmdToCmdVel:
         self.last_twist = Twist()
         self.last_publish_time = rospy.Time.now()
 
-        # ------ controller gains (fallbacks, overridden by PositionCommand.kx/kv) ------
+        # ------ controller gains ------
+        # position_kp/kd 把期望位置和期望速度转换成世界系速度意图；
+        # feedforward 用来保留 B 样条原始速度/加速度趋势，避免完全靠误差追踪。
         self.position_kp = rospy.get_param("~position_kp", 5.7)
         self.position_kd = rospy.get_param("~position_kd", 3.4)
         self.yaw_kp = rospy.get_param("~yaw_kp", 1.2)
@@ -44,6 +48,8 @@ class FuelPosCmdToCmdVel:
         self.lookahead_time = rospy.get_param("~lookahead_time", 0.15)
 
         # ------ behaviour flags ------
+        # align_yaw_to_velocity=true 时，让狗朝向实际运动方向，而不是强行跟随无人机轨迹 yaw。
+        # disable_lateral=true 用来把横移压掉，更接近四足机器人稳定前进的行为。
         self.align_yaw_to_velocity = rospy.get_param("~align_yaw_to_velocity", True)
         self.forward_only = rospy.get_param("~forward_only", True)
         self.disable_lateral = rospy.get_param("~disable_lateral", True)
@@ -63,6 +69,7 @@ class FuelPosCmdToCmdVel:
         self.angular_acc_limit = rospy.get_param("~angular_acc_limit", 1.2)
 
         # ------ timing ------
+        # 两层/复杂场景 Gazebo RTF 降低时，command_timeout/odom_timeout 过小会导致误停。
         self.command_timeout = rospy.Duration(rospy.get_param("~command_timeout", 0.5))
         self.odom_timeout = rospy.Duration(rospy.get_param("~odom_timeout", 0.5))
         self.control_rate = rospy.get_param("~control_rate", 30.0)
@@ -92,6 +99,7 @@ class FuelPosCmdToCmdVel:
         with self.lock:
             self.last_cmd = msg
             self.last_cmd_time = rospy.Time.now()
+            # trajectory_id > 0 表示已经收到真正规划轨迹，而不是 traj_server 初始化占位命令。
             if msg.trajectory_id > 0:
                 self.seen_planned_cmd = True
 
@@ -121,7 +129,8 @@ class FuelPosCmdToCmdVel:
             self.publish_zero(now)
             return
 
-        # ---- use trajectory-supplied gains when available -----------------
+        # ---- controller gains -----------------
+        # 当前固定使用 launch 中的增益，避免 PositionCommand 里无人机 PD 增益直接影响四足狗。
         kp_xy = self.position_kp
         kd_xy = self.position_kd
         # if len(cmd.kx) >= 2 and cmd.kx[0] > 0:
@@ -133,7 +142,8 @@ class FuelPosCmdToCmdVel:
         odom_vx = odom.twist.twist.linear.x
         odom_vy = odom.twist.twist.linear.y
 
-        # ---- look-ahead position (anticipate corners) ----------------------
+        # ---- look-ahead position ----------------------
+        # 低 RTF 或转弯多时，适当 lookahead 可减少“追着旧点跑”的滞后。
         la_time = clamp(self.lookahead_time, 0.0, 0.5)
         target_x = cmd.position.x + cmd.velocity.x * la_time
         target_y = cmd.position.y + cmd.velocity.y * la_time
@@ -148,12 +158,14 @@ class FuelPosCmdToCmdVel:
         verr_x = des_vx - odom_vx
         verr_y = des_vy - odom_vy
 
-        # world-frame acceleration command
-        #   position P  +  velocity FF  +  velocity D  +  acceleration FF
+        # 世界系速度意图：
+        #   位置 P 项 + 轨迹速度前馈 + 速度误差阻尼 + 加速度前馈。
+        # 变量名沿用 world_ax/world_ay，但后面实际作为速度命令输入 /cmd_vel。
         world_ax = kp_xy * err_x + self.velocity_ff_gain * des_vx + kd_xy * verr_x + self.accel_ff_gain * cmd.acceleration.x
         world_ay = kp_xy * err_y + self.velocity_ff_gain * des_vy + kd_xy * verr_y + self.accel_ff_gain * cmd.acceleration.y
 
         # ---- convert to body frame ----------------------------------------
+        # /cmd_vel 对四足狗来说通常是机体系速度，因此要把 world 下的速度意图旋到 base 坐标系。
         cos_yaw = math.cos(yaw)
         sin_yaw = math.sin(yaw)
         body_vx = cos_yaw * world_ax + sin_yaw * world_ay
@@ -168,13 +180,12 @@ class FuelPosCmdToCmdVel:
             return
 
         if self.ignore_unplanned_yaw and not has_planned_traj:
-            # traj_server publishes an initial UAV-style command with yaw=0 and
-            # trajectory_id=0. Keep the current yaw so the dog does not rotate
-            # before FUEL has produced a real exploration trajectory.
+            # traj_server 启动时会发布 trajectory_id=0、yaw=0 的占位命令。
+            # 如果直接执行，狗会在真正规划前原地转向 0rad；这里保持当前 yaw。
             target_yaw = yaw
             yaw_ff = 0.0
         elif self.align_yaw_to_velocity and world_speed > self.min_heading_speed:
-            # use velocity direction for target yaw (good for non-holonomic)
+            # 对地面四足狗更友好：朝向当前期望运动方向，而不是无人机轨迹的独立 yaw。
             target_yaw = math.atan2(world_ay, world_ax)
         else:
             # use trajectory yaw directly
@@ -201,6 +212,8 @@ class FuelPosCmdToCmdVel:
                 )
 
         if self.rotate_first_active:
+            # rotate-first 模式用于“目标在视野外且直线可走”一类场景：
+            # 先原地对准目标方向，再放开线速度，减少边转边绕圈。
             if goal_dist <= self.rotate_first_min_dist or abs(goal_yaw_error) < self.rotate_first_exit_yaw:
                 self.rotate_first_active = False
             else:
@@ -211,6 +224,7 @@ class FuelPosCmdToCmdVel:
         wz = yaw_ff + self.yaw_kp * yaw_error
 
         # ---- motion constraints -------------------------------------------
+        # 这些约束把无人机式全向命令压成更适合四足狗执行的速度命令。
         if self.rotate_first_active:
             body_vx = 0.0
             body_vy = 0.0
@@ -232,6 +246,7 @@ class FuelPosCmdToCmdVel:
         self.publish_limited(Twist(), now)
 
     def publish_limited(self, desired: Twist, now: rospy.Time) -> None:
+        # 对最终 /cmd_vel 做加速度限制，避免规划命令突变直接冲击四足狗控制器。
         dt = max((now - self.last_publish_time).to_sec(), 1.0 / max(self.control_rate, 1.0))
 
         limited = Twist()

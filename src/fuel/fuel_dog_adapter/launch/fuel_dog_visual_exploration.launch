@@ -8,6 +8,7 @@
   <arg name="enable_velocity_monitor" default="false"/>
   <arg name="velocity_monitor_rate" default="5.0"/>
 
+  <!-- FUEL 局部地图总体尺寸；box_* 是实际允许探索/规划的裁剪边界。 -->
   <arg name="map_size_x" default="50.0"/>
   <arg name="map_size_y" default="100.0"/>
   <arg name="map_size_z" default="4.0"/>
@@ -18,9 +19,10 @@
   <arg name="box_min_y" default="-2.5"/>
   <arg name="box_min_z" default="0.05"/>
   <arg name="box_max_x" default="1.6"/>
-  <arg name="box_max_y" default="50.0"/>
+  <arg name="box_max_y" default="15.0"/>
   <arg name="box_max_z" default="0.65"/>
 
+  <!-- 动态探索边界：门外保持窄 x，穿过门洞后放开 x，并可单独限制 y 下界。 -->
   <arg name="enable_dynamic_box" default="true"/>
   <arg name="dynamic_box_expand_y" default="9.0"/>
   <arg name="dynamic_box_shrink_y" default="8.8"/>
@@ -55,12 +57,13 @@
   <arg name="perception_max_dist" default="5.0"/>
   <arg name="perception_vis_dist" default="2.0"/>
 
-  <!-- 优先左侧 -->
+  <!-- doorway 左右对称时的软偏好：右侧 viewpoint 增加代价，减少门口左右横跳。 -->
   <arg name="prefer_left_viewpoints" default="true"/>
   <arg name="left_preference_x_threshold" default="0.0"/>
   <arg name="right_viewpoint_cost_penalty" default="1.5"/>
 
-  <!-- Return-home target. By default, FUEL returns to the pose where exploration was triggered. -->
+  <!-- 单层 return-home：每层探索结束后回到该层电梯门前。
+       注意：这不是整场多楼层任务最终回出生点，最终回出生点在 fuel_multifloor_mission 中处理。 -->
   <arg name="return_home" default="true"/>
   <arg name="return_home_tolerance" default="0.3"/>
   <arg name="return_home_yaw_tolerance" default="0.6"/>
@@ -174,16 +177,29 @@
     <param name="position_cmd_topic" value="/position_cmd"/>
     <param name="odom_topic" value="$(arg odom_topic)"/>
     <param name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
-    <!-- PD gains (fallbacks; overridden by trajectory kx/kv when available) -->
+    <!-- 四足狗轨迹跟踪增益：
+         position_kp 不宜过大，否则低 RTF/窄门场景下容易追踪过激；
+         position_kd 提供速度阻尼；yaw_kp 控制朝向跟随强度。 -->
+    <!--
     <param name="position_kp" value="4.0"/>
     <param name="position_kd" value="1.5"/>
     <param name="yaw_kp" value="2.1"/>
-    <!-- feedforward gains -->
+    -->
+    <param name="position_kp" value="2.2"/>
+    <param name="position_kd" value="1.0"/>
+    <param name="yaw_kp" value="1.8"/>
+    <!--
     <param name="velocity_ff_gain" value="0.6"/>
     <param name="accel_ff_gain" value="0.1"/>
     <param name="yaw_ff_gain" value="0.0"/>
-    <!-- look-ahead for corner anticipation -->
     <param name="lookahead_time" value="0.0"/>
+    -->
+    <!-- 两层工厂 RTF 下降后，采用更温和的前馈/阻尼组合，避免单纯拉高 KP 导致饱和和抖动。 -->
+    <param name="velocity_ff_gain" value="0.7"/>
+    <param name="accel_ff_gain" value="0.0"/>
+    <param name="yaw_ff_gain" value="0.0"/>
+    <param name="lookahead_time" value="0.1"/>
+
     <!-- speed/accel limits -->
     <param name="max_linear_speed" value="$(arg max_vel)"/>
     <param name="max_lateral_speed" value="$(arg max_lateral_speed)"/>
@@ -202,9 +218,14 @@
     <param name="rotate_first_enter_yaw" value="0.523"/>
     <param name="rotate_first_exit_yaw" value="0.262"/>
     <param name="rotate_first_min_dist" value="0.1"/>
-    <!-- timing -->
+    <!-- timing：两层场景 Gazebo real time factor 下降时，0.5s timeout 容易误判命令/odom 过期。 -->
+    <!--
     <param name="command_timeout" value="0.5"/>
     <param name="odom_timeout" value="0.5"/>
+    -->
+    <param name="command_timeout" value="1.5"/>
+    <param name="odom_timeout" value="1.5"/>
+
     <param name="control_rate" value="30.0"/>
     <param name="publish_zero_before_first_cmd" value="false"/>
   </node>

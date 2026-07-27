@@ -308,7 +308,8 @@ void FastPlannerManager::planExploreTraj(const vector<Eigen::Vector3d>& tour,
     const Eigen::Vector3d& cur_vel, const Eigen::Vector3d& cur_acc, const double& time_lb) {
   if (tour.empty()) ROS_ERROR("Empty path to traj planner");
 
-  // Generate traj through waypoints-based method
+  // tour 通常来自 A* / frontier 全局访问序列，是一串离散路径点。
+  // 这里先用多项式轨迹穿过这些点，再参数化成 B 样条控制点。
   const int pt_num = tour.size();
   Eigen::MatrixXd pos(pt_num, 3);
   for (int i = 0; i < pt_num; ++i) pos.row(i) = tour[i];
@@ -321,7 +322,8 @@ void FastPlannerManager::planExploreTraj(const vector<Eigen::Vector3d>& tour,
   PolynomialTraj init_traj;
   PolynomialTraj::waypointsTraj(pos, cur_vel, zero, cur_acc, zero, times, init_traj);
 
-  // B-spline-based optimization
+  // B 样条优化阶段：在平滑、避障、时间等代价之间折中。
+  // 四足狗门口短路径偏离/打结问题，主要就发生在这一段离散路径到连续轨迹的转换里。
   vector<Vector3d> points, boundary_deri;
   double duration = init_traj.getTotalTime();
   int seg_num = init_traj.getLength() / pp_.ctrl_pt_dist;
@@ -351,9 +353,12 @@ void FastPlannerManager::planExploreTraj(const vector<Eigen::Vector3d>& tour,
   if (time_lb > 0) bspline_optimizers_[0]->setTimeLowerBound(time_lb);
 
   bspline_optimizers_[0]->optimize(ctrl_pts, dt, cost_func, 1, 1);
+  // 优化器可能会轻微改变边界控制点。这里把起点/终点和初始速度再钉回去，
+  // 保证 B 样条 t=0 的状态和四足狗当前状态一致。
   hardenCubicBoundary(ctrl_pts, dt, tour.front(), cur_vel, cur_acc, tour.back(), zero, zero);
   local_data_.position_traj_.setUniformBspline(ctrl_pts, pp_.bspline_degree_, dt);
 
+  // 发布调试速度，用于验证“B 样条初始速度方向是否和当前四足狗速度一致”。
   Eigen::Vector3d bspline_start_vel =
       local_data_.position_traj_.getDerivative().evaluateDeBoorT(0.0);
   geometry_msgs::TwistStamped current_velocity_msg;

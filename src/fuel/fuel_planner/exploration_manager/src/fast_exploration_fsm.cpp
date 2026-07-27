@@ -119,6 +119,8 @@ void FastExplorationFSM::FSMCallback(const ros::TimerEvent& e) {
 	      if (res == SUCCEED) {
 	        transitState(PUB_TRAJ, "FSM");
 	      } else if (res == NO_FRONTIER) {
+        // 没有 frontier 表示当前楼层/当前探索区域已经基本探索完成。
+        // 对四足狗任务来说，此时不直接 FINISH，而是优先进入 return-home 回到电梯门前。
         fd_->static_state_ = true;
         double dist_to_home = fd_->have_home_ ? (fd_->odom_pos_ - fd_->home_pos_).head<2>().norm() : -1.0;
         ROS_WARN("No frontier. return_home: %d, have_home: %d, dist_to_home: %.3f, tolerance: %.3f",
@@ -126,6 +128,7 @@ void FastExplorationFSM::FSMCallback(const ros::TimerEvent& e) {
         if (fp_->return_home_ && fd_->have_home_ &&
             dist_to_home > fp_->return_home_tolerance_) {
           ROS_WARN("Exploration finished, return home.");
+          // 通知外部任务节点：FUEL 已开始回家，可提前打开电梯门。
           return_home_start_pub_.publish(std_msgs::Empty());
           transitState(RETURN_HOME, "FSM");
         } else {
@@ -166,12 +169,14 @@ void FastExplorationFSM::FSMCallback(const ros::TimerEvent& e) {
         return;
       }
       // Replan if next frontier to be visited is covered
+      // 如果目标 frontier 已经被当前视野覆盖，继续执行旧轨迹意义不大，立即重规划。
       if (t_cur > fp_->replan_thresh2_ && expl_manager_->frontier_finder_->isFrontierCovered()) {
         transitState(PLAN_TRAJ, "FSM");
         ROS_WARN("Replan: cluster covered=====================================");
         return;
       }
       // Replan after some time
+      // 周期性重规划。四足狗场景下该阈值不能太小，否则门口/窄通道容易频繁换目标。
       if (t_cur > fp_->replan_thresh3_ && !classic_) {
         transitState(PLAN_TRAJ, "FSM");
         ROS_WARN("Replan: periodic call=======================================");
@@ -180,6 +185,7 @@ void FastExplorationFSM::FSMCallback(const ros::TimerEvent& e) {
 	    }
 
     case RETURN_HOME: {
+      // return-home 规划和普通探索共用 A* + B 样条链路，只是目标点固定为 home_pos_。
       fd_->start_pt_ = fd_->odom_pos_;
       fd_->start_vel_ = fd_->odom_vel_;
       fd_->start_acc_.setZero();
@@ -217,6 +223,7 @@ void FastExplorationFSM::FSMCallback(const ros::TimerEvent& e) {
       double yaw_error = std::fabs(normalizeYawError(fd_->home_yaw_ - fd_->odom_yaw_));
       if (dist_to_home <= fp_->return_home_tolerance_ &&
           yaw_error <= fp_->return_home_yaw_tolerance_) {
+        // 位置和朝向都满足阈值后，才认为本层 return-home 完成并向多楼层任务节点发 finish。
         ROS_INFO("return home finished. dist: %.3f, yaw error: %.3f", dist_to_home, yaw_error);
         fd_->static_state_ = true;
         finish_pub_.publish(std_msgs::Empty());

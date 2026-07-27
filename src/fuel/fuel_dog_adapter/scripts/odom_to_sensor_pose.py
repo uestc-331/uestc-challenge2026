@@ -9,6 +9,8 @@ from nav_msgs.msg import Odometry
 
 class OdomToSensorPose:
     def __init__(self) -> None:
+        # FUEL 建图需要的是“传感器在 world 下的位姿”，而四足狗仿真直接给的是机体 odom。
+        # 这里用机体 odom + 相机安装偏移，实时换算出深度相机 pose。
         odom_topic = rospy.get_param("~odom_topic", "/Odometry_gazebo")
         pose_topic = rospy.get_param("~pose_topic", "/fuel_dog_adapter/sensor_pose")
         self.frame_id = rospy.get_param("~frame_id", "world")
@@ -20,7 +22,8 @@ class OdomToSensorPose:
         self.sensor_pitch = rospy.get_param("~sensor_pitch", 0.0)
         self.sensor_yaw = rospy.get_param("~sensor_yaw", 0.0)
 
-        # FUEL depth projection assumes camera coordinates: x right, y down, z forward.
+        # FUEL 深度投影按相机光学坐标理解：x 向右、y 向下、z 向前。
+        # 四足狗 base 坐标通常是 x 前、y 左、z 上，因此需要这一步固定旋转。
         self.base_to_optical_q = tft.quaternion_from_matrix([
             [0.0, 0.0, 1.0, 0.0],
             [-1.0, 0.0, 0.0, 0.0],
@@ -40,6 +43,8 @@ class OdomToSensorPose:
         base_q = [q.x, q.y, q.z, q.w]
         base_rot = tft.quaternion_matrix(base_q)
 
+        # 相机安装偏移定义在机体系下，需要先随机器人姿态旋转到 world 系，
+        # 再叠加到 odom 位置上，得到真实传感器位置。
         offset_world_x = (
             base_rot[0][0] * self.sensor_offset_x
             + base_rot[0][1] * self.sensor_offset_y
@@ -62,6 +67,9 @@ class OdomToSensorPose:
         pose.pose.position.x = msg.pose.pose.position.x + offset_world_x
         pose.pose.position.y = msg.pose.pose.position.y + offset_world_y
         pose.pose.position.z = msg.pose.pose.position.z + offset_world_z
+
+        # 传感器姿态 = 机体姿态 * 安装角偏差 * 可选光学坐标修正。
+        # use_optical_frame=true 时，发布的是更适合深度相机投影的 optical frame。
         sensor_q = tft.quaternion_multiply(base_q, self.sensor_offset_q)
         if self.use_optical_frame:
             sensor_q = tft.quaternion_multiply(sensor_q, self.base_to_optical_q)

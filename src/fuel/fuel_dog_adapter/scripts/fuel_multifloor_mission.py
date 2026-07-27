@@ -24,6 +24,8 @@ def wrap_pi(value):
 
 class MultiFloorMission:
     def __init__(self):
+        # 多楼层任务总控：FUEL 只负责“当前楼层探索 + 回到电梯门前”；
+        # 本节点负责编排电梯、出入电梯、换层、重新启动 FUEL、最终回出生点。
         self.odom_topic = rospy.get_param("~odom_topic", "/Odometry_gazebo")
         self.cmd_vel_topic = rospy.get_param("~cmd_vel_topic", "/cmd_vel")
         self.finish_topic = rospy.get_param("~finish_topic", "/planning/finish")
@@ -35,7 +37,8 @@ class MultiFloorMission:
         self.start_floor = int(rospy.get_param("~start_floor", 0))
         self.floor_change_min_z = rospy.get_param("~floor_change_min_z", 1.0)
 
-        # Absolute world-frame navigation targets. Tune these for the generated building.
+        # 世界系导航目标。floor_exit 是每层出电梯后开始探索的位置；
+        # floor0_final 是所有楼层结束后，0 楼出电梯门后的中间点。
         self.elevator_inside_x = rospy.get_param("~elevator_inside_x", 0.0)
         self.elevator_inside_y = rospy.get_param("~elevator_inside_y", 3.0)
         self.elevator_inside_yaw = rospy.get_param("~elevator_inside_yaw", 0.0)
@@ -45,6 +48,13 @@ class MultiFloorMission:
         self.floor0_final_x = rospy.get_param("~floor0_final_x", self.floor_exit_x)
         self.floor0_final_y = rospy.get_param("~floor0_final_y", self.floor_exit_y)
         self.floor0_final_yaw = rospy.get_param("~floor0_final_yaw", self.floor_exit_yaw)
+
+        # final_home 是整场任务的最终目标：探索完所有楼层并回到 0 楼后，
+        # 不再停在电梯门口，而是继续回到机器人出生点。
+        self.go_final_home = rospy.get_param("~go_final_home", True)
+        self.final_home_x = rospy.get_param("~final_home_x", 0.0)
+        self.final_home_y = rospy.get_param("~final_home_y", -2.2)
+        self.final_home_yaw = rospy.get_param("~final_home_yaw", 1.5708)
 
         self.xy_tolerance = rospy.get_param("~xy_tolerance", 0.18)
         self.yaw_tolerance = rospy.get_param("~yaw_tolerance", 0.12)
@@ -114,6 +124,7 @@ class MultiFloorMission:
                 return
             self.return_door_opening = True
             self.return_door_event.clear()
+        # FUEL 刚进入 return-home 时就提前开门，避免狗已经回到电梯口还要等门。
         rospy.logwarn("multifloor mission: FUEL return-home started, opening elevator door on floor %d", floor)
         try:
             self.set_door(floor, True)
@@ -341,6 +352,9 @@ class MultiFloorMission:
         if pose is None:
             raise RuntimeError("No odometry for FUEL launch")
         x, y, z, yaw = pose
+
+        # 每一层高度可能不同，因此每次启动 FUEL 都用当前 odom 的 z 重新设置固定规划高度、
+        # viewpoint 高度和局部地图 z 范围，避免二楼/三楼沿用一楼高度。
         fixed_z = z
         viewpoint_z = z + self.viewpoint_z_offset
         ground_height = z - self.floor_z_box_low
@@ -358,6 +372,7 @@ class MultiFloorMission:
             "box_min_z:=%.3f" % box_min_z,
             "box_max_z:=%.3f" % box_max_z,
             "map_size_z:=%.3f" % self.map_size_z,
+            # 注意：这里的 return_home 是“本层探索结束回电梯门前”，不是整场任务最终出生点。
             "return_home_x:=%.3f" % self.floor_exit_x,
             "return_home_y:=%.3f" % self.floor_exit_y,
             "return_home_z:=%.3f" % fixed_z,
@@ -438,12 +453,14 @@ class MultiFloorMission:
         exploration_started = False
 
         while not rospy.is_shutdown():
+            # 1. 探索当前楼层。FUEL 内部在无 frontier 后会先 return-home 到该层电梯门前。
             if not exploration_started:
                 self.start_current_floor_exploration(
                     current_floor, first_floor=(current_floor == self.start_floor))
             exploration_started = False
             self.finish_current_floor_exploration()
 
+            # 2. 当前楼层探索完成后，进入电梯并尝试上到下一层。
             self.ensure_door_open(current_floor)
             if not self.go_to_pose(self.elevator_inside_x, self.elevator_inside_y,
                                    self.elevator_inside_yaw, "elevator inside"):
@@ -453,6 +470,7 @@ class MultiFloorMission:
 
             moved_up, new_floor = self.try_next_floor(current_floor)
             if moved_up:
+                # 3. 成功上楼后，先出电梯到 floor_exit，再启动新楼层 FUEL。
                 current_floor = new_floor
                 with self.lock:
                     self.current_floor = current_floor
@@ -469,6 +487,7 @@ class MultiFloorMission:
                 self.mark_door_closed()
                 continue
 
+            # 4. 没有更高楼层后，电梯回到 0 楼；出电梯后再可选回到出生点。
             rospy.logwarn("multifloor mission: top floor detected at floor %d, returning to floor 0", current_floor)
             resp = self.call_elevator(0)
             if not resp.accepted:
@@ -478,6 +497,11 @@ class MultiFloorMission:
             if not self.go_to_pose(self.floor0_final_x, self.floor0_final_y,
                                    self.floor0_final_yaw, "floor 0 final exit"):
                 raise RuntimeError("Failed to exit elevator on floor 0")
+            if self.go_final_home:
+                # 这里故意放在关门之前：回到 0 楼并出电梯门后，狗立即回出生点，不等待电梯门关闭。
+                if not self.go_to_pose(self.final_home_x, self.final_home_y,
+                                       self.final_home_yaw, "mission final home"):
+                    raise RuntimeError("Failed to return to mission final home")
             self.set_door(0, False)
             self.mark_door_closed()
             self.publish_zero()

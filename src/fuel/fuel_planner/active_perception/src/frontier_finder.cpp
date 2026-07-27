@@ -468,10 +468,11 @@ void FrontierFinder::computeFrontiersToVisit() {
   first_new_ftr_ = frontiers_.end();
   int new_num = 0;
   int new_dormant_num = 0;
-  // Try find viewpoints for each cluster and categorize them according to viewpoint number
+  // 对每个新 frontier 聚类采样可观察 viewpoint。
+  // 只有找到 viewpoint 的 frontier 才会进入 frontiers_，否则放入 dormant_frontiers_ 暂存。
   for (auto& tmp_ftr : tmp_frontiers_) {
     if (isInStartupIgnoreRegion(tmp_ftr.average_)) continue;
-    // Search viewpoints around frontier
+    // 在 frontier 周围采样候选 viewpoint，并过滤掉不在探索 box 或不安全的位置。
     sampleViewpoints(tmp_ftr);
     filterViewpointsInCurrentBox(tmp_ftr);
     if (!tmp_ftr.viewpoints_.empty()) {
@@ -483,7 +484,7 @@ void FrontierFinder::computeFrontiersToVisit() {
           [](const Viewpoint& v1, const Viewpoint& v2) { return v1.visib_num_ > v2.visib_num_; });
       if (first_new_ftr_ == frontiers_.end()) first_new_ftr_ = inserted;
     } else {
-      // Find no viewpoint, move cluster to dormant list
+      // 没有 viewpoint 的 frontier 暂时不可执行，不能直接作为下一目标。
       dormant_frontiers_.push_back(tmp_ftr);
       ++new_dormant_num;
     }
@@ -743,16 +744,16 @@ void FrontierFinder::findViewpoints(
   }
 }
 
-// Sample viewpoints around frontier's average position, check coverage to the frontier cells
+// 围绕 frontier 平均位置按半径/角度采样候选 viewpoint，并检查它能看到多少 frontier cells。
 void FrontierFinder::sampleViewpoints(Frontier& frontier) {
-  // Evaluate sample viewpoints on circles, find ones that cover most cells
+  // 对四足狗适配时，可通过 force_viewpoint_z_ 把 viewpoint 固定在行走高度附近。
   for (double rc = candidate_rmin_, dr = (candidate_rmax_ - candidate_rmin_) / candidate_rnum_;
        rc <= candidate_rmax_ + 1e-3; rc += dr)
     for (double phi = -M_PI; phi < M_PI; phi += candidate_dphi_) {
       Vector3d sample_pos = frontier.average_ + rc * Vector3d(cos(phi), sin(phi), 0);
       if (force_viewpoint_z_) sample_pos[2] = viewpoint_z_;
 
-      // Qualified viewpoint is in bounding box and in safe region
+      // 候选 viewpoint 必须在当前探索 box 内、不能落在膨胀障碍物里，也不能贴近未知区。
       if (!edt_env_->sdf_map_->isInBox(sample_pos) ||
           edt_env_->sdf_map_->getInflateOccupancy(sample_pos) == 1 || isNearUnknown(sample_pos))
         continue;
@@ -769,7 +770,7 @@ void FrontierFinder::sampleViewpoints(Frontier& frontier) {
       }
       avg_yaw = avg_yaw / cells.size() + atan2(ref_dir[1], ref_dir[0]);
       wrapYaw(avg_yaw);
-      // Compute the fraction of covered and visible cells
+      // 可见 frontier cell 数量超过阈值，才认为这个 viewpoint 有探索价值。
       int visib_num = countVisibleCells(sample_pos, avg_yaw, cells);
       if (visib_num > min_visib_num_) {
         Viewpoint vp = { sample_pos, avg_yaw, visib_num };

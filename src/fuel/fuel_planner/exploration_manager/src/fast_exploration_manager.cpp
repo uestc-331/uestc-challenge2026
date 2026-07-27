@@ -303,6 +303,8 @@ int FastExplorationManager::planExploreMotion(
 int FastExplorationManager::planReturnHome(const Vector3d& pos, const Vector3d& vel,
     const Vector3d& acc, const Vector3d& yaw, const Vector3d& home_pos, const double& home_yaw) {
   ros::Time t1 = ros::Time::now();
+  // return-home 不再做 frontier/viewpoint 选择，只清空探索候选信息，
+  // 然后直接从当前位置用 A* 搜到固定 home_pos，再生成 B 样条轨迹。
   ed_->points_.clear();
   ed_->views_.clear();
   ed_->global_tour_.clear();
@@ -315,6 +317,7 @@ int FastExplorationManager::planReturnHome(const Vector3d& pos, const Vector3d& 
             << ", home yaw: " << home_yaw << std::endl;
 
   planner_manager_->path_finder_->reset();
+  // 这里的 A* 是回家能否成功的第一道门槛；如果动态探索 box 把路径裁掉，就会 No path to home。
   if (planner_manager_->path_finder_->search(pos, home_pos) != Astar::REACH_END) {
     ROS_ERROR("No path to home");
     return FAIL;
@@ -325,6 +328,7 @@ int FastExplorationManager::planReturnHome(const Vector3d& pos, const Vector3d& 
   ed_->next_goal_ = home_pos;
   ed_->global_tour_ = ed_->path_next_goal_;
 
+  // 给 yaw 变化留出最低时间约束，避免位置轨迹很短但朝向来不及对准 home_yaw。
   double diff = std::fabs(std::atan2(std::sin(home_yaw - yaw[0]), std::cos(home_yaw - yaw[0])));
   double time_lb = diff / ViewNode::yd_;
   planner_manager_->planExploreTraj(ed_->path_next_goal_, vel, acc, time_lb);

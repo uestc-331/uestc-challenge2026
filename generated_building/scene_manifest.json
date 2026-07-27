@@ -19,7 +19,7 @@
     "z": 0.6
   },
   "schema": "competition_scene_manifest_v1",
-  "seed": 1350917065,
+  "seed": 1610401619,
   "source_count": 25,
   "truth_file": "/home/uestc/tzb/uestc-challenge2026/results/danger_truth.json",
   "validation_report": "/home/uestc/tzb/uestc-challenge2026/generated_building/generation_checks.json",
